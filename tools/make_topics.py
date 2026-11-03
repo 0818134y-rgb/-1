@@ -146,9 +146,12 @@ def main(out_path):
     sync = uniq(M.SYNC_PROMPTS, "sync prompt")
     questions = uniq(M.QUESTIONS, "question")
     guess = sorted({w for p in ww if p["c"] in M.GUESS_CATEGORIES for w in (p["a"], p["b"])})
+    draw_who = uniq(M.DRAW_WHO, "draw who")
+    draw_what = uniq(M.DRAW_WHAT, "draw what")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump({"version": 2, "wordwolf": ww, "ng": ng, "spy": spy, "sync": sync, "guess": guess, "questions": questions},
+        json.dump({"version": 2, "wordwolf": ww, "ng": ng, "spy": spy, "sync": sync, "guess": guess, "questions": questions,
+                   "drawWho": draw_who, "drawWhat": draw_what},
                   f, ensure_ascii=False, separators=(",", ":"))
     print("spy places:", len(spy), " sync prompts:", len(sync), " guess words:", len(guess), " questions:", len(questions))
     by = {}

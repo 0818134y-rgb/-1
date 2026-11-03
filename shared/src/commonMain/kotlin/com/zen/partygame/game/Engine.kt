@@ -9,6 +9,9 @@ const val AD_WAIT_MS = 25_000L
 /** スパイが選ぶ場所の候補数 */
 const val SPY_OPTIONS = 12
 const val MAX_ANSWER_LEN = 20
+/** お絵かき伝言：時間切れのあと、各端末からの自動送信を待つ猶予 */
+const val DRAW_GRACE_MS = 3_000L
+private val DRAWING_CHARS = Regex("^[A-Za-z0-9_-]*$")
 
 /**
  * ゲームの進行（ホストの端末だけで動く）。Android に依存しない純Kotlin。
@@ -30,6 +33,7 @@ class Engine(
         GUESS_PLAY, GUESS_RESULT,
         Q_VOTE, Q_REVEAL,
         ARENA, ARENA_RESULT,
+        DRAW_TASK, DRAW_REVEAL,
         AD_BREAK,
     }
     private enum class AfterAd { NEXT_ROUND, LOBBY }
@@ -87,6 +91,19 @@ class Engine(
     // --- なんでもアリーナ ---
     private var arena: ArenaGame? = null
 
+    // --- お絵かき伝言 ---
+    /** 始めたときの順番（途中で抜けた人も席は残して、白紙で回す） */
+    private var drawOrder = listOf<String>()
+    private var drawNames = mapOf<String, String>()
+    /** books[i] = drawOrder[i] が最初に書いたお題から始まる流れ */
+    private var books = listOf<MutableList<DrawEntry>>()
+    private var drawStep = 0
+    private val drawSubs = linkedMapOf<String, DrawEntry>()
+    private val suggestions = mutableMapOf<String, String>()
+    private var revealBook = 0
+    private var revealShown = 1
+    private var revealDone = false
+
     // --- 広告 ---
     private var lastAdAt = now()
     private var roundsSinceAd = 0
@@ -130,7 +147,9 @@ class Engine(
         qVotes.entries.removeAll { it.value == id }
         changed()
         when (phase) {
-            Phase.LOBBY, Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT -> Unit
+            Phase.LOBBY, Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT,
+            Phase.DRAW_REVEAL -> Unit
+            Phase.DRAW_TASK -> if (players.size < 2) toLobby() else { fillMissing(onlyGone = true); if (drawSubs.keys.containsAll(drawOrder)) nextDrawStep() }
             Phase.ARENA -> { arena?.forfeit(id); syncArena() }
             Phase.AD_BREAK -> if (adPending.isEmpty()) finishAdBreak()
             Phase.NG_PLAY -> {
@@ -197,6 +216,7 @@ class Engine(
                 Phase.WW_VOTE -> resolveVotes()
                 Phase.SYNC_ANSWER -> revealSync()
                 Phase.Q_VOTE -> revealQ()
+                Phase.DRAW_TASK -> { fillMissing(onlyGone = false); nextDrawStep() }
                 else -> Unit
             }
             is Intent.Accuse -> if (isHost && phase == Phase.WW_VOTE && localMode && intent.target in candidates) {
@@ -255,8 +275,16 @@ class Engine(
             is Intent.ArenaInput -> if (phase == Phase.ARENA && arena!!.input(from, intent.value)) { changed(); syncArena() }
             is Intent.ArenaReport -> if (phase == Phase.ARENA && arena!!.report(from, intent.target)) { changed(); syncArena() }
 
+            // --- お絵かき伝言 ---
+            is Intent.DrawSubmit -> if (phase == Phase.DRAW_TASK && intent.step == drawStep && from in drawOrder && from !in drawSubs) {
+                drawSubs[from] = entryOf(from, intent.text, intent.drawing); changed()
+                if (drawSubs.keys.containsAll(drawOrder)) nextDrawStep()
+            }
+
             // --- 共通 ---
-            Intent.Next -> if (isHost && isResult()) {
+            Intent.Next -> if (isHost && phase == Phase.DRAW_REVEAL && !revealDone) {
+                drawRevealNext()
+            } else if (isHost && isResult()) {
                 if (adDue()) startAdBreak(AfterAd.NEXT_ROUND) else startRound()
             }
             Intent.BackToLobby -> if (isHost && phase != Phase.LOBBY && phase != Phase.AD_BREAK) {
@@ -269,7 +297,8 @@ class Engine(
         return version != before
     }
 
-    private fun isResult() = phase in setOf(Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT)
+    private fun isResult() = phase in setOf(Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT) ||
+        (phase == Phase.DRAW_REVEAL && revealDone)
 
     /** 時間切れの処理。@return 状態が変わったら true */
     fun tick(): Boolean {
@@ -285,6 +314,7 @@ class Engine(
             Phase.NG_PLAY -> finishNg()
             Phase.SYNC_ANSWER -> revealSync()
             Phase.GUESS_PLAY -> { guesser = null; finishGuess() }
+            Phase.DRAW_TASK -> { fillMissing(onlyGone = false); nextDrawStep() }
             Phase.AD_BREAK -> finishAdBreak()
             else -> { deadline = null; changed() }
         }
@@ -304,6 +334,7 @@ class Engine(
             GameType.GUESS -> startGuess()
             GameType.QUESTION -> startQ()
             GameType.ARENA -> startArena()
+            GameType.DRAW -> startDraw()
         }
     }
 
@@ -441,7 +472,6 @@ class Engine(
     // --- なんでもアリーナ ---
 
     /** テスト用 */
-    /** テスト用 */
     fun arenaForTest() = arena
 
     private fun startArena() {
@@ -457,6 +487,97 @@ class Engine(
             roundsSinceAd++
             phase = Phase.ARENA_RESULT; deadline = null; changed()
         }
+    }
+
+    // --- お絵かき伝言 ---
+    // 手番 s で、drawOrder[i] の人は books[(i - s) mod n] の続きをやる。0手目は書く、奇数は描く、偶数は答える
+
+    private fun kindOf(step: Int) = when {
+        step == 0 -> DrawKind.WRITE
+        step % 2 == 1 -> DrawKind.DRAW
+        else -> DrawKind.GUESS
+    }
+
+    private fun bookFor(id: String): Int {
+        val n = drawOrder.size; val i = drawOrder.indexOf(id)
+        return ((i - drawStep) % n + n) % n
+    }
+
+    private fun entryOf(id: String, rawText: String, rawDrawing: String): DrawEntry {
+        val kind = kindOf(drawStep)
+        val name = drawNames[id] ?: "?"
+        return if (kind == DrawKind.DRAW) {
+            val d = rawDrawing.take(MAX_DRAWING_CHARS)
+            DrawEntry(id, name, kind, drawing = if (DRAWING_CHARS.matches(d)) d else "")
+        } else {
+            val t = rawText.trim().replace("\n", " ").take(MAX_DRAW_TEXT_LEN)
+            DrawEntry(id, name, kind, text = t.ifEmpty { if (kind == DrawKind.WRITE) (suggestions[id] ?: "？") else "（わからない…）" })
+        }
+    }
+
+    /** 出していない人の分を埋める。onlyGone なら抜けた人の分だけ */
+    private fun fillMissing(onlyGone: Boolean) {
+        val here = ids().toSet()
+        for (id in drawOrder) if (id !in drawSubs && (!onlyGone || id !in here)) drawSubs[id] = entryOf(id, "", "")
+        changed()
+    }
+
+    private fun startDraw() {
+        drawOrder = ids().shuffled(rng)
+        drawNames = players.associate { it.id to it.name }
+        books = drawOrder.map { mutableListOf() }
+        drawStep = -1
+        nextDrawStep()
+    }
+
+    /** 全員分そろった手番を本に書き込み、次の手番（最後なら発表）へ */
+    private fun nextDrawStep() {
+        if (drawStep >= 0) for (id in drawOrder) books[bookFor(id)] += drawSubs[id] ?: entryOf(id, "", "")
+        drawSubs.clear()
+        drawStep++
+        if (drawStep >= drawOrder.size) {
+            revealBook = 0; revealShown = 1; revealDone = false
+            roundsSinceAd++
+            phase = Phase.DRAW_REVEAL; deadline = null; changed(); return
+        }
+        suggestions.clear()
+        if (kindOf(drawStep) == DrawKind.WRITE) for (id in drawOrder) suggestions[id] = topics.drawPrompt(rng)
+        val sec = if (kindOf(drawStep) == DrawKind.DRAW) settings.drawSec else settings.writeSec
+        phase = Phase.DRAW_TASK; deadline = now() + sec * 1000L + DRAW_GRACE_MS; changed()
+        fillMissing(onlyGone = true)
+        if (drawSubs.keys.containsAll(drawOrder)) nextDrawStep()
+    }
+
+    private fun drawRevealNext() {
+        when {
+            revealShown < books[revealBook].size -> revealShown++
+            revealBook < books.size - 1 -> { revealBook++; revealShown = 1 }
+            else -> revealDone = true
+        }
+        changed()
+    }
+
+    private fun drawTaskFor(id: String): Screen.DrawTask {
+        val kind = kindOf(drawStep)
+        val inOrder = id in drawOrder
+        val prev = if (inOrder && drawStep > 0) books[bookFor(id)].lastOrNull() else null
+        return Screen.DrawTask(
+            step = drawStep, steps = drawOrder.size, kind = kind,
+            text = prev?.text?.takeIf { kind == DrawKind.DRAW },
+            drawing = prev?.drawing?.takeIf { kind == DrawKind.GUESS },
+            suggestion = if (kind == DrawKind.WRITE) suggestions[id] else null,
+            submitted = !inOrder || id in drawSubs,
+            done = drawSubs.keys.filter { it in ids() },
+        )
+    }
+
+    private fun drawRevealView(): Screen.DrawReveal {
+        val owner = drawOrder[revealBook]
+        val book = books[revealBook]
+        return Screen.DrawReveal(
+            book = revealBook, books = books.size, owner = owner, ownerName = drawNames[owner] ?: "?",
+            entries = book.take(revealShown), total = book.size, finished = revealDone,
+        )
     }
 
     // ================= 広告休憩 =================
@@ -505,6 +626,8 @@ class Engine(
                 players.map { p -> VoteCount(p.id, qVotes.values.count { it == p.id }) }.filter { it.votes > 0 }.sortedByDescending { it.votes },
             )
             Phase.ARENA, Phase.ARENA_RESULT -> arena!!.view(id)
+            Phase.DRAW_TASK -> drawTaskFor(id)
+            Phase.DRAW_REVEAL -> drawRevealView()
             Phase.AD_BREAK -> Screen.AdBreak(breakId)
         }
         return PlayerView(
@@ -512,7 +635,11 @@ class Engine(
             players = players.toList(), settings = settings.copy(game = if (phase == Phase.LOBBY) settings.game else current),
             categories = topics.categories,
             screen = screen,
-            remainingMs = (if (phase == Phase.ARENA) arena?.deadline else deadline)?.let { (it - now()).coerceAtLeast(0) },
+            remainingMs = when (phase) {
+                Phase.ARENA -> arena?.deadline
+                Phase.DRAW_TASK -> deadline?.minus(DRAW_GRACE_MS)
+                else -> deadline
+            }?.let { (it - now()).coerceAtLeast(0) },
         )
     }
 

@@ -24,7 +24,7 @@ def page(title, body, head_extra='', ad=''):
     return f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{html.escape(title)}｜わちゃパ</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
-<meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど7つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">
+<meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど8つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">
 {head_extra}<style>{CSS}</style></head><body>
 <header><a href="./">わちゃパ</a><a href="howto.html">遊び方</a><a href="about.html">このサイトについて</a><a href="privacy.html">プライバシー</a><a class="play" href="./">遊ぶ</a></header>
 <main>{body}{('<div style="text-align:center;margin:30px 0">' + ad + '</div>') if ad else ''}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">お問い合わせ</a></footer></body></html>
@@ -47,14 +47,16 @@ GAMES = [
      '出題者だけが答えを知っています。ほかの人は「はい・いいえ」で答えられる質問をして、時間内に答えを当てます。当てた人と出題者に1点。'),
     ('icon_question', 'ぶっちゃけ質問', '3人〜',
      '「この中で一番〇〇なのは？」に全員が匿名で投票して、結果を発表します。だれが誰に入れたかは表示されません。'),
+    ('icon_draw', 'お絵かき伝言', '3人〜',
+     '最初に全員がお題（「ねこが空を飛んでいる」など）を書きます。それが隣の人に回り、絵にします。次の人はその絵だけを見て何の絵か文で答え、さらに次の人がその文を絵に…と全員分くり返します。最後に、お題がどう変わっていったかを1コマずつ発表して笑いましょう。'),
 ]
 
 
 def howto(cards, chaos):
-    b = '<h1>遊び方・カード一覧</h1><p>このサイトでは、みんなで集まって（または通話しながら）遊ぶ7つのパーティーゲームを無料で遊べます。アプリのインストールは不要で、iPhone・Android・PC のブラウザからそのまま遊べます。</p>'
+    b = '<h1>遊び方・カード一覧</h1><p>このサイトでは、みんなで集まって（または通話しながら）遊ぶ8つのパーティーゲームを無料で遊べます。アプリのインストールは不要で、iPhone・Android・PC のブラウザからそのまま遊べます。</p>'
     b += '<h2>はじめ方</h2><div class="box"><ol><li>1人が名前を入れて「部屋を作る」を押すと、6けたの部屋コードが出ます。</li><li>ほかの人は「部屋に参加する」で同じ部屋コードを入れます（Android アプリの人は「オンライン」に切り替えてから）。</li><li>部屋を作った人（ホスト）がゲームを選んで「はじめる」を押します。</li></ol>'
     b += '<p class="muted">iPhone は Safari の共有ボタン →「ホーム画面に追加」で、アプリのように全画面で遊べます。話して遊ぶゲームは、離れているときは通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</p></div>'
-    b += '<h2>7つのゲーム</h2>'
+    b += '<h2>8つのゲーム</h2>'
     for icon, name, n, text in GAMES:
         b += f'<div class="box game"><img src="img/{icon}.webp" alt=""><div><h3>{html.escape(name)}<span class="muted">（{n}）</span></h3><p>{html.escape(text)}</p></div></div>'
     b += '<h2>なんでもアリーナのカード</h2><p>全部で50枚（うち★のスターカード14枚）。同じ名前でも、出してから効果がわかるカードがあります（「全員じゃんけん」は負ける手が4種類、「せーのでゆび」は4種類）。</p><div class="cards">'
@@ -73,7 +75,7 @@ def howto(cards, chaos):
 
 def about():
     return f'''<h1>このサイトについて</h1>
-<p>「わちゃパ」は、友だちや家族と集まったとき、または通話しながら遊べるパーティーゲーム集です。なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問の7つを、無料で遊べます。</p>
+<p>「わちゃパ」は、友だちや家族と集まったとき、または通話しながら遊べるパーティーゲーム集です。なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問・お絵かき伝言の8つを、無料で遊べます。</p>
 <h2>遊べる端末</h2><ul><li>iPhone・iPad（Safari。ホーム画面に追加するとアプリのように使えます）</li><li>Android（ブラウザ、または Android アプリ）</li><li>パソコン（Edge・Chrome などのブラウザ、または PC 版の「遊ぶ.bat」）</li></ul>
 <p>どの端末どうしでも、部屋コードを使って同じ部屋で遊べます。</p>
 <h2>しくみ</h2><p>このサイトは運営者のサーバーを使っていません。ゲームの進行は部屋を作った人の端末の中で行われ、参加者の端末どうしが直接通信します（相手を見つけるときだけ PeerJS の仲介サーバーを使います）。そのため、入力した名前や答えが運営者に届くことはありません。</p>

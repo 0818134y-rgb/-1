@@ -64,9 +64,11 @@ class NearbyLink(context: Context) : Link {
     private val _events = MutableSharedFlow<NetEvent>(extraBufferCapacity = 256, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val events: SharedFlow<NetEvent> = _events
 
+    private val chunks = Chunker()
+
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
-            payload.asBytes()?.let { _events.tryEmit(NetEvent.Received(endpointId, it)) }
+            payload.asBytes()?.let { b -> chunks.accept(endpointId, b)?.let { _events.tryEmit(NetEvent.Received(endpointId, it)) } }
         }
         override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) = Unit
     }
@@ -88,7 +90,7 @@ class NearbyLink(context: Context) : Link {
             }
         }
         override fun onDisconnected(endpointId: String) {
-            _events.tryEmit(NetEvent.Disconnected(endpointId))
+            chunks.forget(endpointId); _events.tryEmit(NetEvent.Disconnected(endpointId))
         }
     }
 
@@ -133,10 +135,12 @@ class NearbyLink(context: Context) : Link {
     }
 
     override fun send(endpointIds: List<String>, bytes: ByteArray) {
-        if (endpointIds.isNotEmpty()) client.sendPayload(endpointIds, Payload.fromBytes(bytes))
+        if (endpointIds.isEmpty()) return
+        // 1回で送れるのは 32KB まで。お絵かきの絵などで大きくなったら分けて送る
+        for (part in chunks.split(bytes)) client.sendPayload(endpointIds, Payload.fromBytes(part))
     }
 
-    override fun disconnect(endpointId: String) = client.disconnectFromEndpoint(endpointId)
+    override fun disconnect(endpointId: String) { chunks.forget(endpointId); client.disconnectFromEndpoint(endpointId) }
 
     override fun stopAll() {
         client.stopAdvertising(); client.stopDiscovery(); client.stopAllEndpoints()

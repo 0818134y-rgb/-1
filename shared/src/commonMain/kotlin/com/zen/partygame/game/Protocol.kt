@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** 通信の版。違う版の端末どうしは同じ部屋に入れない */
-const val PROTO = 4
+const val PROTO = 5
 const val MIN_PLAYERS = 3
 const val MAX_PLAYERS_NEARBY = 8
 const val MAX_PLAYERS_LOCAL = 12
@@ -26,7 +26,15 @@ enum class GameType(val label: String, val short: String, val localOk: Boolean, 
     SYNC("みんなでシンクロ", "シンクロ", false, 2),
     GUESS("質問で当てろ", "質問当て", true, 2),
     QUESTION("ぶっちゃけ質問", "ぶっちゃけ", false, 3),
+    DRAW("お絵かき伝言", "お絵かき", false, 3),
 }
+
+/** お絵かき伝言の各手番でやること */
+enum class DrawKind { WRITE, DRAW, GUESS }
+
+/** 絵のデータ（DrawingCodec の形式）の上限文字数 */
+const val MAX_DRAWING_CHARS = 16000
+const val MAX_DRAW_TEXT_LEN = 40
 enum class NgLevel { NORMAL, HARD, MIX }
 enum class Team { CITIZEN, WOLF }
 
@@ -64,6 +72,10 @@ data class Settings(
     val arenaTurnSec: Int = 60,
     /** なんでもアリーナで「今夜のルール」を入れるか */
     val arenaChaos: Boolean = true,
+    /** お絵かき伝言：絵を描く時間（秒） */
+    val drawSec: Int = 90,
+    /** お絵かき伝言：お題を書く・絵を見て答える時間（秒） */
+    val writeSec: Int = 45,
 ) {
     fun sanitized(): Settings = copy(
         talkSec = talkSec.coerceIn(60, 600),
@@ -72,6 +84,8 @@ data class Settings(
         syncSec = syncSec.coerceIn(0, 300),
         guessSec = guessSec.coerceIn(60, 600),
         arenaTurnSec = arenaTurnSec.coerceIn(0, 300),
+        drawSec = drawSec.coerceIn(30, 300),
+        writeSec = writeSec.coerceIn(15, 180),
     )
 }
 
@@ -114,6 +128,9 @@ sealed interface Intent {
     /** なんでもアリーナ：場のルール違反を報告 */
     @Serializable @SerialName("arenaReport") data class ArenaReport(val target: String) : Intent
 
+    /** お絵かき伝言：書いた文・描いた絵を出す（step は今の手番の番号。古い手番の送信は無視される） */
+    @Serializable @SerialName("drawSubmit") data class DrawSubmit(val step: Int, val text: String = "", val drawing: String = "") : Intent
+
     @Serializable @SerialName("next") data object Next : Intent
     @Serializable @SerialName("lobby") data object BackToLobby : Intent
     @Serializable @SerialName("adDone") data class AdDone(val breakId: Int) : Intent
@@ -149,6 +166,17 @@ data class ArenaMini(
     val card: String? = null,
     /** 鼻タッチ：合図ずみなら 0、まだなら null */
     val goInMs: Long? = null,
+)
+
+/** お絵かき伝言の1コマ（文か絵） */
+@Serializable
+data class DrawEntry(
+    val by: String,
+    /** 途中で抜けた人の名前も出せるように */
+    val byName: String,
+    val kind: DrawKind,
+    val text: String = "",
+    val drawing: String = "",
 )
 
 /** シンクロで同じ答えだった人たち */
@@ -268,6 +296,31 @@ sealed interface Screen {
 
     @Serializable @SerialName("arenaResult")
     data class ArenaResult(val winners: List<String>, val seats: List<ArenaSeat>, val log: List<String>, val chaos: Chaos?) : Screen
+
+    /** お絵かき伝言の手番。text は描くお題、drawing は当てる絵、suggestion は書くときのおまかせお題 */
+    @Serializable @SerialName("drawTask")
+    data class DrawTask(
+        val step: Int,
+        val steps: Int,
+        val kind: DrawKind,
+        val text: String? = null,
+        val drawing: String? = null,
+        val suggestion: String? = null,
+        val submitted: Boolean = false,
+        val done: List<String> = emptyList(),
+    ) : Screen
+
+    /** お絵かき伝言の発表。ホストが1コマずつめくる */
+    @Serializable @SerialName("drawReveal")
+    data class DrawReveal(
+        val book: Int,
+        val books: Int,
+        val owner: String,
+        val ownerName: String,
+        val entries: List<DrawEntry>,
+        val total: Int,
+        val finished: Boolean,
+    ) : Screen
 
     @Serializable @SerialName("adBreak")
     data class AdBreak(val breakId: Int) : Screen

@@ -19,6 +19,8 @@ data class TopicFile(
     val sync: List<String> = emptyList(),
     val guess: List<String> = emptyList(),
     val questions: List<String> = emptyList(),
+    val drawWho: List<String> = emptyList(),
+    val drawWhat: List<String> = emptyList(),
 )
 
 /** お題の山。同じ部屋の中では、全部使い切るまで同じお題を出さない */
@@ -73,6 +75,10 @@ class TopicBank(private val file: TopicFile) {
     fun drawSync(rng: Random) = drawFrom("sync", file.sync, rng)
     fun drawGuess(rng: Random) = drawFrom("guess", file.guess, rng)
     fun drawQuestion(rng: Random) = drawFrom("q", file.questions, rng)
+    /** お絵かき伝言のおまかせお題（だれが＋何をしている） */
+    fun drawPrompt(rng: Random): String =
+        if (file.drawWho.isEmpty() || file.drawWhat.isEmpty()) drawGuess(rng)
+        else drawFrom("dwho", file.drawWho, rng) + "が" + drawFrom("dwhat", file.drawWhat, rng)
 
     /** スパイが選ぶ場所の候補（正解を含めて count 個） */
     fun spyOptions(correct: String, count: Int, rng: Random): List<String> =

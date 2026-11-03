@@ -113,13 +113,17 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
         Screen.Lobby, is Screen.ArenaResult, is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult, is Screen.QReveal -> true
         else -> false
     }
+    val scroll = rememberScrollState()
+    // お絵かき伝言の発表：新しいコマがめくられたら下までスクロール
+    val revealKey = (v.screen as? Screen.DrawReveal)?.let { it.book * 100 + it.entries.size }
+    LaunchedEffect(revealKey) { if (revealKey != null) { delay(120); scroll.animateScrollTo(scroll.maxValue) } }
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(if (v.localMode) "1台モード" else (if (state.online) "🌐 " else "📶 ") + "部屋 ${v.roomCode}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
             TextButton(onClick = { confirmLeave = true }) { Text("退出") }
         }
         Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp),
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(scroll).padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             when (val s = v.screen) {
@@ -142,6 +146,8 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
                 is Screen.Arena -> ArenaPlay(vm, v, s, state.receivedAt)
                 is Screen.ArenaResult -> ArenaResult(vm, v, s) { NextButtons(vm, v, "もう一戦") }
                 is Screen.AdBreak -> AdBreak(vm, s)
+                is Screen.DrawTask -> DrawTask(vm, v, s, rememberRemainingMs(v, state.receivedAt))
+                is Screen.DrawReveal -> DrawReveal(vm, v, s) { NextButtons(vm, v, "もう一回") }
             }
             Spacer(Modifier.height(8.dp))
         }
@@ -165,6 +171,7 @@ fun gameIcon(g: GameType): Int = when (g) {
     GameType.SYNC -> R.drawable.icon_sync
     GameType.GUESS -> R.drawable.icon_guess
     GameType.QUESTION -> R.drawable.icon_question
+    GameType.DRAW -> R.drawable.icon_draw
 }
 
 private fun gameSummary(st: Settings): String = when (st.game) {
@@ -175,6 +182,7 @@ private fun gameSummary(st: Settings): String = when (st.game) {
     GameType.SYNC -> if (st.syncSec == 0) "回答時間 制限なし" else "回答時間 ${st.syncSec}秒"
     GameType.GUESS -> "制限時間 ${st.guessSec / 60}分"
     GameType.QUESTION -> "全員で匿名投票"
+    GameType.DRAW -> "描く ${st.drawSec}秒・書く ${st.writeSec}秒"
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -267,6 +275,15 @@ private fun Lobby(vm: AppViewModel, v: PlayerView, online: Boolean) {
                     listOf(120, 180, 300).forEach { sec -> FilterChip(st.guessSec == sec, { set(st.copy(guessSec = sec)) }, { Text("${sec / 60}分") }) }
                 }
                 GameType.QUESTION -> Caption("設定はありません。だれが誰に入れたかは表示されません。")
+                GameType.DRAW -> {
+                    Caption("お題を書く → 次の人が絵にする → 次の人がその絵を見て答える…を全員分くり返し、最後にどう伝わったかを発表します（3〜8人）。")
+                    ChipRow("絵を描く時間") {
+                        listOf(60, 90, 120, 180).forEach { sec -> FilterChip(st.drawSec == sec, { set(st.copy(drawSec = sec)) }, { Text("${sec}秒") }) }
+                    }
+                    ChipRow("お題を書く・答える時間") {
+                        listOf(30, 45, 60, 90).forEach { sec -> FilterChip(st.writeSec == sec, { set(st.copy(writeSec = sec)) }, { Text("${sec}秒") }) }
+                    }
+                }
             }
         }
         val need = st.game.minPlayers

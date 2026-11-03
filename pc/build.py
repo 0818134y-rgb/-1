@@ -75,7 +75,7 @@ json.dump({'name': 'わちゃパ（パーティーゲーム）', 'short_name': '
                     + [{'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'}]},
           open(os.path.join(G, 'manifest.webmanifest'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 html = open(os.path.join(G, 'index.html'), encoding='utf-8').read()
-html = html.replace('<title>', '<meta name="version" content="%s">\n<meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど7つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">\n%s<title>' % (VERSION, HEAD_ADS))
+html = html.replace('<title>', '<meta name="version" content="%s">\n<meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど8つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">\n%s<title>' % (VERSION, HEAD_ADS))
 open(os.path.join(G, 'index.html'), 'w', encoding='utf-8').write(html)
 
 # サービスワーカー：ゲームのファイルを端末に保存（中身のハッシュを版名に入れるので、更新すると古い保存は消える）
@@ -131,7 +131,7 @@ open(os.path.join(D, 'site.txt'), 'w', encoding='ascii').write(SITE)
 readme = f'''わちゃパ PC 版 v{VERSION}
 ================================
 スマホのアプリ（「オンライン」に切り替えたとき）と同じ部屋で遊べます。
-なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問
+なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問・お絵かき伝言
 
 ■ 遊び方
   1. この zip を好きな場所に「すべて展開」する

@@ -189,6 +189,25 @@ class ScreenshotTest {
         shot("33_title_online", Ui.Title)
         shot("34_online_join", Ui.OnlineJoin(busy = false))
         shot("35_lobby_online", Ui.Room(ar.also { it.apply("h", Intent.BackToLobby) }.viewFor("h"), 0L, online = true))
+
+        // --- お絵かき伝言 ---
+        val dr = engine(settings = Settings(game = GameType.DRAW))
+        shot("36_lobby_draw", Ui.Room(dr.viewFor("h"), 0L, online = true))
+        dr.apply("h", Intent.Start)
+        shot("37_draw_write", room(dr, "h"))
+        dr.players.forEach { p -> dr.apply(p.id, Intent.DrawSubmit(0, text = "ねこが月面でバーベキューをしている")) }
+        shot("38_draw_draw", room(dr, "h"))
+        val pic = com.zen.partygame.game.DrawingCodec.encode(listOf(
+            com.zen.partygame.game.DrawingCodec.Stroke(1, 2, intArrayOf(60, 120, 80, 70, 128, 50, 176, 70, 196, 120, 176, 160, 128, 170, 80, 160, 60, 120)),
+            com.zen.partygame.game.DrawingCodec.Stroke(4, 3, intArrayOf(100, 100, 110, 96)),
+            com.zen.partygame.game.DrawingCodec.Stroke(3, 1, intArrayOf(110, 140, 128, 150, 146, 140)),
+            com.zen.partygame.game.DrawingCodec.Stroke(8, 0, intArrayOf(150, 100)),
+        ))
+        dr.players.forEach { p -> dr.apply(p.id, Intent.DrawSubmit(1, drawing = pic)) }
+        shot("39_draw_guess", room(dr, "h"))
+        repeat(3) { st -> dr.players.forEach { p -> dr.apply(p.id, if ((st + 2) % 2 == 1) Intent.DrawSubmit(st + 2, drawing = pic) else Intent.DrawSubmit(st + 2, text = "宇宙でラーメン")) } }
+        repeat(2) { dr.apply("h", Intent.Next) }
+        shot("40_draw_reveal", room(dr, "h"))
         vm.setOnline(false)
         val local = engine(local = true)
         local.apply("h", Intent.Start)

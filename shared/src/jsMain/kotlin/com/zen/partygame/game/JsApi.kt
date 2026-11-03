@@ -39,6 +39,40 @@ class JsHost(roomCode: String, topicsJson: String) {
 
 @JsExport fun protoVersion(): Int = PROTO
 
+/** お絵かき伝言の絵：[[色, 太さ, [x, y, x, y, …]], …] の JSON ⇔ 送る文字列 */
+@JsExport fun drawingEncode(strokesJson: String): String {
+    val arr = runCatching { WireJson.parseToJsonElement(strokesJson) as JsonArray }.getOrNull() ?: return ""
+    val strokes = arr.mapNotNull { e ->
+        runCatching {
+            val a = e as JsonArray
+            val pts = (a[2] as JsonArray).map { (it as kotlinx.serialization.json.JsonPrimitive).content.toDouble().toInt() }.toIntArray()
+            DrawingCodec.Stroke(
+                (a[0] as kotlinx.serialization.json.JsonPrimitive).content.toInt(),
+                (a[1] as kotlinx.serialization.json.JsonPrimitive).content.toInt(),
+                if (pts.size % 2 == 0) pts else pts.copyOf(pts.size - 1),
+            )
+        }.getOrNull()
+    }
+    return DrawingCodec.encode(strokes)
+}
+
+@JsExport fun drawingDecode(text: String): String = buildString {
+    append('[')
+    DrawingCodec.decode(text).forEachIndexed { i, s ->
+        if (i > 0) append(',')
+        append('[').append(s.color).append(',').append(s.width).append(",[")
+        append(s.points.joinToString(","))
+        append("]]")
+    }
+    append(']')
+}
+
+/** 文字数の上限に対して、あと何点描けるか */
+@JsExport fun drawingPointsLeft(strokesJson: String): Int {
+    val enc = drawingEncode(strokesJson)
+    return ((MAX_DRAWING_CHARS - enc.length) * 3 / 8).coerceAtLeast(0)
+}
+
 /** カードの一覧（名前・文・絵など）。PC 版の表示に使う */
 @JsExport fun arenaCardsJson(): String = JsonArray(ArenaCards.all.map { d ->
     buildJsonObject {
@@ -57,4 +91,9 @@ class JsHost(roomCode: String, topicsJson: String) {
     put("proto", PROTO)
     put("maxPlayers", MAX_PLAYERS_NEARBY)
     put("noseWindowMs", ArenaGame.NOSE_WINDOW_MS)
+    put("draw", buildJsonObject {
+        put("w", DrawingCodec.W); put("h", DrawingCodec.H); put("maxChars", MAX_DRAWING_CHARS); put("maxText", MAX_DRAW_TEXT_LEN)
+        put("colors", JsonArray(DrawingCodec.COLORS.map { kotlinx.serialization.json.JsonPrimitive("#" + (it and 0xFFFFFF).toString(16).padStart(6, '0')) }))
+        put("widths", JsonArray(DrawingCodec.WIDTHS.map { kotlinx.serialization.json.JsonPrimitive(it) }))
+    })
 }.toString()

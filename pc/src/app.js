@@ -256,11 +256,18 @@
       const v = S.view;
       bar.hidden = false;
       document.getElementById('roomLabel').textContent = '🌐 部屋 ' + v.roomCode + (v.isHost ? '（あなたがホスト）' : '');
+      // お絵かき中は、ほかの人が送っただけなら画面を作り直さない（描きかけの絵や入力を消さないため）
+      const root = document.getElementById('drawRoot');
+      if (v.screen.t === 'drawTask' && root && root.dataset.key === drawKey(v.screen) && S.ui.drawStep === v.screen.step) {
+        document.getElementById('drawStatus').innerHTML = drawStatus(v, v.screen);
+        showBanner(false); tickTimers(); return;
+      }
       html = screenHtml(v);
       banner = ['lobby', 'arenaResult', 'wwResult', 'ngResult', 'syncReveal', 'guessResult', 'qReveal'].indexOf(v.screen.t) >= 0;
       if (v.screen.t === 'adBreak') adBreak(v.screen.breakId);
     }
     $main.innerHTML = html;
+    hydrateDraw();
     showBanner(banner);
     if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (e) {} } }
     tickTimers();
@@ -268,6 +275,7 @@
 
   function tickTimers() {
     const r = remaining();
+    if (r != null && r <= 0 && S.view && S.view.screen.t === 'drawTask' && !S.view.screen.submitted) drawSend();
     document.querySelectorAll('[data-timer]').forEach(function (el) {
       if (r == null) { el.textContent = ''; return; }
       el.textContent = fmt(r); el.classList.toggle('low', r < Number(el.dataset.low || 10000));
@@ -283,7 +291,7 @@
     return '<div class="title">' +
       '<div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div>' +
       '<div class="stack">' +
-      '<div class="row">' + img('char_wolf_hello', 96) + '<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード ほか全7種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div>' +
+      '<div class="row">' + img('char_wolf_hello', 96) + '<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード・お絵かき伝言 ほか全8種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div>' +
       '<input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="' + esc(S.name) + '">' +
       '<button class="big" data-act="host"' + (S.name.trim() ? '' : ' disabled') + '>' + img('icon_create', 36) + '部屋を作る</button>' +
       '<button class="big sec" data-act="toJoin"' + (S.name.trim() ? '' : ' disabled') + '>' + img('icon_join', 36) + '部屋に参加する</button>' +
@@ -337,6 +345,8 @@
       case 'qReveal': return qReveal(v, s);
       case 'arena': return arena(v, s);
       case 'arenaResult': return arenaResult(v, s);
+      case 'drawTask': return drawTask(v, s);
+      case 'drawReveal': return drawReveal(v, s);
       case 'adBreak': return '<div class="center" style="margin-top:80px">' + img('icon_tea', 120, 'art') + '<h2>ちょっと休憩…</h2><div class="cap">全員の準備ができたら次へ進みます</div></div>';
       default: return '<div class="cap">（この画面は PC 版では表示できません）</div>';
     }
@@ -344,7 +354,7 @@
 
   // ---------- ロビー ----------
 
-  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question' };
+  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question', DRAW: 'icon_draw' };
   function summary(st) {
     switch (st.game) {
       case 'ARENA': return (st.arenaTurnSec === 0 ? '手番の制限なし' : '手番 ' + st.arenaTurnSec + '秒') + (st.arenaChaos ? '・今夜のルールあり' : '');
@@ -353,6 +363,7 @@
       case 'NG_WORD': return '制限時間 ' + st.ngSec / 60 + '分';
       case 'SYNC': return st.syncSec === 0 ? '回答時間 制限なし' : '回答時間 ' + st.syncSec + '秒';
       case 'GUESS': return '制限時間 ' + st.guessSec / 60 + '分';
+      case 'DRAW': return '描く ' + st.drawSec + '秒・書く ' + st.writeSec + '秒';
       default: return '全員で匿名投票';
     }
   }
@@ -402,6 +413,11 @@
           break;
         case 'GUESS':
           h += chips('制限時間', [120, 180, 300].map(function (x) { return { label: x / 60 + '分', on: st.guessSec === x, patch: { guessSec: x } }; }));
+          break;
+        case 'DRAW':
+          h += '<div class="cap" style="margin-top:10px">お題を書く → 次の人が絵にする → 次の人がその絵を見て答える…を全員分くり返し、最後にどう伝わったかを発表します（3〜8人）。</div>';
+          h += chips('絵を描く時間', [60, 90, 120, 180].map(function (x) { return { label: x + '秒', on: st.drawSec === x, patch: { drawSec: x } }; }));
+          h += chips('お題を書く・答える時間', [30, 45, 60, 90].map(function (x) { return { label: x + '秒', on: st.writeSec === x, patch: { writeSec: x } }; }));
           break;
         default: h += '<div class="cap" style="margin-top:10px">設定はありません。だれが誰に入れたかは表示されません。</div>';
       }
@@ -688,6 +704,137 @@
     return h + nextButtons(v, 'もう一戦');
   }
 
+  // ---------- お絵かき伝言 ----------
+
+  const DR = META.draw;
+  const DRAW_MAX_BYTES = Math.floor(DR.maxChars / 4) * 3;
+  function decodeDrawing(str) { try { return str ? JSON.parse(G.drawingDecode(str)) : []; } catch (e) { return []; } }
+  function inkUsed(strokes) { return strokes.reduce(function (a, st) { return a + 4 + st[2].length; }, 0); }
+  /** 線を画用紙（canvas）に描く */
+  function paint(cv, strokes) {
+    const ctx = cv.getContext('2d'), k = cv.width / DR.w;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    strokes.forEach(function (st) { paintStroke(ctx, k, st); });
+  }
+  function paintStroke(ctx, k, st) {
+    const p = st[2], w = DR.widths[st[1]] * k;
+    ctx.strokeStyle = ctx.fillStyle = DR.colors[st[0]];
+    if (p.length === 2) { ctx.beginPath(); ctx.arc((p[0] + .5) * k, (p[1] + .5) * k, w / 2, 0, Math.PI * 2); ctx.fill(); return; }
+    ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo((p[0] + .5) * k, (p[1] + .5) * k);
+    for (let i = 2; i < p.length; i += 2) ctx.lineTo((p[i] + .5) * k, (p[i + 1] + .5) * k);
+    ctx.stroke();
+  }
+  function drawCanvas(id, strokesAttr, cls) {
+    return '<canvas class="pad' + (cls ? ' ' + cls : '') + '" id="' + id + '" width="' + DR.w * 3 + '" height="' + DR.h * 3 + '"' + (strokesAttr != null ? ' data-drawing="' + esc(strokesAttr) + '"' : '') + '></canvas>';
+  }
+  function drawKey(s) { return s.step + ':' + s.kind + ':' + s.submitted; }
+  function drawStatus(v, s) {
+    const left = v.players.filter(function (p) { return s.done.indexOf(p.id) < 0; });
+    return '<div class="cap center">できた人 ' + s.done.length + ' / ' + v.players.length + '人' +
+      (left.length && left.length <= 3 ? '（まだ：' + esc(left.map(function (p) { return p.name; }).join('、')) + '）' : '') + '</div>' +
+      hostOnly(v, '', s.done.length < v.players.length ? '<button class="btn" style="align-self:center" data-act="send" data-arg=\'{"t":"closeVote"}\'>待たずに次へ（まだの人は白紙）</button>' : '');
+  }
+  function drawTask(v, s) {
+    if (S.ui.drawStep !== s.step) {
+      S.ui.drawStep = s.step; S.ui.strokes = []; S.ui.text = ''; S.ui.sentStep = -1;
+      if (S.ui.color == null) { S.ui.color = 1; S.ui.width = 1; }
+    }
+    const title = { WRITE: 'お題を書こう', DRAW: '絵を描こう', GUESS: 'この絵は何？' }[s.kind];
+    let h = '<div id="drawRoot" class="stack" data-key="' + esc(drawKey(s)) + '">';
+    h += '<div class="row">' + img('icon_draw', 48) + '<h2 class="grow">' + title + '<span class="cap">　' + (s.step + 1) + ' / ' + s.steps + '</span></h2><span class="timer" data-timer data-low="10000"></span></div>';
+    if (s.kind === 'WRITE') {
+      h += '<div class="cap">次の人がこれを絵にします。おもしろい文を書こう！（例：' + esc(s.suggestion || '') + '）</div>';
+    } else if (s.kind === 'DRAW') {
+      h += '<div class="panel prompt"><div class="cap">お題</div><div class="word s">' + esc(s.text || '') + '</div></div>';
+    } else {
+      h += '<div class="cap">前の人が描いた絵です。何を描いたのか、文で答えよう</div>' + drawCanvas('seeCv', s.drawing || '', 'see');
+    }
+    if (s.submitted) {
+      h += '<div class="panel center"><h3 style="color:var(--mint)">送りました！</h3><div class="cap">みんながそろうと次へ進みます</div></div>';
+      if (s.kind === 'DRAW') h += drawCanvas('padCv', null, 'mine');
+    } else if (s.kind === 'DRAW') {
+      h += drawCanvas('padCv', null, 'live');
+      h += '<div class="tools"><div class="palette">' + DR.colors.map(function (c, i) {
+        return i === 0 ? '' : '<button class="sw' + (S.ui.color === i ? ' on' : '') + '" style="background:' + c + '" data-act="dcolor" data-arg="' + i + '" aria-label="色"></button>';
+      }).join('') + '</div><div class="row">' + DR.widths.map(function (w, i) {
+        return '<button class="wd' + (S.ui.width === i ? ' on' : '') + '" data-act="dwidth" data-arg="' + i + '"><i style="width:' + (4 + w * 1.4) + 'px;height:' + (4 + w * 1.4) + 'px"></i></button>';
+      }).join('') + '<button class="btn' + (S.ui.color === 0 ? ' on' : '') + '" data-act="dcolor" data-arg="0">消しゴム</button>' +
+        '<button class="btn" data-act="dundo">1つ戻す</button><button class="btn" data-act="dclear">全部消す</button></div>' +
+        '<div class="ink"><i id="inkBar"></i></div></div>';
+      h += '<button class="big" data-act="dsend">できた！</button>';
+    } else {
+      h += '<input id="drawIn" class="text" maxlength="' + DR.maxText + '" placeholder="' + (s.kind === 'WRITE' ? 'お題を書く（' + DR.maxText + '文字まで）' : 'この絵は…') + '" value="' + esc(S.ui.text) + '">';
+      h += '<div class="row">' + (s.kind === 'WRITE' ? '<button class="big sec grow" data-act="dsuggest">おまかせ</button>' : '') + '<button class="big grow" data-act="dsend">これで決定</button></div>';
+    }
+    h += '<div id="drawStatus">' + drawStatus(v, s) + '</div></div>';
+    return h;
+  }
+  function drawReveal(v, s) {
+    let h = '<div class="row">' + img('icon_draw', 48) + '<div class="grow"><h2>' + esc(s.ownerName) + 'さんのお題から</h2><div class="cap">' + (s.book + 1) + ' / ' + s.books + '冊目　' + s.entries.length + ' / ' + s.total + 'コマ</div></div></div>';
+    h += '<div class="album">' + s.entries.map(function (e, i) {
+      const last = i === s.entries.length - 1;
+      if (e.kind === 'DRAW') return '<div class="page' + (last ? ' new' : '') + '"><div class="cap">' + esc(e.byName) + 'さんが描いた絵</div>' + drawCanvas('rv' + i, e.drawing, 'see') + '</div>';
+      return '<div class="page' + (last ? ' new' : '') + '"><div class="cap">' + esc(e.byName) + (e.kind === 'WRITE' ? 'さんのお題' : 'さんの答え') + '</div><div class="bubble">' + esc(e.text) + '</div></div>';
+    }).join('') + '</div>';
+    if (s.finished) return h + '<div class="cap center">全員の発表が終わりました！</div>' + nextButtons(v, 'もう一回');
+    const endOfBook = s.entries.length >= s.total;
+    return h + hostOnly(v, 'ホストがめくるのを待っています…',
+      '<button class="big" data-act="next">' + (endOfBook ? (s.book + 1 < s.books ? '次の人の流れへ' : '発表おわり') : '次をめくる') + '</button>');
+  }
+  /** 画面を作り直したあと、絵の canvas に中身を描き、描く用の canvas に操作をつける */
+  function hydrateDraw() {
+    document.querySelectorAll('canvas[data-drawing]').forEach(function (cv) { paint(cv, decodeDrawing(cv.dataset.drawing)); });
+    const mine = document.getElementById('padCv');
+    if (mine) { paint(mine, S.ui.strokes || []); if (mine.classList.contains('live')) attachPad(mine); updateInk(); }
+    const nw = document.querySelector('.album .page.new');
+    if (nw && S.ui.lastReveal !== nw.parentNode.children.length + ':' + S.view.screen.book) {
+      S.ui.lastReveal = nw.parentNode.children.length + ':' + S.view.screen.book;
+      try { nw.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+    }
+  }
+  function updateInk() {
+    const bar = document.getElementById('inkBar'); if (!bar) return;
+    const used = inkUsed(S.ui.strokes || []) / DRAW_MAX_BYTES;
+    bar.style.width = Math.max(0, 100 - used * 100) + '%'; bar.classList.toggle('low', used > .85);
+  }
+  function attachPad(cv) {
+    const ctx = cv.getContext('2d'), k = cv.width / DR.w;
+    let cur = null;
+    function pt(e) {
+      const r = cv.getBoundingClientRect();
+      return [Math.max(0, Math.min(DR.w - 1, Math.floor((e.clientX - r.left) / r.width * DR.w))), Math.max(0, Math.min(DR.h - 1, Math.floor((e.clientY - r.top) / r.height * DR.h)))];
+    }
+    function room() { return DRAW_MAX_BYTES - inkUsed(S.ui.strokes) - 6; }
+    cv.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); if (room() <= 2) { toast('インクがなくなりました（「1つ戻す」で減らせます）'); return; }
+      try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+      const p = pt(e); cur = [S.ui.color, S.ui.width, [p[0], p[1]]]; S.ui.strokes.push(cur);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round'; paintStroke(ctx, k, cur);
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!cur) return;
+      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      for (const ev of (evs.length ? evs : [e])) {
+        const p = pt(ev), a = cur[2], lx = a[a.length - 2], ly = a[a.length - 1];
+        if (Math.abs(p[0] - lx) + Math.abs(p[1] - ly) < 2) continue;
+        if (room() <= 2) { cur = null; updateInk(); return; }
+        a.push(p[0], p[1]);
+        ctx.strokeStyle = DR.colors[cur[0]]; ctx.lineWidth = DR.widths[cur[1]] * k;
+        ctx.beginPath(); ctx.moveTo((lx + .5) * k, (ly + .5) * k); ctx.lineTo((p[0] + .5) * k, (p[1] + .5) * k); ctx.stroke();
+      }
+      updateInk();
+    });
+    function end() { cur = null; updateInk(); }
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end); cv.addEventListener('pointerleave', function (e) { if (e.buttons === 0) end(); });
+  }
+  function drawSend() {
+    const v = S.view, s = v && v.screen; if (!s || s.t !== 'drawTask' || s.submitted || S.ui.sentStep === s.step) return;
+    S.ui.sentStep = s.step;
+    if (s.kind === 'DRAW') send({ t: 'drawSubmit', step: s.step, drawing: G.drawingEncode(JSON.stringify(S.ui.strokes || [])) });
+    else send({ t: 'drawSubmit', step: s.step, text: (S.ui.text || '').trim() });
+  }
+
   // ================= 操作 =================
 
   document.addEventListener('input', function (e) {
@@ -697,10 +844,12 @@
     }
     if (e.target.id === 'codeIn') { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); S.code = e.target.value; }
     if (e.target.id === 'syncIn') S.ui.draft = e.target.value.slice(0, 20);
+    if (e.target.id === 'drawIn') S.ui.text = e.target.value.slice(0, DR.maxText);
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && e.target.id === 'codeIn') joinRoom(e.target.value);
     if (e.key === 'Enter' && e.target.id === 'syncIn') doAct('syncSend');
+    if (e.key === 'Enter' && e.target.id === 'drawIn' && !e.isComposing) doAct('dsend');
     const v = S.view; if (!v || v.screen.t !== 'arena' || !v.screen.mini || e.target.tagName === 'INPUT') return;
     const m = v.screen.mini;
     if (m.kind === 'fingers' && /^[1-5]$/.test(e.key) && m.involved.indexOf(v.me) >= 0 && m.myInput == null) send({ t: 'arenaInput', value: e.key });
@@ -744,6 +893,17 @@
       case 'target': S.ui.target = arg; render(); break;
       case 'play': if (S.ui.pick != null) { send({ t: 'arenaPlay', uid: S.ui.pick, target: S.ui.target || null }); S.ui.pick = null; S.ui.target = null; } break;
       case 'input': send({ t: 'arenaInput', value: arg }); break;
+      case 'dcolor': S.ui.color = Number(arg); document.querySelectorAll('.sw,.tools .btn').forEach(function (b) { b.classList.toggle('on', b.dataset.act === 'dcolor' && Number(b.dataset.arg) === S.ui.color); }); break;
+      case 'dwidth': S.ui.width = Number(arg); document.querySelectorAll('.wd').forEach(function (b) { b.classList.toggle('on', Number(b.dataset.arg) === S.ui.width); }); break;
+      case 'dundo': S.ui.strokes.pop(); paint(document.getElementById('padCv'), S.ui.strokes); updateInk(); break;
+      case 'dclear': if (S.ui.strokes.length) confirmBox('全部消しますか？', '描いた絵がすべて消えます', '消す', function () { S.ui.strokes = []; paint(document.getElementById('padCv'), S.ui.strokes); updateInk(); }); break;
+      case 'dsuggest': { const s2 = v.screen; S.ui.text = s2.suggestion || ''; const el = document.getElementById('drawIn'); if (el) el.value = S.ui.text; break; }
+      case 'dsend': {
+        const s2 = v.screen;
+        if (s2.kind !== 'DRAW' && !(S.ui.text || '').trim()) { toast(s2.kind === 'WRITE' ? 'お題を書くか「おまかせ」を押してね' : '答えを書いてね'); break; }
+        if (s2.kind === 'DRAW' && !(S.ui.strokes || []).length) { confirmBox('何も描いていません', 'このまま白紙で送りますか？', '白紙で送る', drawSend); break; }
+        drawSend(); break;
+      }
       case 'nose': {
         const m = v && v.screen.mini;
         if (m && m.kind === 'nose' && m.goInMs != null && m.myInput == null && m.owner !== v.me) send({ t: 'arenaInput', value: 'press:' + Math.round(performance.now() - S.ui.goSeenAt) });
