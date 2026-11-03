@@ -195,7 +195,7 @@
       old.replaceWith(s);
     });
   }
-  function bannerTag() { return innerWidth <= 520 ? (TAGS.bannerSp || TAGS.bannerPc) : (TAGS.bannerPc || TAGS.bannerSp); }
+  function bannerTag() { return innerWidth < 740 ? (TAGS.bannerSp || TAGS.bannerPc) : (TAGS.bannerPc || TAGS.bannerSp); }
   function breakTag() { return innerWidth <= 520 ? (TAGS.break || bannerTag()) : (TAGS.breakPc || TAGS.break || bannerTag()); }
   function showBanner(on) {
     $banner.hidden = !on;
