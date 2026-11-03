@@ -20,14 +20,14 @@ h3{font-size:18px;margin:20px 0 4px}a{color:var(--mint)}.box{background:var(--ca
 '''
 
 
-def page(title, body, head_extra=''):
+def page(title, body, head_extra='', ad=''):
     return f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{html.escape(title)}｜わちゃパ</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
 <meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど7つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">
 {head_extra}<style>{CSS}</style></head><body>
 <header><a href="./">わちゃパ</a><a href="howto.html">遊び方</a><a href="about.html">このサイトについて</a><a href="privacy.html">プライバシー</a><a class="play" href="./">遊ぶ</a></header>
-<main>{body}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">お問い合わせ</a></footer></body></html>
+<main>{body}{('<div style="text-align:center;margin:30px 0">' + ad + '</div>') if ad else ''}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">お問い合わせ</a></footer></body></html>
 '''
 
 
@@ -104,11 +104,11 @@ def privacy():
 '''
 
 
-def build(game_dir, kjs_path, head_extra=''):
+def build(game_dir, kjs_path, head_extra='', ad=''):
     out = subprocess.run(['node', '-e', f'const g=require({json.dumps(kjs_path)}).com.zen.partygame.game;console.log(JSON.stringify({{cards:JSON.parse(g.arenaCardsJson()),meta:JSON.parse(g.metaJson())}}))'],
                          capture_output=True, text=True, check=True).stdout
     data = json.loads(out)
     for name, title, body in (('howto.html', '遊び方・カード一覧', howto(data['cards'], data['meta']['chaos'])),
                               ('about.html', 'このサイトについて', about()),
                               ('privacy.html', 'プライバシーポリシー', privacy())):
-        open(f'{game_dir}/{name}', 'w', encoding='utf-8').write(page(title, body, head_extra))
+        open(f'{game_dir}/{name}', 'w', encoding='utf-8').write(page(title, body, head_extra, ad))

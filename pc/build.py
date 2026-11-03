@@ -29,7 +29,13 @@ if os.path.exists(mp):
 ADSENSE = M.get('adsense.client', '')               # ca-pub-...
 DOMAIN = M.get('site.domain', '')                    # 独自ドメイン（例: partygame.jp）
 SITE = M.get('site.url') or (f'https://{DOMAIN}/' if DOMAIN else 'https://0818134y-rgb.github.io/-/')
-cfg = {'adsenseClient': ADSENSE, 'bannerSlot': M.get('adsense.banner', ''), 'breakSlot': M.get('adsense.break', ''),
+# AdSense 以外の広告サービス（忍者AdMax など）の広告タグ：pc/adtags/ に管理画面でコピーした HTML をそのまま置く
+TAGDIR = os.path.join(HERE, 'adtags')
+def tag(name):
+    p = os.path.join(TAGDIR, name + '.html')
+    return open(p, encoding='utf-8').read().strip() if os.path.exists(p) else ''
+AD_TAGS = {'bannerSp': tag('banner_sp'), 'bannerPc': tag('banner_pc'), 'break': tag('break'), 'page': tag('page')}
+cfg = {'adTags': {k: v for k, v in AD_TAGS.items() if k != 'page'}, 'adsenseClient': ADSENSE, 'bannerSlot': M.get('adsense.banner', ''), 'breakSlot': M.get('adsense.break', ''),
        'h5games': M.get('adsense.h5games', 'false') == 'true', 'adTest': M.get('adsense.test', 'false') == 'true'}
 open(os.path.join(G, 'config.js'), 'w', encoding='utf-8').write('/* 自動で作られる設定（pc/build.py）。手で直すときは monetization.properties を直して作り直す */\nwindow.PG_CONFIG = ' + json.dumps(cfg, ensure_ascii=False, indent=1) + ';\n')
 # AdSense の審査・自動広告のため、各ページの <head> に AdSense のコードを最初から入れておく
@@ -50,7 +56,7 @@ open(os.path.join(G, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitema
 open(os.path.join(G, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     + ''.join(f'  <url><loc>{SITE}{p}</loc></url>\n' for p in ('', 'howto.html', 'about.html', 'privacy.html')) + '</urlset>\n')
 sys.path.insert(0, HERE); import pages
-pages.build(G, KJS, HEAD_ADS)
+pages.build(G, KJS, HEAD_ADS, AD_TAGS['page'] or AD_TAGS['bannerSp'] or AD_TAGS['bannerPc'])
 shutil.copy(os.path.join(ASSETS, 'online', 'peerjs.min.js'), os.path.join(G, 'lib'))
 shutil.copy(os.path.join(ASSETS, 'online', 'net.js'), os.path.join(G, 'lib'))
 topics = open(os.path.join(ASSETS, 'topics.json'), encoding='utf-8').read()

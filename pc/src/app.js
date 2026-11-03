@@ -184,9 +184,26 @@
   function pushAd() { try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {} }
   const $banner = document.getElementById('banner');
   let bannerReady = false;
+  /** 広告サービスの管理画面でコピーした広告タグ（HTML）を差し込む。innerHTML では script が動かないので作り直す */
+  const TAGS = CFG.adTags || {};
+  function injectTag(el, html) {
+    el.innerHTML = html;
+    el.querySelectorAll('script').forEach(function (old) {
+      const s = document.createElement('script');
+      for (const a of old.attributes) s.setAttribute(a.name, a.value);
+      s.text = old.textContent;
+      old.replaceWith(s);
+    });
+  }
+  function bannerTag() { return innerWidth <= 520 ? (TAGS.bannerSp || TAGS.bannerPc) : (TAGS.bannerPc || TAGS.bannerSp); }
   function showBanner(on) {
     $banner.hidden = !on;
-    if (on && !bannerReady) { bannerReady = true; loadAds(); $banner.innerHTML = adUnit(CFG.bannerSlot, innerWidth <= 520 ? 'display:inline-block;width:320px;height:50px' : 'display:inline-block;width:728px;height:90px'); if (adsOn && CFG.bannerSlot) pushAd(); }
+    if (on && !bannerReady) {
+      bannerReady = true;
+      if (adsOn && CFG.bannerSlot) { loadAds(); $banner.innerHTML = adUnit(CFG.bannerSlot, innerWidth <= 520 ? 'display:inline-block;width:320px;height:50px' : 'display:inline-block;width:728px;height:90px'); pushAd(); }
+      else if (bannerTag()) injectTag($banner, bannerTag());
+      else $banner.innerHTML = adUnit('');
+    }
   }
 
   /** ゲームの合間の広告休憩（全員の端末で同時に出る） */
@@ -203,10 +220,12 @@
       setTimeout(done, 20000);   // 万一戻ってこなくても止まらないように
       return;
     }
-    let left = adsOn && CFG.breakSlot ? 5 : 3;
-    openModal('<div class="box">' + img('icon_tea', 90, 'art') + '<h2>ちょっと休憩…</h2><div class="adbox">' + adUnit(CFG.breakSlot) +
+    const useTag = !(adsOn && CFG.breakSlot) && !!(TAGS.break || bannerTag());
+    let left = (adsOn && CFG.breakSlot) || useTag ? 5 : 3;
+    openModal('<div class="box">' + img('icon_tea', 90, 'art') + '<h2>ちょっと休憩…</h2><div class="adbox" id="breakAd">' + (useTag ? '' : adUnit(CFG.breakSlot)) +
       '</div><button class="big" id="adClose" disabled>あと ' + left + ' 秒</button></div>');
     if (adsOn && CFG.breakSlot) pushAd();
+    else if (useTag) injectTag(document.getElementById('breakAd'), TAGS.break || bannerTag());
     const btn = document.getElementById('adClose');
     const t = setInterval(function () {
       left--; if (left > 0) { btn.textContent = 'あと ' + left + ' 秒'; return; }
