@@ -1,0 +1,58 @@
+package com.zen.partygame
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import com.zen.partygame.ui.AppViewModel
+import com.zen.partygame.ui.FindingScreen
+import com.zen.partygame.ui.OnlineJoinScreen
+import com.zen.partygame.ui.LocalSetupScreen
+import com.zen.partygame.ui.PartyTheme
+import com.zen.partygame.ui.RoomScreen
+import com.zen.partygame.ui.TitleScreen
+import com.zen.partygame.ui.Ui
+
+class MainActivity : ComponentActivity() {
+    private val vm: AppViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        vm.ads.init()
+        setContent {
+            PartyTheme {
+                val ui by vm.ui.collectAsState()
+                val snack = remember { SnackbarHostState() }
+                LaunchedEffect(Unit) { vm.messages.collect { snack.showSnackbar(it) } }
+                Scaffold(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    snackbarHost = { SnackbarHost(snack) },
+                ) { pad ->
+                    Box(Modifier.fillMaxSize().padding(pad)) {
+                        when (val s = ui) {
+                            Ui.Title -> TitleScreen(vm)
+                            Ui.LocalSetup -> LocalSetupScreen(vm)
+                            is Ui.Finding -> FindingScreen(vm, s)
+                            is Ui.OnlineJoin -> OnlineJoinScreen(vm, s)
+                            is Ui.Room -> RoomScreen(vm, s)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
