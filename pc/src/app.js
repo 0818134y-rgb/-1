@@ -196,6 +196,7 @@
     });
   }
   function bannerTag() { return innerWidth <= 520 ? (TAGS.bannerSp || TAGS.bannerPc) : (TAGS.bannerPc || TAGS.bannerSp); }
+  function breakTag() { return innerWidth <= 520 ? (TAGS.break || bannerTag()) : (TAGS.breakPc || TAGS.break || bannerTag()); }
   function showBanner(on) {
     $banner.hidden = !on;
     if (on && !bannerReady) {
@@ -220,12 +221,12 @@
       setTimeout(done, 20000);   // 万一戻ってこなくても止まらないように
       return;
     }
-    const useTag = !(adsOn && CFG.breakSlot) && !!(TAGS.break || bannerTag());
+    const useTag = !(adsOn && CFG.breakSlot) && !!breakTag();
     let left = (adsOn && CFG.breakSlot) || useTag ? 5 : 3;
     openModal('<div class="box">' + img('icon_tea', 90, 'art') + '<h2>ちょっと休憩…</h2><div class="adbox" id="breakAd">' + (useTag ? '' : adUnit(CFG.breakSlot)) +
       '</div><button class="big" id="adClose" disabled>あと ' + left + ' 秒</button></div>');
     if (adsOn && CFG.breakSlot) pushAd();
-    else if (useTag) injectTag(document.getElementById('breakAd'), TAGS.break || bannerTag());
+    else if (useTag) injectTag(document.getElementById('breakAd'), breakTag());
     const btn = document.getElementById('adClose');
     const t = setInterval(function () {
       left--; if (left > 0) { btn.textContent = 'あと ' + left + ' 秒'; return; }

@@ -34,7 +34,7 @@ TAGDIR = os.path.join(HERE, 'adtags')
 def tag(name):
     p = os.path.join(TAGDIR, name + '.html')
     return open(p, encoding='utf-8').read().strip() if os.path.exists(p) else ''
-AD_TAGS = {'bannerSp': tag('banner_sp'), 'bannerPc': tag('banner_pc'), 'break': tag('break'), 'page': tag('page')}
+AD_TAGS = {'bannerSp': tag('banner_sp'), 'bannerPc': tag('banner_pc'), 'break': tag('break'), 'breakPc': tag('break_pc'), 'page': tag('page')}
 cfg = {'adTags': {k: v for k, v in AD_TAGS.items() if k != 'page'}, 'adsenseClient': ADSENSE, 'bannerSlot': M.get('adsense.banner', ''), 'breakSlot': M.get('adsense.break', ''),
        'h5games': M.get('adsense.h5games', 'false') == 'true', 'adTest': M.get('adsense.test', 'false') == 'true'}
 open(os.path.join(G, 'config.js'), 'w', encoding='utf-8').write('/* 自動で作られる設定（pc/build.py）。手で直すときは monetization.properties を直して作り直す */\nwindow.PG_CONFIG = ' + json.dumps(cfg, ensure_ascii=False, indent=1) + ';\n')
