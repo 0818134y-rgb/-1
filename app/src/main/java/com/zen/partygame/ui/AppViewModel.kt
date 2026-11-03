@@ -133,7 +133,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** 部屋コードをLINEなどで送る */
     fun shareInvite(code: String) {
         val web = com.zen.partygame.BuildConfig.WEB_URL
-        val text = "パーティーゲームで遊ぼう！\nアプリで「オンライン」→「部屋に参加する」を押して、部屋コード $code を入れてね" +
+        val text = "わちゃパで遊ぼう！\nアプリで「オンライン」→「部屋に参加する」を押して、部屋コード $code を入れてね" +
             if (web.isNotBlank()) "\niPhone・PCはこちらから：$web" else ""
         val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(android.content.Intent.EXTRA_TEXT, text) }
         getApplication<Application>().startActivity(android.content.Intent.createChooser(send, "招待を送る").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))

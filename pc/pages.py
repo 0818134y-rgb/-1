@@ -23,10 +23,10 @@ h3{font-size:18px;margin:20px 0 4px}a{color:var(--mint)}.box{background:var(--ca
 def page(title, body, head_extra=''):
     return f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>{html.escape(title)}｜パーティーゲーム</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
+<title>{html.escape(title)}｜わちゃパ</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
 <meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど7つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">
 {head_extra}<style>{CSS}</style></head><body>
-<header><a href="./">パーティーゲーム</a><a href="howto.html">遊び方</a><a href="about.html">このサイトについて</a><a href="privacy.html">プライバシー</a><a class="play" href="./">遊ぶ</a></header>
+<header><a href="./">わちゃパ</a><a href="howto.html">遊び方</a><a href="about.html">このサイトについて</a><a href="privacy.html">プライバシー</a><a class="play" href="./">遊ぶ</a></header>
 <main>{body}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">お問い合わせ</a></footer></body></html>
 '''
 
@@ -73,7 +73,7 @@ def howto(cards, chaos):
 
 def about():
     return f'''<h1>このサイトについて</h1>
-<p>「パーティーゲーム」は、友だちや家族と集まったとき、または通話しながら遊べるパーティーゲーム集です。なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問の7つを、無料で遊べます。</p>
+<p>「わちゃパ」は、友だちや家族と集まったとき、または通話しながら遊べるパーティーゲーム集です。なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問の7つを、無料で遊べます。</p>
 <h2>遊べる端末</h2><ul><li>iPhone・iPad（Safari。ホーム画面に追加するとアプリのように使えます）</li><li>Android（ブラウザ、または Android アプリ）</li><li>パソコン（Edge・Chrome などのブラウザ、または PC 版の「遊ぶ.bat」）</li></ul>
 <p>どの端末どうしでも、部屋コードを使って同じ部屋で遊べます。</p>
 <h2>しくみ</h2><p>このサイトは運営者のサーバーを使っていません。ゲームの進行は部屋を作った人の端末の中で行われ、参加者の端末どうしが直接通信します（相手を見つけるときだけ PeerJS の仲介サーバーを使います）。そのため、入力した名前や答えが運営者に届くことはありません。</p>
@@ -85,7 +85,7 @@ def about():
 
 def privacy():
     return f'''<h1>プライバシーポリシー</h1>
-<p>「パーティーゲーム」（このサイトのウェブ版、PC 版、Android アプリ「ワードウルフ＆NG」を含みます。以下「本サービス」）における利用者の情報の取り扱いについて説明します。</p>
+<p>「わちゃパ」（このサイトのウェブ版、PC 版、Android アプリを含みます。以下「本サービス」）における利用者の情報の取り扱いについて説明します。</p>
 <h2>1. 運営者が集める情報</h2><p>運営者は、利用者の個人情報を収集・保存しません。本サービスは運営者のサーバーを使用しません。</p>
 <h2>2. 端末どうしの通信</h2>
 <p>入力した名前やゲームの内容は、同じ部屋に参加している端末の間でのみやり取りされ、運営者に送られることはありません。</p>

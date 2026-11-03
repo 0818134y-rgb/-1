@@ -1,5 +1,5 @@
 /*
- * パーティーゲーム PC 版。
+ * わちゃパ（パーティーゲーム）PC・ウェブ版。
  * スマホのアプリと同じ部屋に「オンライン」で入れる。ゲームの進行（Engine）はアプリと同じ Kotlin のコードを
  * JavaScript にしたもの（lib/partygame.js）で、PC が部屋を作ったときはこの中で動く。
  */
@@ -263,7 +263,7 @@
     return '<div class="title">' +
       '<div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div>' +
       '<div class="stack">' +
-      '<div class="row">' + img('char_wolf_hello', 96) + '<div><h1>パーティーゲーム</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード ほか全7種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div>' +
+      '<div class="row">' + img('char_wolf_hello', 96) + '<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード ほか全7種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div>' +
       '<input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="' + esc(S.name) + '">' +
       '<button class="big" data-act="host"' + (S.name.trim() ? '' : ' disabled') + '>' + img('icon_create', 36) + '部屋を作る</button>' +
       '<button class="big sec" data-act="toJoin"' + (S.name.trim() ? '' : ' disabled') + '>' + img('icon_join', 36) + '部屋に参加する</button>' +
@@ -702,7 +702,7 @@
       case 'leave': confirmBox(v && v.isHost ? '部屋を閉じますか？' : '部屋を出ますか？', v && v.isHost ? '全員の接続が切れます' : '', '出る', leave); break;
       case 'share': {
         const url = /^https?:/.test(location.protocol) ? location.href.split('#')[0] : '';
-        navigator.share({ title: 'パーティーゲーム', text: 'パーティーゲームで遊ぼう！ 「部屋に参加する」で部屋コード ' + v.roomCode + ' を入れてね', url: url || undefined }).catch(function () {});
+        navigator.share({ title: 'わちゃパ', text: 'わちゃパで遊ぼう！ 「部屋に参加する」で部屋コード ' + v.roomCode + ' を入れてね', url: url || undefined }).catch(function () {});
         break;
       }
       case 'copy': try { navigator.clipboard.writeText(v.roomCode); toast('コピーしました'); } catch (err) { toast(v.roomCode); } break;

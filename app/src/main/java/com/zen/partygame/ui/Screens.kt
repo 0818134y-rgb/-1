@@ -191,8 +191,8 @@ fun TitleScreen(vm: AppViewModel) {
     ) {
         Spacer(Modifier.height(12.dp))
         Art(R.drawable.char_wolf_hello, 190.dp)
-        Text("ワードウルフ", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
-        Text("＆ NGワード ほか", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.secondary)
+        Text("わちゃパ", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
+        Text("ワードウルフ・NGワード ほか", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.secondary)
         Spacer(Modifier.height(6.dp))
         Caption("7つのパーティーゲーム。全員のスマホで遊べる", Modifier.padding(bottom = 20.dp))
 

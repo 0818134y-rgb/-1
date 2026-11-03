@@ -59,7 +59,7 @@ os.makedirs(os.path.join(G, 'icons'))
 src_icon = Image.open(os.path.join(ROOT, 'pc', 'icon-512.png')).convert('RGB')
 for n in (180, 192, 512):
     src_icon.resize((n, n), Image.LANCZOS).save(os.path.join(G, 'icons', 'icon-%d.png' % n))
-json.dump({'name': 'パーティーゲーム（なんでもアリーナ ほか）', 'short_name': 'パーティー', 'lang': 'ja', 'start_url': './', 'scope': './',
+json.dump({'name': 'わちゃパ（パーティーゲーム）', 'short_name': 'わちゃパ', 'lang': 'ja', 'start_url': './', 'scope': './',
            'display': 'standalone', 'orientation': 'portrait', 'background_color': '#15102D', 'theme_color': '#15102D',
            'icons': [{'src': 'icons/icon-%d.png' % n, 'sizes': '%dx%d' % (n, n), 'type': 'image/png', 'purpose': 'any'} for n in (192, 512)]
                     + [{'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'}]},
@@ -89,7 +89,7 @@ self.addEventListener('fetch', e => {
 
 # 遊ぶ.bat（日本語の Windows のコマンドプロンプトで読めるよう Shift_JIS・CRLF で書く）
 bat = r'''@echo off
-rem パーティーゲーム PC 版を、アプリのようなウィンドウで開きます
+rem わちゃパ PC 版を、アプリのようなウィンドウで開きます
 setlocal
 cd /d "%~dp0"
 set "URL="
@@ -115,7 +115,7 @@ exit /b 0
 open(os.path.join(D, '遊ぶ.bat'), 'wb').write(bat.replace('\n', '\r\n').encode('cp932'))
 open(os.path.join(D, 'site.txt'), 'w', encoding='ascii').write(SITE)
 
-readme = f'''パーティーゲーム PC 版 v{VERSION}
+readme = f'''わちゃパ PC 版 v{VERSION}
 ================================
 スマホのアプリ（「オンライン」に切り替えたとき）と同じ部屋で遊べます。
 なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問
@@ -145,7 +145,7 @@ open(os.path.join(D, 'はじめにお読みください.txt'), 'w', encoding='ut
 
 # iPhone・スマホのブラウザ用：game フォルダの中身をそのままサイトに置ける形で
 W = os.path.join(OUT, 'PartyGameWeb'); shutil.rmtree(W, ignore_errors=True); shutil.copytree(G, W)
-web_readme = f'''パーティーゲーム ウェブ版（iPhone・スマホ・PC のブラウザ用） v{VERSION}
+web_readme = f'''わちゃパ ウェブ版（iPhone・スマホ・PC のブラウザ用） v{VERSION}
 ==================================================
 iPhone では、このフォルダの中身を HTTPS のサイトに置いて Safari で開きます。
 「ホーム画面に追加」すると、アプリのように全画面で遊べます（App Store は通しません）。
@@ -162,7 +162,7 @@ Android のアプリ（「オンライン」）や PC 版と同じ部屋に、�
 ■ iPhone に入れる
   1. Safari で上のアドレスを開く
   2. 共有ボタン（□に↑）→「ホーム画面に追加」→「追加」
-  3. ホーム画面の「パーティー」から起動
+  3. ホーム画面の「わちゃパ」から起動
   ※ iOS 16.4 以降がおすすめ（遊んでいる間、画面が消えないようにできます）
 
 ■ 更新するとき
