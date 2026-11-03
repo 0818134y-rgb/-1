@@ -45,6 +45,10 @@ if APP_PUB:
     open(os.path.join(G, 'app-ads.txt'), 'w').write(f'google.com, {APP_PUB}, DIRECT, f08c47fec0942fa0\n')
 if DOMAIN:
     open(os.path.join(G, 'CNAME'), 'w').write(DOMAIN + '\n')
+# 検索エンジンと AdSense の審査クローラーが全部のページを読めるように
+open(os.path.join(G, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n')
+open(os.path.join(G, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + ''.join(f'  <url><loc>{SITE}{p}</loc></url>\n' for p in ('', 'howto.html', 'about.html', 'privacy.html')) + '</urlset>\n')
 sys.path.insert(0, HERE); import pages
 pages.build(G, KJS, HEAD_ADS)
 shutil.copy(os.path.join(ASSETS, 'online', 'peerjs.min.js'), os.path.join(G, 'lib'))

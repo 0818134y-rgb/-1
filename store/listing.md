@@ -34,9 +34,9 @@
 ゲーム ＞ ボードゲーム（またはカジュアル）
 
 ## 連絡先
-- ウェブサイト：（独自ドメインを取ったら https://ドメイン/ 。app-ads.txt の確認に使われる）
+- ウェブサイト：https://wachapa.com/ （app-ads.txt の確認に使われる）
 - メール：Play Console に登録したメールアドレス
-- プライバシーポリシー：https://（サイト）/privacy.html
+- プライバシーポリシー：https://wachapa.com/privacy.html
 
 ## 広告
 「広告を含む」：はい
