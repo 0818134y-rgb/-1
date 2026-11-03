@@ -73,12 +73,20 @@ class ArenaGame(
         deck.addAll(presetDeck ?: ArenaCards.buildDeck().shuffled(rng))
         val dealt = if (chaos == Chaos.RICH) 3 else 2
         repeat(dealt) { seats.values.forEach { s -> drawTo(s) } }
-        chaos?.let { log("今夜のルール：${it.title}（${it.text}）") }
+        chaos?.let { log("今夜のルール：{0}（{1}）", tx(it.title), tx(it.text)) }
         beginTurn(presetFirst ?: order[rng.nextInt(order.size)])
     }
 
     val log: List<String> get() = logLines.toList()
-    private fun log(s: String) { logLines.addLast(s); while (logLines.size > 12) logLines.removeFirst() }
+    /** 記録を1行足す（型と値で送り、表示する端末の言語に訳す） */
+    private fun log(tpl: String, vararg args: Any?) {
+        logLines.addLast(if (args.isEmpty() && LogFmt.isEntry(tpl)) tpl else tx(tpl, *args))
+        while (logLines.size > 12) logLines.removeFirst()
+    }
+    /** 訳す言葉（ログの値に入れる） */
+    private fun tx(tpl: String, vararg args: Any?) = LogFmt.entry(tpl, args.toList())
+    private fun txList(head: String, items: List<String>) = LogFmt.entry(LogFmt.LIST, listOf(head) + items)
+    private fun cardRule(d: CardDef) = LogFmt.entry(LogFmt.CARD_RULE + d.id, emptyList())
     private fun n(id: String?) = if (id == null) "?" else nameOf(id)
     private fun alive() = seats.values.filter { it.alive }.map { it.id }
     private fun seat(id: String) = seats.getValue(id)
@@ -111,8 +119,8 @@ class ArenaGame(
         step = Step.TURN
         if (noDraw) {
             if (s.hand.isEmpty()) {
-                log("${n(id)}は手札がない…")
-                lose(id, "補充なし")
+                log("{0}は手札がない…", n(id))
+                lose(id, tx("補充なし"))
                 if (!checkEnd()) beginTurn(nextAlive(id))
                 return
             }
@@ -139,8 +147,8 @@ class ArenaGame(
             val trap = s.front.firstOrNull { def(it).fx == Fx.TRAP }
             if (trap != null) {
                 s.front.remove(trap); discard += trap
-                log("${n(turn)}の前に落とし穴が残っていた！")
-                lose(turn, "落とし穴")
+                log("{0}の前に落とし穴が残っていた！", n(turn))
+                lose(turn, tx("落とし穴"))
                 if (checkEnd()) return
             }
         }
@@ -162,17 +170,17 @@ class ArenaGame(
         val charm = s.hand.firstOrNull { def(it).fx == Fx.SHIELD }
         if (charm != null) {
             s.hand.remove(charm); discard += charm
-            log("${n(id)}のお守りが身代わりに！（$why）")
+            log("{0}のお守りが身代わりに！（{1}）", n(id), why)
             return false
         }
         val next = nextAlive(id)
-        out(id, "負け（$why）")
+        out(id, tx("負け（{0}）", why))
         seats.values.filter { it.alive && it.front.any { c -> def(c).fx == Fx.LAUGH } }.forEach {
-            if (drawTo(it)) log("${n(it.id)}は高笑いして1枚引いた")
+            if (drawTo(it)) log("{0}は高笑いして1枚引いた", n(it.id))
         }
         if (chain && chaos == Chaos.SUDDEN && next != id && seat(next).alive) {
-            log("連鎖の夜…となりの${n(next)}も巻きこまれる！")
-            lose(next, "連鎖", chain = false)
+            log("連鎖の夜…となりの{0}も巻きこまれる！", n(next))
+            lose(next, tx("連鎖"), chain = false)
         }
         return true
     }
@@ -183,12 +191,12 @@ class ArenaGame(
         discard += s.hand; s.hand.clear()
         discard += s.front; s.front.clear()
         if (endOwner == id) { endOwner = null; endArmed = false }
-        log("${n(id)}は$why")
+        log("{0}は{1}", n(id), why)
     }
 
     /** 全員まとめて負け（お守りも効かない） */
     private fun loseAll() {
-        alive().forEach { out(it, "負け") }
+        alive().forEach { out(it, tx("負け")) }
         winners = emptyList(); step = Step.OVER; deadline = null; mini = null
         log("全員負け…勝者なし！")
     }
@@ -199,12 +207,12 @@ class ArenaGame(
         if (spite != null) {
             val c = seat(spite).hand.first { def(it).fx == Fx.SPITE }
             seat(spite).hand.remove(c); discard += c
-            log("${n(id)}が勝ちかけた…が、${n(spite)}の道連れ！")
-            out(id, "道連れで負け"); out(spite, "道連れで負け")
+            log("{0}が勝ちかけた…が、{1}の道連れ！", n(id), n(spite))
+            out(id, tx("道連れで負け")); out(spite, tx("道連れで負け"))
             return   // 手番を進めるのは呼び出し側
         }
         winners = listOf(id); step = Step.OVER; deadline = null; mini = null
-        log("${n(id)}の勝ち！")
+        log("{0}の勝ち！", n(id))
     }
 
     private fun checkEnd(): Boolean {
@@ -212,12 +220,12 @@ class ArenaGame(
         val a = alive()
         if (a.size <= 1) {
             winners = a; step = Step.OVER; deadline = null; mini = null
-            log(if (a.isEmpty()) "全員負け…勝者なし！" else "${n(a[0])}が最後の1人！")
+            log(if (a.isEmpty()) tx("全員負け…勝者なし！") else tx("{0}が最後の1人！", n(a[0])))
             return true
         }
         val goal = pointGoal
         a.sortedBy { if (it == turn) 0 else 1 }.firstOrNull { points(it) >= goal }?.let {
-            log("${n(it)}が${points(it)}ポイント！"); win(it); return checkEnd()
+            log("{0}が{1}ポイント！", n(it), points(it)); win(it); return checkEnd()
         }
         if (seats.values.sumOf { s -> s.front.count { def(it).fx == Fx.BOMB } } >= 4) {
             log("ばくだんが4つそろった…ドカーン！")
@@ -246,7 +254,7 @@ class ArenaGame(
         if (d.target != TargetKind.NONE && targets.isNotEmpty() && t == null) return false
         s.hand.remove(card)
         idleTurns = 0
-        log("${n(from)}が「${d.name}」を出した" + (t?.let { " → ${n(it)}" } ?: ""))
+        log("{0}が「{1}」を出した{2}", n(from), tx(d.name), t?.let { " → ${n(it)}" } ?: "")
         // 横やり：ほかにネコを持っている人がいれば、少しだけ待つ
         if (d.fx != Fx.CANCEL) {
             val holders = alive().filter { it != from && seat(it).hand.any { c -> def(c).fx == Fx.CANCEL } }
@@ -264,7 +272,7 @@ class ArenaGame(
     private fun autoPlay() {
         val s = seat(turn)
         if (s.hand.isEmpty()) {
-            log("${n(turn)}は出せるカードがない")
+            log("{0}は出せるカードがない", n(turn))
             idleTurns++
             if (idleTurns >= alive().size * 2 && seats.values.none { it.alive && it.hand.isNotEmpty() }) {
                 log("だれもカードを出せない…引き分け！")
@@ -274,7 +282,7 @@ class ArenaGame(
         }
         val card = s.hand[rng.nextInt(s.hand.size)]
         val targets = validTargets(turn, def(card))
-        log("${n(turn)}は時間切れ！ カードが勝手に出た")
+        log("{0}は時間切れ！ カードが勝手に出た", n(turn))
         play(turn, card.uid, targets.randomOrNull(rng))
     }
 
@@ -284,17 +292,17 @@ class ArenaGame(
         val me = seat(from)
         var keep = false   // 場に残す（捨て札にしない）
         when (d.fx) {
-            Fx.TRAP -> if (t != null) { place(card, t); keep = true; log("${n(t)}の前に落とし穴！ 手番の終わりまでに何とかしないと…") }
-            Fx.THE_END -> { endOwner = from; endArmed = false; log("次の${n(from)}の手番の終わりに、閉幕のベルが鳴る…") }
+            Fx.TRAP -> if (t != null) { place(card, t); keep = true; log("{0}の前に落とし穴！ 手番の終わりまでに何とかしないと…", n(t)) }
+            Fx.THE_END -> { endOwner = from; endArmed = false; log("次の{0}の手番の終わりに、閉幕のベルが鳴る…", n(from)) }
             Fx.POINTS, Fx.LAUGH, Fx.DINO, Fx.BOMB -> { place(card, from); keep = true }
-            Fx.RULE_SOCIAL, Fx.RULE_NO_DRAW -> { rules += card; keep = true; log("ルール追加：「${d.name}」") }
+            Fx.RULE_SOCIAL, Fx.RULE_NO_DRAW -> { rules += card; keep = true; log("ルール追加：「{0}」", tx(d.name)) }
             Fx.SPITE, Fx.SHIELD -> log("…何も起きない")
             Fx.SWAP -> t?.let {
                 val other = seat(it); val mine = me.hand.toList()
                 me.hand.clear(); me.hand += other.hand; other.hand.clear(); other.hand += mine
-                log("${n(from)}と${n(it)}の手札が入れ替わった")
+                log("{0}と{1}の手札が入れ替わった", n(from), n(it))
             }
-            Fx.CANCEL -> { repeat(2) { drawTo(me) }; log("${n(from)}は2枚引いた") }
+            Fx.CANCEL -> { repeat(2) { drawTo(me) }; log("{0}は2枚引いた", n(from)) }
             Fx.BIRTHDAY -> { discard += card; startMini(Mini("yesno", from, listOf(from), card), 20_000); return }
             Fx.RPS_ALL -> { discard += card; startMini(Mini("rps", from, alive(), card), 15_000); return }
             Fx.FINGERS -> { discard += card; startMini(Mini("fingers", from, alive(), card), 15_000); return }
@@ -315,13 +323,13 @@ class ArenaGame(
         mini = m; step = Step.MINI
         deadline = now() + waitMs
         log(when (m.kind) {
-            "cancel" -> "…横やりが入るかも？"
-            "yesno" -> "${n(m.owner)}は今月が誕生月？"
-            "rps" -> "全員じゃんけん！"
-            "fingers" -> "全員、指を1〜5本！"
-            "vote" -> "多数決！ 負けさせたい人に投票"
-            "present" -> "プレゼント、ほしい？ いらない？"
-            else -> "${n(m.owner)}の合図を待て…！"
+            "cancel" -> tx("…横やりが入るかも？")
+            "yesno" -> tx("{0}は今月が誕生月？", n(m.owner))
+            "rps" -> tx("全員じゃんけん！")
+            "fingers" -> tx("全員、指を1〜5本！")
+            "vote" -> tx("多数決！ 負けさせたい人に投票")
+            "present" -> tx("プレゼント、ほしい？ いらない？")
+            else -> tx("{0}の合図を待て…！", n(m.owner))
         })
     }
 
@@ -345,7 +353,7 @@ class ArenaGame(
                     if (value != "go" || m.goAt >= 0) return false
                     m.goAt = now(); m.inputs[from] = "go"
                     deadline = now() + NOSE_WINDOW_MS + NOSE_GRACE_MS
-                    log("${n(from)}が鼻にタッチ！")
+                    log("{0}が鼻にタッチ！", n(from))
                     return true
                 }
                 if (m.goAt < 0 || !value.startsWith("press")) return false
@@ -373,7 +381,7 @@ class ArenaGame(
                 val cat = user?.let { u -> seat(u).hand.firstOrNull { def(it).fx == Fx.CANCEL } }
                 if (user != null && cat != null) {
                     seat(user).hand.remove(cat); discard += cat; discard += card
-                    log("${n(user)}のネコが横やり！「${def(card).name}」は打ち消された")
+                    log("{0}のネコが横やり！「{1}」は打ち消された", n(user), tx(def(card).name))
                     drawTo(seat(user))
                     if (checkEnd()) return
                     endTurn(); return
@@ -383,31 +391,31 @@ class ArenaGame(
                 resolve(from, card, def(card), t.takeIf { it == null || seats[it]?.alive == true }); return
             }
             "yesno" -> {
-                if (m.inputs[m.owner] == "yes") { log("今月は${n(m.owner)}の誕生月！"); win(m.owner) }
+                if (m.inputs[m.owner] == "yes") { log("今月は{0}の誕生月！", n(m.owner)); win(m.owner) }
                 else log("誕生月ではなかった…")
             }
             "rps" -> {
-                val name = mapOf("g" to "グー", "c" to "チョキ", "p" to "パー")
+                val name = mapOf("g" to tx("グー"), "c" to tx("チョキ"), "p" to tx("パー"))
                 val hands = m.involved.filter { it in living }.associateWith { m.inputs[it] ?: listOf("g", "c", "p").random(rng) }
-                log(hands.entries.joinToString("　") { "${n(it.key)}：${name[it.value]}" })
+                log(txList("", hands.entries.map { tx("{0}：{1}", n(it.key), name[it.value]) }))
                 val rule = d!!.rule
                 val mine = hands[m.owner]
                 val losers = hands.filter { (_, h) -> if (rule == "diff") h != mine else h == rule }.keys
-                log("ルールは…「${d.text.substringAfter("。")}」")
+                log("ルールは…「{0}」", cardRule(d))
                 if (losers.isEmpty()) log("だれも負けなかった")
-                losers.forEach { lose(it, "じゃんけん") }
+                losers.forEach { lose(it, tx("じゃんけん")) }
             }
             "fingers" -> {
                 val picks = m.involved.filter { it in living }.associateWith { m.inputs[it]?.toInt() ?: (1 + rng.nextInt(5)) }
-                log("指：" + picks.entries.joinToString("、") { "${n(it.key)} ${it.value}本" })
-                log("ルールは…「${d!!.text.substringAfter("。")}」")
+                log(txList(tx("指："), picks.entries.map { tx("{0} {1}本", n(it.key), it.value) }))
+                log("ルールは…「{0}」", cardRule(d!!))
                 when (d.rule) {
-                    "odd" -> picks.filter { it.value % 2 == 1 }.keys.forEach { lose(it, "奇数") }
-                    "even" -> picks.filter { it.value % 2 == 0 }.keys.forEach { lose(it, "偶数") }
-                    "dup" -> picks.filter { (id, v) -> picks.any { (o, w) -> o != id && w == v } }.keys.forEach { lose(it, "かぶり") }
+                    "odd" -> picks.filter { it.value % 2 == 1 }.keys.forEach { lose(it, tx("奇数")) }
+                    "even" -> picks.filter { it.value % 2 == 0 }.keys.forEach { lose(it, tx("偶数")) }
+                    "dup" -> picks.filter { (id, v) -> picks.any { (o, w) -> o != id && w == v } }.keys.forEach { lose(it, tx("かぶり")) }
                     "prime" -> {
                         val sum = picks.values.sum()
-                        if (isPrime(sum)) { log("合計$sum は素数！"); win(m.owner) } else log("合計$sum は素数じゃなかった")
+                        if (isPrime(sum)) { log("合計{0} は素数！", sum); win(m.owner) } else log("合計{0} は素数じゃなかった", sum)
                     }
                 }
             }
@@ -415,26 +423,26 @@ class ArenaGame(
                 val tally = m.inputs.values.filter { it in living }.groupingBy { it }.eachCount()
                 val max = tally.values.maxOrNull() ?: 0
                 val tops = tally.filter { it.value == max }.keys
-                log("投票：" + tally.entries.sortedByDescending { it.value }.joinToString("、") { "${n(it.key)} ${it.value}票" }.ifEmpty { "なし" })
-                if (tops.size == 1 && max > 0) lose(tops.first(), "多数決") else log("同数なのでだれも負けない")
+                log(txList(tx("投票："), tally.entries.sortedByDescending { it.value }.map { tx("{0} {1}票", n(it.key), it.value) }.ifEmpty { listOf(tx("なし")) }))
+                if (tops.size == 1 && max > 0) lose(tops.first(), tx("多数決")) else log("同数なのでだれも負けない")
             }
             "present" -> {
                 log("ルールは…「「いらない」を選んだ人は負け」")
                 val no = m.involved.filter { it in living && m.inputs[it] != "want" }
-                if (no.isEmpty()) log("全員ほしがった！") else no.forEach { lose(it, if (m.inputs[it] == null) "答えなかった" else "いらない") }
+                if (no.isEmpty()) log("全員ほしがった！") else no.forEach { lose(it, if (m.inputs[it] == null) tx("答えなかった") else tx("いらない")) }
             }
             "nose" -> {
-                if (m.goAt < 0) log("${n(m.owner)}は合図をしなかった")
+                if (m.goAt < 0) log("{0}は合図をしなかった", n(m.owner))
                 else {
                     val must = d!!.rule == "must"
                     val others = m.involved.filter { it != m.owner && it in living }
                     val pressed = others.filter { id -> m.inputs[id]?.toLongOrNull()?.let { it in 0..NOSE_WINDOW_MS } == true }
                     if (must) {
                         log("ルールは…「3秒以内に押さなかった人は負け」")
-                        (others - pressed.toSet()).forEach { lose(it, "鼻タッチに遅れた") }
+                        (others - pressed.toSet()).forEach { lose(it, tx("鼻タッチに遅れた")) }
                     } else {
                         log("ルールは…「押してしまった人は負け」")
-                        others.filter { it in m.inputs }.forEach { lose(it, "押してしまった") }
+                        others.filter { it in m.inputs }.forEach { lose(it, tx("押してしまった")) }
                     }
                 }
             }
@@ -448,7 +456,7 @@ class ArenaGame(
     /** 途中で抜けた人 */
     fun forfeit(id: String) {
         val s = seats[id] ?: return
-        if (s.alive) out(id, "抜けた")
+        if (s.alive) out(id, tx("抜けた"))
         if (checkEnd()) return
         val m = mini
         if (m != null && step == Step.MINI) {
@@ -465,8 +473,8 @@ class ArenaGame(
         if (!hasSocialRule || step == Step.OVER) return false
         val t = seats[target] ?: return false
         if (!t.alive || from !in seats) return false
-        log("${n(from)}が${n(target)}の違反を報告！")
-        lose(target, "ルール違反")
+        log("{0}が{1}の違反を報告！", n(from), n(target))
+        lose(target, tx("ルール違反"))
         if (checkEnd()) return true
         if (!seat(turn).alive && step == Step.TURN) beginTurn(nextAlive(turn))
         return true

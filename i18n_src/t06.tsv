@@ -1,0 +1,82 @@
+#keys keys_v1.json
+362	No Refills	보충 없음	无法补牌
+364	Pitfall	함정	陷阱
+411	Majority Vote	다수결	多数表决
+540	<div class="row">{0}<div class="grow"><h2>Starting from {1}'s prompt</h2><div class="cap">Book {2} / {3}　Frame {4} / {5}</div></div></div>	<div class="row">{0}<div class="grow"><h2>{1} 님의 주제에서</h2><div class="cap">{2} / {3}번째 책　{4} / {5}장</div></div></div>	<div class="row">{0}<div class="grow"><h2>从 {1} 的题目开始</h2><div class="cap">第 {2} / {3} 本　第 {4} / {5} 格</div></div></div>
+541	<div class="page{0}"><div class="cap">{1}'s drawing</div>{2}</div>	<div class="page{0}"><div class="cap">{1} 님이 그린 그림</div>{2}</div>	<div class="page{0}"><div class="cap">{1} 画的画</div>{2}</div>
+542	{0}<div class="cap center">That's everyone's book!</div>{1}	{0}<div class="cap center">모두의 발표가 끝났어요!</div>{1}	{0}<div class="cap center">所有人都公布完了！</div>{1}
+543	Let's play Wachapa! Tap "Join a room" and enter room code {0}.	와챠파 하자! '방 참가하기'에서 방 코드 {0}을 입력해 줘	一起来玩 Wachapa 吧！点“加入房间”，输入房间号 {0}
+544	Copied!	복사했어요	已复制
+545	Write a prompt or tap "Surprise me".	주제를 쓰거나 '자동으로'를 눌러 줘	写个题目，或者点“随机来一个”
+546	Write your answer.	답을 써 줘	写下你的答案吧
+547	Place it in front of a player you choose. If it's still there at the end of their turn, they fall in and lose.	지목한 사람 앞에 놓아요. 그 사람의 턴이 끝날 때까지 남아 있으면, 그 사람은 함정에 빠져서 탈락.	放在你指定的人面前。如果到他的回合结束时还在，他就会掉进坑里出局。
+548	Closing Bell	폐막의 종	闭幕钟声
+549	When your next turn ends, everyone still in the game loses.	다음 내 턴이 끝날 때, 남아 있는 전원이 탈락.	你的下个回合结束时，还留在场上的所有人都输。
+550	Gold Coin	금화	金币
+551	Place it in front of yourself. Worth 5 points. Collect 15+ points to win.	내 앞에 놓아요. 5포인트. 15포인트 이상 모은 사람이 승리.	放在自己面前，价值 5 分。攒到 15 分以上的人获胜。
+552	Fingers Out	하나 둘 셋 손가락	一起比手指
+553	On "3, 2, 1", everyone shows 1–5 fingers. Anyone who shows an odd number loses.	하나 둘 셋! 하고 모두 손가락을 1~5개 내요. 홀수를 낸 사람은 탈락.	大家一起喊“一二三”，同时伸出 1～5 根手指。伸出奇数根的人输。
+554	On "3, 2, 1", everyone shows 1–5 fingers. What happens? You'll find out after…	하나 둘 셋! 하고 모두 손가락을 1~5개 내요. 무슨 일이 일어날지는 내고 나서의 즐거움…	大家一起喊“一二三”，同时伸出 1～5 根手指。会发生什么？出完才知道……
+555	On "3, 2, 1", everyone shows 1–5 fingers. Anyone who shows an even number loses.	하나 둘 셋! 하고 모두 손가락을 1~5개 내요. 짝수를 낸 사람은 탈락.	大家一起喊“一二三”，同时伸出 1～5 根手指。伸出偶数根的人输。
+556	On "3, 2, 1", everyone shows 1–5 fingers. Anyone who shows the same number as someone else loses.	하나 둘 셋! 하고 모두 손가락을 1~5개 내요. 다른 사람과 같은 개수를 낸 사람은 탈락.	大家一起喊“一二三”，同时伸出 1～5 根手指。和别人伸出同样根数的人输。
+557	Everyone RPS	다 같이 가위바위보	全员石头剪刀布
+558	Everyone plays rock-paper-scissors at once. Anyone who throws Rock loses.	모두 한꺼번에 가위바위보. 바위를 낸 사람은 탈락.	所有人同时石头剪刀布。出石头的人输。
+559	Everyone plays rock-paper-scissors at once! What happens? You'll find out after…	모두 한꺼번에 가위바위보! 무슨 일이 일어날지는 내고 나서의 즐거움…	所有人同时石头剪刀布！会发生什么？出完才知道……
+560	Everyone plays rock-paper-scissors at once. Anyone who throws Scissors loses.	모두 한꺼번에 가위바위보. 가위를 낸 사람은 탈락.	所有人同时石头剪刀布。出剪刀的人输。
+561	Everyone plays rock-paper-scissors at once. Anyone who throws Paper loses.	모두 한꺼번에 가위바위보. 보를 낸 사람은 탈락.	所有人同时石头剪刀布。出布的人输。
+562	Everyone plays rock-paper-scissors at once. Anyone who throws something different from you loses.	모두 한꺼번에 가위바위보. 나와 다른 걸 낸 사람은 탈락.	所有人同时石头剪刀布。出的和你不一样的人输。
+563	Password	암호	口令
+564	Stays as a rule. Anyone who doesn't say "Arena rocks!" before playing a card loses.	룰로 남아요. 카드를 내기 전에 "아레나 최고!"라고 말하지 않은 사람은 탈락.	作为规则保留。出牌前没有说“竞技场最棒！”的人输。
+565	No "I" or "Me"	1인칭 금지	禁用第一人称
+566	Stays as a rule. Anyone who refers to themselves with words like "I", "me" or "my" loses.	룰로 남아요. '나', '내', '저'처럼 자기 자신을 가리키는 말을 한 사람은 탈락.	作为规则保留。说了“我”“俺”“咱”等指自己的词的人输。
+567	Take You Down	길동무	同归于尽
+568	Keep it in your hand. When someone wins, it triggers automatically and you both lose. Playing it does nothing.	손패에 들고 있어요. 누군가 이기면 자동으로 발동해서 그 사람과 당신이 탈락. 내도 아무 일도 일어나지 않아요.	留在手牌里。有人获胜时自动发动，那个人和你一起输。打出不会有任何效果。
+569	Evil Laugh	고소한 웃음	幸灾乐祸
+570	Place it in front of yourself. Every time someone else loses, you draw a card.	내 앞에 놓아요. 다른 사람이 탈락할 때마다 당신은 1장 뽑아요.	放在自己面前。每当有其他人输掉，你就抽 1 张牌。
+571	Present	선물	礼物
+572	Ask everyone else: "A present — want it or not?"… Anyone who chooses "No thanks" loses.	다른 모두에게 물어요. "선물, 갖고 싶어? 필요 없어?"…… '필요 없어'를 고른 사람은 탈락.	问其他所有人：“礼物，要还是不要？”……选了“不要”的人输。
+573	Ask everyone else: "A present — want it or not?"	다른 모두에게 물어요. "선물, 갖고 싶어? 필요 없어?"	问其他所有人：“礼物，要还是不要？”
+574	Birth Month	생일 달	生日月份
+575	If this month is your birth month, you win! (Answer honestly.)	이번 달이 당신의 생일 달이면 당신의 승리! (솔직하게 답하기)	如果这个月是你的生日月份，你就赢了！（要老实回答哦）
+576	Everyone votes. Whoever gets the most votes loses (if tied, nobody loses).	모두 투표해요. 가장 많은 표를 받은 사람은 탈락 (동수면 아무도 지지 않아요).	全员投票。得票最多的人输（平票则谁都不输）。
+577	Hand Swap	손패 교환	交换手牌
+578	Swap your whole hand with a player you choose.	지목한 사람과 손패를 전부 바꿔요.	和你指定的人交换全部手牌。
+579	Charm	부적	护身符
+580	Keep it in your hand. The first time you would lose, it takes the hit instead (automatic). Playing it does nothing.	손패에 들고 있어요. 당신이 탈락할 때 한 번만 대신 막아 줘요 (자동). 내도 아무 일도 일어나지 않아요.	留在手牌里。你要输的时候，会替你挡一次（自动）。打出不会有任何效果。
+581	Bomb	폭탄	炸弹
+582	Place it in front of yourself. When there are 4 bombs on the table, everyone loses together.	내 앞에 놓아요. 판 위의 폭탄이 4개가 되면 모두 함께 탈락.	放在自己面前。场上的炸弹凑满 4 个时，全员一起输。
+583	Big Vault	큰 금고	大金库
+584	Place it in front of yourself. Worth 90 points. But from now on, you need 100 points to win.	내 앞에 놓아요. 90포인트. 단, 이후로는 이기려면 100포인트가 필요해요.	放在自己面前，价值 90 分。但从此以后需要 100 分才能获胜。
+585	Dinosaur	공룡	恐龙
+586	Place it in front of yourself. The dinosaur is so big that nobody can place cards in front of you anymore.	내 앞에 놓아요. 공룡이 너무 커서 이제 아무도 당신 앞에 카드를 놓을 수 없어요.	放在自己面前。恐龙太大了，再也没人能在你面前放牌。
+587	On "3, 2, 1", everyone shows 1–5 fingers. If the total is a prime number, you win!	하나 둘 셋! 하고 모두 손가락을 1~5개 내요. 전원의 합계가 소수면 당신의 승리!	大家一起喊“一二三”，同时伸出 1～5 根手指。所有人的总和是质数的话，你就赢了！
+588	Cat Interrupt	고양이의 훼방	猫咪捣乱
+589	Keep it in your hand and shout "Interrupt!" right after someone plays a card to cancel its effect (then draw 1). Play it on your turn to draw 2.	손패에 들고 있으면, 누군가 카드를 낸 직후에 '끼어들기!'로 효과를 무효로 할 수 있어요 (그 후 1장 뽑기). 내 턴에 내면 2장 뽑아요.	留在手牌里，有人刚出牌时可以喊“插手！”抵消效果（之后抽 1 张）。在自己的回合打出则抽 2 张。
+590	Zombie Alert	좀비 주의보	僵尸警报
+591	Stays as a rule. When your turn comes, shout "Zombies!" Anyone who doesn't shout loses.	룰로 남아요. 내 턴이 오면 "좀비다!"라고 외쳐요. 외치지 않은 사람은 탈락.	作为规则保留。轮到自己时要大喊“僵尸来了！”。没喊的人输。
+592	No Pointing	손가락질 금지	禁止指人
+593	Stays as a rule. Anyone who points at a person or thing loses.	룰로 남아요. 사람이나 물건을 손가락으로 가리킨 사람은 탈락.	作为规则保留。用手指指人或指东西的人输。
+594	Nose Touch	코 터치	摸鼻子
+595	When you give the signal, everyone presses right away. Anyone who doesn't press within 3 seconds loses.	당신이 신호를 보내면 모두 바로 눌러요. 3초 안에 누르지 않은 사람은 탈락.	你发出信号后，所有人立刻按。3 秒内没按的人输。
+596	When the player gives the signal, everyone presses right away…?	낸 사람이 신호를 보내면 모두 바로 누른다…?	出牌的人发出信号后，所有人立刻按……？
+597	Nose Touch…?	코 터치…?	摸鼻子……？
+598	When you give the signal… anyone who presses loses!	당신이 신호를 보내면…… 눌러 버린 사람은 탈락!	你发出信号后……按了的人输！
+599	Stays as a rule. Nobody can draw from the deck anymore. Anyone with no cards at the start of their turn loses.	룰로 남아요. 이제 아무도 덱에서 뽑을 수 없어요. 턴을 시작할 때 손패가 없는 사람은 탈락.	作为规则保留。再也没人能从牌堆抽牌。回合开始时没有手牌的人输。
+600	Night of Chain Reactions	연쇄의 밤	连锁之夜
+601	When someone loses, the person in the next seat loses too.	누군가 탈락하면, 그다음 자리 사람도 함께 탈락	有人输了，坐在他下一位的人也一起输
+602	Night of "Yum!"	잘 먹겠습니다의 밤	开饭之夜
+603	On your turn, name a food and say "Yum!" Everyone else must reply "So good!" right away. Anyone who fails loses (report the foul).	내 턴이 오면 음식 이름과 "맛있다!"를 말해요. 다른 사람은 바로 "진짜네!"라고 받아요. 못 한 사람은 탈락 (위반 신고)	轮到自己时，说出一种食物的名字再喊“好吃！”。其他人要马上回“真的！”。没做到的人输（举报犯规）
+604	Night of Taboo Words	금기어의 밤	禁语之夜
+605	Anyone who says a word containing "win" or "lose" loses (report the foul).	'이기다', '지다'가 들어간 말을 한 사람은 탈락 (위반 신고)	说了带“赢”或“输”字的话的人输（举报犯规）
+606	Night of the Nameless	이름 없는 밤	无名之夜
+607	Don't say card names out loud. Anyone who does loses (report the foul).	카드 이름을 입에 올리면 안 돼요. 말한 사람은 탈락 (위반 신고)	不能说出卡牌的名字。说了的人输（举报犯规）
+608	Night of Speed	속공의 밤	速攻之夜
+609	Turns are 20 seconds. When time runs out, a card is played from your hand automatically.	턴은 20초. 시간이 다 되면 손패에서 자동으로 카드가 나가요	每回合 20 秒。超时会自动从手牌中出牌
+610	Night of Luxury	사치스러운 밤	奢华之夜
+611	Everyone starts with 3 cards.	처음 손패가 3장	初始手牌为 3 张
+612	Arena	아레나	竞技场
+613	Sync	싱크로	心有灵犀
+614	20 Questions	스무고개	是非猜猜看
+615	Most Likely	솔직 질문	真心话
+616	Draw & Pass	그림 릴레이	画画接力
+617	(no idea…)	(모르겠어…)	（看不出来……）

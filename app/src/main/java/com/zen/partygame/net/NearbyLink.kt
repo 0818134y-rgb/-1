@@ -1,5 +1,6 @@
 package com.zen.partygame.net
 
+import com.zen.partygame.ui.tr
 import android.content.Context
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.AdvertisingOptions
@@ -106,7 +107,7 @@ class NearbyLink(context: Context) : Link {
     override fun startHosting(roomCode: String, hostName: String) {
         isHost = true
         client.startAdvertising(
-            "$PREFIX|$PROTO|$roomCode|$hostName", serviceId, lifecycle,
+            "${PREFIX}|${PROTO}|${roomCode}|${hostName}", serviceId, lifecycle,
             AdvertisingOptions.Builder().setStrategy(strategy).build(),
         ).addOnFailureListener { _events.tryEmit(NetEvent.Error(describe(it))) }
     }
@@ -130,7 +131,7 @@ class NearbyLink(context: Context) : Link {
     fun stopDiscovery() = client.stopDiscovery()
 
     override fun requestJoin(endpointId: String, myName: String) {
-        client.requestConnection("$PREFIX|$PROTO|$myName", endpointId, lifecycle)
+        client.requestConnection("${PREFIX}|${PROTO}|${myName}", endpointId, lifecycle)
             .addOnFailureListener { _events.tryEmit(NetEvent.ConnectFailed(endpointId, false)) }
     }
 
@@ -151,9 +152,9 @@ class NearbyLink(context: Context) : Link {
         val name = code?.let { ConnectionsStatusCodes.getStatusCodeString(it) } ?: ""
         return when {
             code == ConnectionsStatusCodes.STATUS_ALREADY_ADVERTISING ||
-                code == ConnectionsStatusCodes.STATUS_ALREADY_DISCOVERING -> "すでに通信中です"
-            name.startsWith("MISSING_PERMISSION") -> "「付近のデバイス」の許可が必要です"
-            else -> "近くの端末と通信できませんでした（BluetoothとWi-Fi、位置情報をオンにしてください）"
+                code == ConnectionsStatusCodes.STATUS_ALREADY_DISCOVERING -> tr("すでに通信中です")
+            name.startsWith("MISSING_PERMISSION") -> tr("「付近のデバイス」の許可が必要です")
+            else -> tr("近くの端末と通信できませんでした（BluetoothとWi-Fi、位置情報をオンにしてください）")
         }
     }
 

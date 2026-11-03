@@ -55,6 +55,7 @@ class ScreenshotTest {
     @Test fun captureScreens() {
         val vm = AppViewModel(ApplicationProvider.getApplicationContext())
         vm.setName("ゆうき")
+        vm.setLang("ja")
         var content by mutableStateOf<Ui>(Ui.Title)
         rule.setContent {
             CompositionLocalProvider(LocalAdsEnabled provides false) {
@@ -208,6 +209,18 @@ class ScreenshotTest {
         repeat(3) { st -> dr.players.forEach { p -> dr.apply(p.id, if ((st + 2) % 2 == 1) Intent.DrawSubmit(st + 2, drawing = pic) else Intent.DrawSubmit(st + 2, text = "宇宙でラーメン")) } }
         repeat(2) { dr.apply("h", Intent.Next) }
         shot("40_draw_reveal", room(dr, "h"))
+
+        // --- 多言語（タイトル・ロビー・アリーナ・お絵かき） ---
+        for (lang in listOf("en", "ko", "zh")) {
+            vm.setLang(lang)
+            shot("${lang}_01_title", Ui.Title)
+            val le = engine(settings = Settings(game = GameType.DRAW))
+            shot("${lang}_02_lobby", Ui.Room(le.viewFor("h"), 0L, online = true))
+            le.apply("h", Intent.Start)
+            shot("${lang}_03_draw_write", room(le, "h"))
+            shot("${lang}_04_arena", room(ar.also { it.apply("h", Intent.UpdateSettings(Settings(game = GameType.ARENA))); it.apply("h", Intent.Start) }, "h"))
+        }
+        vm.setLang("ja")
         vm.setOnline(false)
         val local = engine(local = true)
         local.apply("h", Intent.Start)

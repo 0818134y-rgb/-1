@@ -39,6 +39,9 @@ class JsHost(roomCode: String, topicsJson: String) {
 
 @JsExport fun protoVersion(): Int = PROTO
 
+/** アリーナの記録1行を、その端末の言語にする（tr = 日本語の型 → 訳） */
+@JsExport fun formatLog(entry: String, tr: (String) -> String, sep: String): String = LogFmt.format(entry, tr, sep)
+
 /** お絵かき伝言の絵：[[色, 太さ, [x, y, x, y, …]], …] の JSON ⇔ 送る文字列 */
 @JsExport fun drawingEncode(strokesJson: String): String {
     val arr = runCatching { WireJson.parseToJsonElement(strokesJson) as JsonArray }.getOrNull() ?: return ""

@@ -54,13 +54,24 @@ if DOMAIN:
 # 検索エンジンと AdSense の審査クローラーが全部のページを読めるように
 open(os.path.join(G, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n')
 open(os.path.join(G, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    + ''.join(f'  <url><loc>{SITE}{p}</loc></url>\n' for p in ('', 'howto.html', 'about.html', 'privacy.html')) + '</urlset>\n')
+    + ''.join(f'  <url><loc>{SITE}{p}</loc></url>\n' for p in [''] + [b + ('.html' if l == 'ja' else '.' + l + '.html') for b in ('howto', 'about', 'privacy') for l in ('ja', 'en', 'ko', 'zh')]) + '</urlset>\n')
 sys.path.insert(0, HERE); import pages
 pages.build(G, KJS, HEAD_ADS, AD_TAGS['page'] or AD_TAGS['bannerSp'] or AD_TAGS['bannerPc'])
 shutil.copy(os.path.join(ASSETS, 'online', 'peerjs.min.js'), os.path.join(G, 'lib'))
 shutil.copy(os.path.join(ASSETS, 'online', 'net.js'), os.path.join(G, 'lib'))
-topics = open(os.path.join(ASSETS, 'topics.json'), encoding='utf-8').read()
-open(os.path.join(G, 'lib', 'topics.js'), 'w', encoding='utf-8').write('window.TOPICS_JSON = ' + json.dumps(topics, ensure_ascii=False) + ';\n')
+# お題（言語ごと）と、画面の訳
+LANGS = ['ja', 'en', 'ko', 'zh']
+tj = {}
+for lg in LANGS:
+    fn = os.path.join(ASSETS, 'topics.json' if lg == 'ja' else 'topics_%s.json' % lg)
+    if os.path.exists(fn): tj[lg] = open(fn, encoding='utf-8').read()
+open(os.path.join(G, 'lib', 'topics.js'), 'w', encoding='utf-8').write(
+    'window.TOPICS_JSON = ' + json.dumps(tj['ja'], ensure_ascii=False) + ';\nwindow.TOPICS_BY_LANG = ' + json.dumps(tj, ensure_ascii=False) + ';\n')
+dicts = {}
+for lg in LANGS[1:]:
+    fn = os.path.join(ASSETS, 'i18n', lg + '.json')
+    if os.path.exists(fn): dicts[lg] = json.load(open(fn, encoding='utf-8'))
+open(os.path.join(G, 'lib', 'i18n.js'), 'w', encoding='utf-8').write('window.PG_I18N = ' + json.dumps(dicts, ensure_ascii=False, separators=(',', ':')) + ';\n')
 for f in os.listdir(DRAW):
     if f.endswith('.webp') and f != 'launcher_art.webp':
         shutil.copy(os.path.join(DRAW, f), os.path.join(G, 'img', f))

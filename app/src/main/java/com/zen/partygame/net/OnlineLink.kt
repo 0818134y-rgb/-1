@@ -1,5 +1,6 @@
 package com.zen.partygame.net
 
+import com.zen.partygame.ui.tr
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
@@ -36,7 +37,7 @@ class OnlineLink(context: Context) : Link {
         val peer = app.assets.open("online/peerjs.min.js").bufferedReader().use { it.readText() }
         val net = app.assets.open("online/net.js").bufferedReader().use { it.readText() }
         val html = "<!doctype html><html><head><meta charset=\"utf-8\"></head><body>" +
-            "<script>$peer</script><script>$net</script>" +
+            "<script>${peer}</script><script>${net}</script>" +
             "<script>PgNet.onEvent=function(e){AndroidNet.emit(JSON.stringify(e));};AndroidNet.ready();</script></body></html>"
         web = WebView(app).apply {
             settings.javaScriptEnabled = true
@@ -66,7 +67,7 @@ class OnlineLink(context: Context) : Link {
             "data" -> NetEvent.Received(str("id"), str("text").encodeToByteArray())
             "closed" -> NetEvent.Disconnected(str("id"))
             "taken" -> NetEvent.CodeTaken
-            "error" -> NetEvent.Error(if (str("message") == "network") "インターネットにつながりません。電波を確かめてください" else "通信エラー（${str("message")}）")
+            "error" -> NetEvent.Error(if (str("message") == "network") tr("インターネットにつながりません。電波を確かめてください") else tr("通信エラー（{0}）", str("message")))
             else -> null
         }
     }
@@ -75,11 +76,11 @@ class OnlineLink(context: Context) : Link {
     private fun run(js: String) { web?.evaluateJavascript(js, null) }
     private fun q(s: String) = JsonPrimitive(s).toString()
 
-    override fun startHosting(roomCode: String, hostName: String) { call("PgNet.host($PROTO, ${q(roomCode)}, ${q(hostName)})") }
+    override fun startHosting(roomCode: String, hostName: String) { call("PgNet.host(${PROTO}, ${q(roomCode)}, ${q(hostName)})") }
     override fun accept(endpointId: String) { call("PgNet.accept(${q(endpointId)})") }
     override fun reject(endpointId: String) { call("PgNet.reject(${q(endpointId)})") }
     /** endpointId には部屋コードを渡す */
-    override fun requestJoin(endpointId: String, myName: String) { call("PgNet.join($PROTO, ${q(endpointId)}, ${q(myName)})") }
+    override fun requestJoin(endpointId: String, myName: String) { call("PgNet.join(${PROTO}, ${q(endpointId)}, ${q(myName)})") }
     override fun send(endpointIds: List<String>, bytes: ByteArray) {
         if (endpointIds.isEmpty()) return
         call("PgNet.send(${JsonArray(endpointIds.map { JsonPrimitive(it) })}, ${q(bytes.decodeToString())})")

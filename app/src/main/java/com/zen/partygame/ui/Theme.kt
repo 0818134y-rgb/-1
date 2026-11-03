@@ -41,9 +41,22 @@ private val type = Typography(
     labelLarge = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
 )
 
+/** 選んだ言語の字形で表示する（中国語・韓国語の漢字やかなが日本語の字形にならないように） */
+private fun Typography.withLocale(l: androidx.compose.ui.text.intl.LocaleList) = Typography(
+    displayLarge = displayLarge.copy(localeList = l), displayMedium = displayMedium.copy(localeList = l), displaySmall = displaySmall.copy(localeList = l),
+    headlineLarge = headlineLarge.copy(localeList = l), headlineMedium = headlineMedium.copy(localeList = l), headlineSmall = headlineSmall.copy(localeList = l),
+    titleLarge = titleLarge.copy(localeList = l), titleMedium = titleMedium.copy(localeList = l), titleSmall = titleSmall.copy(localeList = l),
+    bodyLarge = bodyLarge.copy(localeList = l), bodyMedium = bodyMedium.copy(localeList = l), bodySmall = bodySmall.copy(localeList = l),
+    labelLarge = labelLarge.copy(localeList = l), labelMedium = labelMedium.copy(localeList = l), labelSmall = labelSmall.copy(localeList = l),
+)
+
 @Composable
 fun PartyTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = scheme, typography = type) {
+    val code = I18n.code
+    val typography = androidx.compose.runtime.remember(code) {
+        type.withLocale(androidx.compose.ui.text.intl.LocaleList(when (code) { "zh" -> "zh-CN"; "ko" -> "ko-KR"; "en" -> "en-US"; else -> "ja-JP" }))
+    }
+    MaterialTheme(colorScheme = scheme, typography = typography) {
         // 文字の色の既定値を明るい色に（背景の上に直接置いた見出しが暗くならないように）
         CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
     }

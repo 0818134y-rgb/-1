@@ -1,0 +1,111 @@
+#keys keys_v1.json
+230	Draw & Pass	그림 릴레이	你画我猜接力
+231	First, everyone writes a prompt (like "A cat flying through the sky"). It's passed to the next person, who draws it. The next person sees only the drawing and writes what they think it is, then the next draws that sentence… and so on for everyone. At the end, reveal frame by frame how the prompt changed — and laugh!	먼저 모두가 주제(예: '고양이가 하늘을 날고 있다')를 써요. 그게 옆 사람에게 넘어가면 그림으로 그려요. 다음 사람은 그 그림만 보고 무슨 그림인지 글로 답하고, 또 다음 사람이 그 글을 그림으로… 모두 돌아가며 반복해요. 마지막에 주제가 어떻게 바뀌었는지 한 장씩 공개하며 웃어 봐요.	首先每个人写下一个题目（比如“猫在天上飞”）。题目传给下一个人，由他画出来。再下一个人只看画，用文字写出画的是什么，接着下一个人再把这句话画出来……全员轮一遍。最后逐格公布题目是怎么一步步变样的，一起笑翻吧。
+232	How to connect	연결 방법	连接方式
+233	Nearby: one person taps "Create a room", everyone else taps "Join a room" and picks the same room number. Turn on Bluetooth and Wi-Fi (you don't need to be connected to a Wi-Fi network).\n\nOnline: switch to "Online" on the title screen and create a room to get a 6-digit room code. Others (including PC players) join with that code. For talking games, play while on a voice call.	근처에서: 한 명이 '방 만들기', 다른 사람들은 '방 참가하기'에서 같은 방 번호를 골라요. 블루투스와 Wi-Fi를 켜 주세요 (Wi-Fi에 연결돼 있을 필요는 없어요).\n\n온라인: 첫 화면에서 '온라인'으로 바꾸고 방을 만들면 6자리 방 코드가 나와요. 다른 사람들(PC 버전도)은 그 코드로 참가해요. 말로 하는 게임은 통화 앱을 켜 놓고 즐기세요.	附近：一人点“创建房间”，其他人点“加入房间”并选择同一个房间号。请打开蓝牙和 Wi-Fi（不需要连接到 Wi-Fi 网络）。\n\n在线：在首页切换到“在线”并创建房间，会显示 6 位房间号。其他人（包括 PC 版玩家）用这个号码加入。需要说话的游戏，请边语音通话边玩。
+234	Rooms nearby	근처의 방	附近的房间
+235	Pick the room number shown on the host's screen.	방장 화면에 나온 방 번호를 고르세요	请选择房主屏幕上显示的房间号
+236	Searching…	찾는 중…	正在搜索……
+237	Can't find it? Check that Bluetooth and Wi-Fi are on and that the host has tapped "Create a room".	안 보이면 블루투스와 Wi-Fi가 켜져 있는지, 방장이 '방 만들기'를 눌렀는지 확인해 주세요	找不到时，请确认蓝牙和 Wi-Fi 已打开，并且房主已点了“创建房间”
+238	Host: {0}	방장: {0}	房主：{0}
+239	Player 1	플레이어1	玩家1
+240	Player 2	플레이어2	玩家2
+241	Player 3	플레이어3	玩家3
+242	Player 4	플레이어4	玩家4
+243	Players	참가자	参加的人
+244	Pass the phone around to check your words ({0}–{1} players).	폰을 차례로 넘기며 제시어를 확인해요 ({0}~{1}명)	轮流传手机查看词语（{0}～{1} 人）
+245	Player {0}	{0}번째	第 {0} 位
+246	Player {0}	플레이어{0}	玩家{0}
+247	+ Add player	+ 인원 추가	+ 增加人数
+248	Start with {0} players	이 인원으로 시작 ({0}명)	以这个人数开始（{0} 人）
+249	Tonight's Rule: {0}	오늘 밤의 룰: {0}	今晚的规则：{0}
+250	Out	탈락	出局
+251	{0} cards	손패 {0}장	手牌 {0} 张
+252	Foul!	위반!	犯规！
+253	No drawing!	못 뽑음!	不能抽牌！
+254	Deck {0}	덱 {0}장	牌堆 {0} 张
+255	Just played	방금 낸 카드	刚打出的
+256	Rule	룰	规则
+257	Rules: 	룰: 	规则：
+258	"{0}" {1}	'{0}' {1}	“{0}”{1}
+259	🔔 When {0}'s next turn ends, everyone loses!	🔔 {0} 님의 다음 턴이 끝나면 모두 패배!	🔔 {0}的下个回合结束时，全员都输！
+260	The Big Vault is out — you now need {0} points to win.	큰 금고가 나와서 이기려면 {0}포인트가 필요해요	大金库出现了，需要 {0} 分才能获胜
+261	You lost.	당신은 탈락했어요	你输了
+262	Watch until the end. You can still report fouls.	끝까지 지켜봐요. 위반 신고는 할 수 있어요	看到最后吧。仍然可以举报犯规
+263	Your turn! Pick a card and play it.	내 차례! 카드를 한 장 골라서 내요	轮到你了！选一张牌打出去
+264	It's {0}'s turn.	{0} 님 차례예요	轮到 {0} 了
+265	Your hand ({0})	내 손패 ({0}장)	你的手牌（{0} 张）
+266	On whom?	누구에게?	给谁？
+267	Nobody can be targeted, so playing this does nothing.	지목할 수 있는 사람이 없어서 내도 아무 일도 일어나지 않아요	没有可以指定的人，打出也不会有任何效果
+268	Play "{0}"	'{0}' 내기	打出“{0}”
+269	What happened	일어난 일	动态
+270	Tonight's Rule "{0}"	오늘 밤의 룰 '{0}'	今晚的规则“{0}”
+271	Did {0} break a rule?	{0} 님이 룰 위반?	{0}犯规了？
+272	Did they break {0}? If you report it, they lose (unless they have a charm).	{0}을(를) 어겼나요? 신고하면 그 사람은 탈락해요 (부적이 있으면 지켜져요)	他违反了{0}吗？举报后此人会出局（有护身符则会被保护）
+273	"{0}" was played!	'{0}'이(가) 나왔다!	有人打出了“{0}”！
+274	You have a Cat. Interrupt and cancel it?	고양이 카드를 갖고 있어요. 끼어들어서 무효로 할까요?	你有猫咪牌。要插手抵消它吗？
+275	Interrupt!	끼어들기!	插手！
+276	Pass	넘기기	放过
+277	…Hold on. Someone might interrupt!	…잠깐만요. 누가 끼어들지도?	……等一下，可能有人要插手？
+278	Is this month your birth month?	이번 달이 당신의 생일 달인가요?	这个月是你的生日月份吗？
+279	Yes	예	是
+280	No	아니요	不是
+281	{0} is answering…	{0} 님이 대답하는 중…	{0} 正在回答……
+282	Rock	바위	石头
+283	Scissors	가위	剪刀
+284	Paper	보	布
+285	Thrown. Waiting for everyone…	냈어요. 다른 사람을 기다리는 중…	已出拳，正在等待大家……
+286	Rock-paper-scissors in progress…	가위바위보 중…	正在石头剪刀布……
+287	You showed {0}. Waiting for everyone…	손가락 {0}개를 냈어요. 다른 사람을 기다리는 중…	你伸出了 {0} 根手指，正在等待大家……
+288	Everyone is choosing…	모두 고르는 중…	大家正在选择……
+289	 (me)	 (나)	（自己）
+290	You voted for {0}.	{0} 님에게 투표했어요	你投给了 {0}
+291	Voting…	투표 중…	投票中……
+292	I want it!	갖고 싶어!	我要！
+293	No thanks	필요 없어	不要
+294	You answered "{0}".	'{0}'라고 답했어요	你回答了“{0}”
+295	Want it	갖고 싶어	想要
+296	Waiting for everyone's answers…	모두의 대답을 기다리는 중…	正在等待大家的回答……
+297	{0} left　Answered {1} / {2}	남은 시간 {0}　대답한 사람 {1} / {2}명	剩余 {0}　已回答 {1} / {2} 人
+298	Give the signal whenever you like. It appears on everyone's screen.	원하는 타이밍에 신호를 보내요. 신호는 모두의 화면에 떠요	在你喜欢的时机发出信号，信号会显示在所有人的屏幕上
+299	Signal!	신호!	信号！
+300	Signal sent! Waiting for reactions… ({0} / {1})	신호를 보냈어요! 모두의 반응을 기다리는 중… ({0} / {1}명)	已发出信号！正在等待大家的反应……（{0} / {1} 人）
+301	Wait for {0}'s signal…	{0} 님의 신호를 기다려…	等待 {0} 的信号……
+302	Pressed!	눌렀다!	按了！
+303	Press now!!	눌러!!	快按！！
+304	{0}s left	{0}초 남음	还剩 {0} 秒
+305	No winner!	승자 없음!	没有赢家！
+306	 win!	의 승리!	获胜！
+307	Final results	최종 결과	最终结果
+308	👑 Winner	👑 우승	👑 冠军
+309	Survived	생존	存活
+310	Last events	마지막에 일어난 일	最后的动态
+311	Room codes are {0}-digit numbers.	방 코드는 {0}자리 숫자예요	房间号是 {0} 位数字
+312	Guest	게스트	游客
+313	Let's play Wachapa!\nIn the app, tap "Online" → "Join a room" and enter room code {0}.	와챠파 하자!\n앱에서 '온라인' → '방 참가하기'를 누르고 방 코드 {0}을 입력해 줘	一起来玩 Wachapa 吧！\n在 App 里点“在线”→“加入房间”，输入房间号 {0}
+314	\niPhone / PC players can join here: {0}	\niPhone · PC는 여기서: {0}	\niPhone · PC 请从这里进入：{0}
+315	Send invite	초대 보내기	发送邀请
+316	The host closed the room.	방장이 방을 닫았어요	房主关闭了房间
+317	The host removed you from the room.	방장이 당신을 내보냈어요	你被房主请出了房间
+318	Couldn't join because a game is in progress.	게임 중이라서 참가하지 못했어요	游戏正在进行中，无法加入
+319	{0} left the room.	{0} 님이 나갔어요	{0} 离开了
+320	Couldn't join (the game has started, the room is full, or app versions differ).	참가하지 못했어요 (게임 중 · 인원 초과 · 앱 버전이 다름 중 하나예요)	无法加入（游戏进行中、人数已满或 App 版本不同）
+321	Couldn't connect. Please try again.	연결하지 못했어요. 다시 시도해 주세요	连接失败，请再试一次
+322	Room not found. Check the room code (you also can't join if app versions differ).	방을 찾을 수 없어요. 방 코드를 확인해 주세요 (앱 버전이 다를 때도 들어갈 수 없어요)	找不到房间，请确认房间号（App 版本不同时也无法加入）
+323	Lost connection to the host.	방장과의 연결이 끊어졌어요	与房主的连接已断开
+324	Write a prompt	주제를 써요	写个题目吧
+325	Draw it	그림을 그려요	来画画吧
+326	What is this?	이 그림은 뭘까?	这画的是什么？
+327	The next person will draw this. Write something fun! (e.g. {0})	다음 사람이 이걸 그림으로 그려요. 재밌는 문장을 써 봐요! (예: {0})	下一个人会把它画出来。写点有趣的吧！（例如：{0}）
+328	This is what the previous person drew. Describe what it is in words.	앞사람이 그린 그림이에요. 무엇을 그렸는지 글로 답해 봐요	这是上一个人画的。用一句话说说画的是什么吧
+329	Sent!	보냈어요!	已发送！
+330	We'll move on when everyone's done.	모두 끝나면 다음으로 넘어가요	大家都完成后就进入下一步
+331	Done!	다 그렸다!	画好了！
+332	Write a prompt (up to {0} characters)	주제 쓰기 (최대 {0}자)	写题目（最多 {0} 个字）
+333	This is…	이 그림은…	这是……
+334	Submit	이걸로 결정	就这个了
+335	Done {0} / {1}	완료 {0} / {1}명	已完成 {0} / {1} 人
+336	 (waiting: {0})	 (아직: {0})	（还没好：{0}）
+337	Move on now (blank for anyone not done)	기다리지 않고 다음으로 (아직인 사람은 백지)	不等了，直接下一步（没完成的算空白）
+338	You haven't drawn anything	아무것도 안 그렸어요	你什么都还没画
+339	Send it blank?	이대로 백지로 보낼까요?	就这样交白卷吗？

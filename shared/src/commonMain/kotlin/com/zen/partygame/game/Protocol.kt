@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** 通信の版。違う版の端末どうしは同じ部屋に入れない */
-const val PROTO = 5
+const val PROTO = 6
 const val MIN_PLAYERS = 3
 const val MAX_PLAYERS_NEARBY = 8
 const val MAX_PLAYERS_LOCAL = 12

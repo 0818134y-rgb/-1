@@ -1,0 +1,111 @@
+#keys keys_v1.json
+340	Send blank	백지로 보내기	交白卷
+341	Draw	그리기	去画
+342	Erase everything?	전부 지울까요?	要全部擦掉吗？
+343	Your whole drawing will be erased.	그린 그림이 모두 지워져요	画好的内容会全部消失
+344	Erase	지우기	擦掉
+345	Eraser	지우개	橡皮擦
+346	Undo	되돌리기	撤销
+347	Clear all	전부 지우기	全部擦掉
+348	Out of ink (tap "Undo" to free some up).	잉크가 다 떨어졌어요 ('되돌리기'로 줄일 수 있어요)	墨水用完了（可以用“撤销”腾出一些）
+349	Starting from {0}'s prompt	{0} 님의 주제에서	从 {0} 的题目开始
+350	Book {0} / {1}　Frame {2} / {3}	{0} / {1}번째 책　{2} / {3}장	第 {0} / {1} 本　第 {2} / {3} 格
+351	That's everyone's book!	모두의 발표가 끝났어요!	所有人都公布完了！
+352	Next page	다음 장 넘기기	翻下一页
+353	Next person's book	다음 사람 차례로	看下一个人的
+354	Finish	발표 끝	公布结束
+355	Waiting for the host to turn the page…	방장이 넘기기를 기다리는 중…	等待房主翻页……
+356	's prompt	 님의 주제	的题目
+357	's drawing	 님이 그린 그림	画的画
+358	's guess	 님의 답	的答案
+359	Tonight's Rule: {0} ({1})	오늘 밤의 룰: {0} ({1})	今晚的规则：{0}（{1}）
+360	The deck was reshuffled.	덱을 다시 섞었다	重新洗了牌堆
+361	{0} has no cards…	{0}은(는) 손패가 없다…	{0}没有手牌了……
+362	no refills	보충 없음	无法补牌
+363	A pitfall was still in front of {0}!	{0} 앞에 함정이 남아 있었다!	{0}面前的陷阱还在！
+364	pitfall	함정	陷阱
+365	The closing bell rang!	폐막의 종이 울렸다!	闭幕的钟声响了！
+366	{0}'s charm took the hit! ({1})	{0}의 부적이 대신 막아 줬다! ({1})	{0}的护身符替他挡下了！（{1}）
+367	lost ({0})	탈락 ({0})	出局（{0}）
+368	{0} cackled and drew a card.	{0}은(는) 크게 웃으며 1장 뽑았다	{0}放声大笑，抽了 1 张牌
+369	Night of chain reactions… {0} next to them gets dragged in too!	연쇄의 밤… 옆자리 {0}도 휘말렸다!	连锁之夜……旁边的{0}也被卷了进去！
+370	chain reaction	연쇄	连锁
+371	{0} {1}	{0} {1}	{0}{1}
+372	Everyone lost… no winner!	전원 탈락… 승자 없음!	全员出局……没有赢家！
+373	{0} almost won… but {1} dragged them down!	{0}이(가) 이길 뻔했지만… {1}의 길동무!	{0}差点就赢了……却被{1}拖下了水！
+374	dragged down together	길동무로 탈락	被拖下水出局
+375	{0} is the last one standing!	{0}이(가) 마지막 1명!	{0}是最后一人！
+376	{0} has {1} points!	{0}이(가) {1}포인트!	{0}拿到了 {1} 分！
+377	Four bombs lined up… BOOM!	폭탄이 4개 모였다… 콰광!	四颗炸弹凑齐了……轰！
+378	{0} played "{1}"{2}	{0}이(가) '{1}'을(를) 냈다{2}	{0}打出了“{1}”{2}
+379	{0} has no card to play.	{0}은(는) 낼 카드가 없다	{0}没有能出的牌
+380	Nobody can play a card… it's a draw!	아무도 카드를 낼 수 없다… 무승부!	谁都出不了牌……平局！
+381	{0} ran out of time! A card was played automatically.	{0} 시간 초과! 카드가 자동으로 나갔다	{0}超时了！自动打出了一张牌
+382	A pitfall in front of {0}! Deal with it before the turn ends…	{0} 앞에 함정! 턴이 끝나기 전에 어떻게든 해야…	{0}面前出现了陷阱！得在回合结束前想办法……
+383	At the end of {0}'s next turn, the closing bell will ring…	다음 {0}의 턴이 끝나면 폐막의 종이 울린다…	{0}的下个回合结束时，闭幕的钟声就会响起……
+384	Rule added: "{0}"	룰 추가: '{0}'	追加规则：“{0}”
+385	…nothing happened.	…아무 일도 일어나지 않았다	……什么也没发生
+386	{0} and {1} swapped hands.	{0}와(과) {1}의 손패가 바뀌었다	{0}和{1}交换了手牌
+387	{0} drew 2 cards.	{0}은(는) 2장 뽑았다	{0}抽了 2 张牌
+388	…someone might interrupt?	…누가 끼어들지도?	……可能有人要插手？
+389	Is this month {0}'s birth month?	이번 달이 {0}의 생일 달?	这个月是{0}的生日月份吗？
+390	Everyone, rock-paper-scissors!	다 같이 가위바위보!	全员石头剪刀布！
+391	Everyone, show 1–5 fingers!	다 같이 손가락 1~5개!	全员伸出 1～5 根手指！
+392	Majority vote! Vote for who should lose.	다수결! 탈락시키고 싶은 사람에게 투표	多数表决！投给你想让他输的人
+393	A present — want it or not?	선물, 갖고 싶어? 필요 없어?	礼物，要还是不要？
+394	Wait for {0}'s signal…!	{0}의 신호를 기다려…!	等待{0}的信号……！
+395	{0} touched their nose!	{0}이(가) 코를 터치!	{0}摸了鼻子！
+396	{0}'s Cat interrupted! "{1}" was cancelled.	{0}의 고양이가 끼어들었다! '{1}'은(는) 무효	{0}的猫咪插手了！“{1}”被抵消了
+397	This month is {0}'s birth month!	이번 달은 {0}의 생일 달!	这个月是{0}的生日月份！
+398	Not their birth month…	생일 달이 아니었다…	不是生日月份……
+399	The rule was… "{0}"	룰은… '{0}'	规则是……“{0}”
+400	Nobody lost.	아무도 지지 않았다	谁都没输
+401	rock-paper-scissors	가위바위보	石头剪刀布
+402	Fingers: 	손가락: 	手指：
+403	{0} {1}	{0} {1}개	{0} {1} 根
+404	odd	홀수	奇数
+405	even	짝수	偶数
+406	same number	겹침	撞数
+407	Total {0} is prime!	합계 {0}은(는) 소수!	总和 {0} 是质数！
+408	Total {0} wasn't prime.	합계 {0}은(는) 소수가 아니었다	总和 {0} 不是质数
+409	Votes: 	투표: 	投票：
+410	{0} {1}	{0} {1}표	{0} {1} 票
+411	majority vote	다수결	多数表决
+412	It's a tie, so nobody loses.	동수라서 아무도 지지 않는다	票数相同，所以谁都不输
+413	The rule was… "Anyone who chose 'No thanks' loses"	룰은… "'필요 없어'를 고른 사람은 탈락"	规则是……“选了‘不要’的人输”
+414	Everyone wanted it!	모두 갖고 싶어 했다!	大家都想要！
+415	didn't answer	대답하지 않음	没有回答
+416	{0} never gave the signal.	{0}은(는) 신호를 보내지 않았다	{0}没有发出信号
+417	The rule was… "Anyone who didn't press within 3 seconds loses"	룰은… '3초 안에 누르지 않은 사람은 탈락'	规则是……“3 秒内没按的人输”
+418	too slow on the nose touch	코 터치에 늦음	摸鼻子慢了
+419	The rule was… "Anyone who pressed loses"	룰은… '눌러 버린 사람은 탈락'	规则是……“按了的人输”
+420	pressed it	눌러 버림	按了
+421	left	나감	离开了
+422	{0} reported {1} for a foul!	{0}이(가) {1}의 위반을 신고!	{0}举报了{1}犯规！
+423	rule violation	룰 위반	违反规则
+424	Wachapa | Word Wolf, Forbidden Words & more party games	와챠파 | 워드울프 · 금지어 게임 등 파티 게임	Wachapa｜谁是卧底 · 禁语游戏等派对游戏
+425	Room codes are 6-digit numbers.	방 코드는 6자리 숫자예요	房间号是 6 位数字
+426	No internet connection.	인터넷에 연결되지 않았어요	无法连接网络
+427	Couldn't join (the game has started, the room is full, or versions differ).	참가하지 못했어요 (게임 중 · 인원 초과 · 버전이 다름 중 하나예요)	无法加入（游戏进行中、人数已满或版本不同）
+428	Connection error	통신 오류	连接错误
+429	<div class="adph">Ad space</div>	<div class="adph">광고 영역</div>	<div class="adph">广告位</div>
+430	<div class="box">{0}<h2>Quick break…</h2><div class="cap">We'll continue when everyone's ready.</div></div>	<div class="box">{0}<h2>잠깐 쉬어 가요…</h2><div class="cap">모두 준비되면 다음으로 넘어가요</div></div>	<div class="box">{0}<h2>稍微休息一下……</h2><div class="cap">大家准备好后就继续</div></div>
+431	<div class="box">{0}<h2>Quick break…</h2><div class="adbox" id="breakAd">{1}</div><button class="big" id="adClose" disabled>{2}s left</button></div>	<div class="box">{0}<h2>잠깐 쉬어 가요…</h2><div class="adbox" id="breakAd">{1}</div><button class="big" id="adClose" disabled>{2}초 남음</button></div>	<div class="box">{0}<h2>稍微休息一下……</h2><div class="adbox" id="breakAd">{1}</div><button class="big" id="adClose" disabled>还剩 {2} 秒</button></div>
+432	Close & continue	닫고 다음으로	关闭并继续
+433	<div class="box"><h2>{0}</h2><div class="cap">{1}</div><div class="row"><button class="big sec grow" id="mNo">Cancel</button><button class="big berry grow" id="mOk">{2}</button></div></div>	<div class="box"><h2>{0}</h2><div class="cap">{1}</div><div class="row"><button class="big sec grow" id="mNo">취소</button><button class="big berry grow" id="mOk">{2}</button></div></div>	<div class="box"><h2>{0}</h2><div class="cap">{1}</div><div class="row"><button class="big sec grow" id="mNo">取消</button><button class="big berry grow" id="mOk">{2}</button></div></div>
+434	🌐 Room {0}{1}	🌐 방 {0}{1}	🌐 房间 {0}{1}
+435	 (you're the host)	 (내가 방장)	（你是房主）
+436	<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">Featured! Chaos Arena</span></div><div class="stack"><div class="row">{0}<div><h1>Wachapa</h1><div class="cap">Chaos Arena, Word Wolf, Forbidden Words, Draw & Pass and more — 8 games<br>Play together with iPhone, PC and Android app players using a room code</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="Your name (up to 10 characters)" value="{1}"><button class="big" data-act="host"{2}>{3}Create a room</button><button class="big sec" data-act="toJoin"{4}>{5}Join a room</button><div class="cap">For talking games, play while on a voice call (Discord, etc.).</div><div class="row cap"><a class="link" href="howto.html">How to play & cards</a><a class="link" href="about.html">About this site</a><a class="link" href="privacy.html">Privacy Policy</a></div></div></div>	<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">강추! 혼돈의 아레나</span></div><div class="stack"><div class="row">{0}<div><h1>와챠파</h1><div class="cap">혼돈의 아레나 · 워드울프 · 금지어 게임 · 그림 릴레이 등 총 8종<br>iPhone · PC · Android 앱 사람들과 방 코드로 함께 즐길 수 있어요</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="내 이름 (최대 10자)" value="{1}"><button class="big" data-act="host"{2}>{3}방 만들기</button><button class="big sec" data-act="toJoin"{4}>{5}방 참가하기</button><div class="cap">말로 하는 게임은 통화 앱(카톡 · 디스코드 등)을 켜 놓고 즐기세요.</div><div class="row cap"><a class="link" href="howto.html">게임 방법 · 카드 목록</a><a class="link" href="about.html">이 사이트에 대해</a><a class="link" href="privacy.html">개인정보 처리방침</a></div></div></div>	<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">强推！离谱竞技场</span></div><div class="stack"><div class="row">{0}<div><h1>Wachapa</h1><div class="cap">离谱竞技场 · 谁是卧底 · 禁语游戏 · 你画我猜接力等共 8 款<br>用房间号就能和 iPhone、PC、安卓 App 的玩家一起玩</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="你的名字（最多 10 个字）" value="{1}"><button class="big" data-act="host"{2}>{3}创建房间</button><button class="big sec" data-act="toJoin"{4}>{5}加入房间</button><div class="cap">需要说话的游戏，请边用语音通话（微信 · Discord 等）边玩。</div><div class="row cap"><a class="link" href="howto.html">玩法 · 卡牌一览</a><a class="link" href="about.html">关于本站</a><a class="link" href="privacy.html">隐私政策</a></div></div></div>
+437	<div class="stack" style="max-width:520px;margin:30px auto;width:100%"><h2 class="center">Join with a room code</h2><div class="cap center">Enter the 6-digit number shown on the room creator's screen (you can join rooms made in the phone app, too).</div>{0}<input id="codeIn" class="text code" maxlength="6" inputmode="numeric" value="{1}"{2}>{3}<button class="big sec" data-act="back">Back</button></div>	<div class="stack" style="max-width:520px;margin:30px auto;width:100%"><h2 class="center">방 코드로 참가</h2><div class="cap center">방을 만든 사람의 화면에 나온 6자리 숫자를 입력하세요 (폰 앱에서 만든 방에도 들어갈 수 있어요)</div>{0}<input id="codeIn" class="text code" maxlength="6" inputmode="numeric" value="{1}"{2}>{3}<button class="big sec" data-act="back">돌아가기</button></div>	<div class="stack" style="max-width:520px;margin:30px auto;width:100%"><h2 class="center">用房间号加入</h2><div class="cap center">请输入房主屏幕上显示的 6 位数字（也可以加入手机 App 创建的房间）</div>{0}<input id="codeIn" class="text code" maxlength="6" inputmode="numeric" value="{1}"{2}>{3}<button class="big sec" data-act="back">返回</button></div>
+438	<div class="center"><span class="spin"></span>　Connecting…</div>	<div class="center"><span class="spin"></span>　연결하는 중…</div>	<div class="center"><span class="spin"></span>　正在连接……</div>
+439	<button class="big" data-act="join">Join</button>	<button class="big" data-act="join">들어가기</button>	<button class="big" data-act="join">进入</button>
+440	</button><button class="big sec grow" data-act="lobby">Back to lobby (change game)</button></div>	</button><button class="big sec grow" data-act="lobby">로비로 (게임 바꾸기)</button></div>	</button><button class="big sec grow" data-act="lobby">回到大厅（换游戏）</button></div>
+441	<div class="panel"><h3>Score</h3><ul class="score">{0}</ul></div>	<div class="panel"><h3>점수</h3><ul class="score">{0}</ul></div>	<div class="panel"><h3>得分</h3><ul class="score">{0}</ul></div>
+442	 pts</b></li>	점</b></li>	分</b></li>
+443	<div class="center" style="margin-top:80px">{0}<h2>Quick break…</h2><div class="cap">We'll continue when everyone's ready.</div></div>	<div class="center" style="margin-top:80px">{0}<h2>잠깐 쉬어 가요…</h2><div class="cap">모두 준비되면 다음으로 넘어가요</div></div>	<div class="center" style="margin-top:80px">{0}<h2>稍微休息一下……</h2><div class="cap">大家准备好后就继续</div></div>
+444	<div class="cap">(This screen can't be shown in the PC version.)</div>	<div class="cap">(이 화면은 PC 버전에서 표시할 수 없어요)</div>	<div class="cap">（PC 版无法显示此画面）</div>
+445	<div class="panel"><div class="cap center">Online room code. Others tap "Join a room" and enter this number (in the phone app, switch to "Online" first).</div><div class="code">{0}</div><div class="center row" style="justify-content:center"><button class="btn" data-act="copy">Copy code</button>{1}</div></div>	<div class="panel"><div class="cap center">온라인 방 코드예요. 참가할 사람은 '방 참가하기'에서 이 번호를 입력하세요 (폰 앱은 '온라인'으로 바꾼 다음에)</div><div class="code">{0}</div><div class="center row" style="justify-content:center"><button class="btn" data-act="copy">코드 복사</button>{1}</div></div>	<div class="panel"><div class="cap center">这是在线房间号。其他人请在“加入房间”里输入这个号码（手机 App 请先切换到“在线”）</div><div class="code">{0}</div><div class="center row" style="justify-content:center"><button class="btn" data-act="copy">复制房间号</button>{1}</div></div>
+446	<button class="btn lan" data-act="share">Send invite</button>	<button class="btn lan" data-act="share">초대 보내기</button>	<button class="btn lan" data-act="share">发送邀请</button>
+447	<div class="panel"><h3>Players: {0}</h3><ul class="players">{1}</ul></div>	<div class="panel"><h3>참가자 {0}명</h3><ul class="players">{1}</ul></div>	<div class="panel"><h3>玩家 {0} 人</h3><ul class="players">{1}</ul></div>
+448	<button class="link" data-act="kick" data-arg="{0}">Remove</button>	<button class="link" data-act="kick" data-arg="{0}">내보내기</button>	<button class="link" data-act="kick" data-arg="{0}">请出房间</button>
+449	<div class="panel"><h3>Game</h3><div class="featured{0}" data-act="game" data-arg="ARENA"><img class="bg" src="img/arena_hero.webp" alt=""><span class="badge tl">Featured! NEW</span>{1}<div class="band"><div class="row">{2}<b>Chaos Arena</b></div><div class="cap" style="color:var(--soft)">An absurd card battle where anything can happen (2–8 players)</div></div></div><div class="games" style="margin-top:12px">{3}</div>	<div class="panel"><h3>게임</h3><div class="featured{0}" data-act="game" data-arg="ARENA"><img class="bg" src="img/arena_hero.webp" alt=""><span class="badge tl">강추! NEW</span>{1}<div class="band"><div class="row">{2}<b>혼돈의 아레나</b></div><div class="cap" style="color:var(--soft)">무슨 일이 일어날지 모르는 막무가내 카드 배틀 (2~8명)</div></div></div><div class="games" style="margin-top:12px">{3}</div>	<div class="panel"><h3>游戏</h3><div class="featured{0}" data-act="game" data-arg="ARENA"><img class="bg" src="img/arena_hero.webp" alt=""><span class="badge tl">强推！NEW</span>{1}<div class="band"><div class="row">{2}<b>离谱竞技场</b></div><div class="cap" style="color:var(--soft)">什么都可能发生的离谱卡牌对战（2～8 人）</div></div></div><div class="games" style="margin-top:12px">{3}</div>

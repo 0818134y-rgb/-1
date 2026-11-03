@@ -45,7 +45,21 @@ sealed interface Ui {
  */
 class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("pg", Context.MODE_PRIVATE)
-    private val topics by lazy { TopicBank.parse(app.assets.open("topics.json").bufferedReader().use { it.readText() }) }
+    /** 表示の言語（ja / en / ko / zh）。お題やカードも、部屋を作った人の言語になる */
+    val lang = MutableStateFlow(prefs.getString("lang", null) ?: I18n.systemDefault())
+    init { I18n.set(app, lang.value) }
+    private val topicCache = mutableMapOf<String, TopicBank>()
+    /** 部屋を作るときのお題（その言語のものが無ければ日本語） */
+    private fun topics(): TopicBank = topicCache.getOrPut(lang.value) {
+        val a = getApplication<Application>().assets
+        val file = if (lang.value == "ja") "topics.json" else "topics_${lang.value}.json"
+        TopicBank.parse(runCatching { a.open(file) }.getOrElse { a.open("topics.json") }.bufferedReader().use { it.readText() })
+    }
+
+    fun setLang(code: String) {
+        lang.value = code; prefs.edit().putString("lang", code).apply()
+        I18n.set(getApplication(), code)
+    }
     val ads = AdController(app)
 
     private val _ui = MutableStateFlow<Ui>(Ui.Title)
@@ -91,7 +105,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         reset()
         val isOnline = online.value
         val code = if (isOnline) newOnlineCode() else newCode()
-        val e = Engine(code, localMode = false, topics = topics, rng = Random.Default) { SystemClock.elapsedRealtime() }
+        val e = Engine(code, localMode = false, topics = topics(), rng = Random.Default) { SystemClock.elapsedRealtime() }
         e.join(HOST_ID, name.value, isHost = true)
         e.apply(HOST_ID, Intent.UpdateSettings(e.settings.copy(game = GameType.ARENA)))   // 一押しを最初から選んでおく
         engine = e
@@ -102,8 +116,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun startLocal(names: List<String>) {
         reset()
-        val e = Engine(newCode(), localMode = true, topics = topics, rng = Random.Default) { SystemClock.elapsedRealtime() }
-        names.forEachIndexed { i, n -> e.join(if (i == 0) HOST_ID else "l$i", n, isHost = i == 0) }
+        val e = Engine(newCode(), localMode = true, topics = topics(), rng = Random.Default) { SystemClock.elapsedRealtime() }
+        names.forEachIndexed { i, n -> e.join(if (i == 0) HOST_ID else "l${i}", n, isHost = i == 0) }
         engine = e
         startTicking(); publish(force = true)
     }
@@ -123,26 +137,26 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** オンライン：部屋コードで参加 */
     fun joinOnline(rawCode: String) {
         val code = rawCode.filter { it.isDigit() }
-        if (code.length != ONLINE_CODE_LEN) { say("部屋コードは${ONLINE_CODE_LEN}けたの数字です"); return }
+        if (code.length != ONLINE_CODE_LEN) { say(tr("部屋コードは{0}けたの数字です", ONLINE_CODE_LEN)); return }
         lastCode.value = code; prefs.edit().putString("code", code).apply()
         reset()
         _ui.value = Ui.OnlineJoin(busy = true)
-        openLink(true).requestJoin(code, name.value.ifBlank { "ゲスト" })
+        openLink(true).requestJoin(code, name.value.ifBlank { tr("ゲスト") })
     }
 
     /** 部屋コードをLINEなどで送る */
     fun shareInvite(code: String) {
         val web = com.zen.partygame.BuildConfig.WEB_URL
-        val text = "わちゃパで遊ぼう！\nアプリで「オンライン」→「部屋に参加する」を押して、部屋コード $code を入れてね" +
-            if (web.isNotBlank()) "\niPhone・PCはこちらから：$web" else ""
+        val text = tr("わちゃパで遊ぼう！\nアプリで「オンライン」→「部屋に参加する」を押して、部屋コード {0} を入れてね", code) +
+            if (web.isNotBlank()) tr("\niPhone・PCはこちらから：{0}", web) else ""
         val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(android.content.Intent.EXTRA_TEXT, text) }
-        getApplication<Application>().startActivity(android.content.Intent.createChooser(send, "招待を送る").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+        getApplication<Application>().startActivity(android.content.Intent.createChooser(send, tr("招待を送る")).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     fun join(room: RoomInfo) {
         val l = link ?: return
         _ui.value = Ui.Finding(rooms.values.toList(), room.endpointId)
-        l.requestJoin(room.endpointId, name.value.ifBlank { "ゲスト" })
+        l.requestJoin(room.endpointId, name.value.ifBlank { tr("ゲスト") })
     }
 
     // ================= 操作 =================
@@ -160,7 +174,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun leave() {
         val e = engine; val l = link
         val sayBye = e != null && l != null && connected.isNotEmpty()
-        if (sayBye) sendTo(connected.toList(), HostMsg.Bye("ホストが部屋を閉じました"))
+        if (sayBye) sendTo(connected.toList(), HostMsg.Bye(tr("ホストが部屋を閉じました")))
         reset(stopNow = !sayBye)
         if (sayBye) viewModelScope.launch { delay(300); l?.stopAll() }  // さよならが届くのを待ってから切る
         _ui.value = Ui.Title
@@ -207,7 +221,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             if (id in ids) sendTo(listOf(id), HostMsg.ViewMsg(e.viewFor(id)))
             else {  // ホストに退出させられた人
                 connected.remove(id)
-                sendTo(listOf(id), HostMsg.Bye("ホストに退出させられました"))
+                sendTo(listOf(id), HostMsg.Bye(tr("ホストに退出させられました")))
                 viewModelScope.launch { delay(500); l.disconnect(id) }
             }
         }
@@ -230,11 +244,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 else { pendingNames[ev.endpointId] = ev.name; l.accept(ev.endpointId) }
             }
             is NetEvent.Connected -> {
-                val n = pendingNames.remove(ev.endpointId) ?: "ゲスト"
+                val n = pendingNames.remove(ev.endpointId) ?: tr("ゲスト")
                 when (e.join(ev.endpointId, n)) {
                     is Engine.JoinResult.Ok -> { connected += ev.endpointId; publish(force = true) }
                     else -> {
-                        sendTo(listOf(ev.endpointId), HostMsg.Bye("ゲーム中のため参加できませんでした"))
+                        sendTo(listOf(ev.endpointId), HostMsg.Bye(tr("ゲーム中のため参加できませんでした")))
                         viewModelScope.launch { delay(500); l.disconnect(ev.endpointId) }
                     }
                 }
@@ -244,7 +258,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 if (connected.remove(ev.endpointId)) {
                     val who = e.players.firstOrNull { it.id == ev.endpointId }?.name
                     e.leave(ev.endpointId); publish()
-                    if (who != null) say("${who}さんが抜けました")
+                    if (who != null) say(tr("{0}さんが抜けました", who))
                 }
             }
             is NetEvent.Received -> {
@@ -267,12 +281,12 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             is NetEvent.RoomLost -> { rooms.remove(ev.endpointId); refreshFinding() }
             is NetEvent.Connected -> { hostEndpoint = ev.endpointId; (link as? NearbyLink)?.stopDiscovery() }
             is NetEvent.ConnectFailed -> {
-                say(if (ev.rejected) "参加できませんでした（ゲーム中・満員・アプリの版が違う、のどれかです）" else "接続できませんでした。もう一度試してください")
+                say(if (ev.rejected) tr("参加できませんでした（ゲーム中・満員・アプリの版が違う、のどれかです）") else tr("接続できませんでした。もう一度試してください"))
                 (_ui.value as? Ui.Finding)?.let { _ui.value = it.copy(joining = null) }
                 if (_ui.value is Ui.OnlineJoin) { reset(); _ui.value = Ui.OnlineJoin(busy = false) }
             }
             NetEvent.RoomNotFound -> {
-                say("部屋が見つかりません。部屋コードを確かめてください（アプリの版が違うときも入れません）")
+                say(tr("部屋が見つかりません。部屋コードを確かめてください（アプリの版が違うときも入れません）"))
                 reset(); _ui.value = Ui.OnlineJoin(busy = false)
             }
             NetEvent.CodeTaken -> Unit
@@ -287,7 +301,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             is NetEvent.Disconnected -> if (ev.endpointId == hostEndpoint) {
                 val wasInRoom = _ui.value is Ui.Room
                 reset(); _ui.value = Ui.Title
-                if (wasInRoom) say("ホストとの接続が切れました")
+                if (wasInRoom) say(tr("ホストとの接続が切れました"))
             }
             is NetEvent.Error -> say(ev.message)
             is NetEvent.JoinRequest -> link?.reject(ev.endpointId)

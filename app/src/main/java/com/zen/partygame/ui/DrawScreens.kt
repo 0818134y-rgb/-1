@@ -138,52 +138,52 @@ fun DrawTask(vm: AppViewModel, v: PlayerView, s: Screen.DrawTask, remaining: Lon
         if (remaining <= 0L && v.remainingMs != null) submit()
     }
 
-    DrawHeader(when (s.kind) { DrawKind.WRITE -> "お題を書こう"; DrawKind.DRAW -> "絵を描こう"; DrawKind.GUESS -> "この絵は何？" }, s, v, remaining)
+    DrawHeader(when (s.kind) { DrawKind.WRITE -> tr("お題を書こう"); DrawKind.DRAW -> tr("絵を描こう"); DrawKind.GUESS -> tr("この絵は何？") }, s, v, remaining)
     when (s.kind) {
-        DrawKind.WRITE -> Caption("次の人がこれを絵にします。おもしろい文を書こう！（例：${s.suggestion ?: ""}）")
-        DrawKind.DRAW -> Panel { Caption("お題"); BigWord(s.text ?: "", MaterialTheme.colorScheme.onSurface) }
-        DrawKind.GUESS -> { Caption("前の人が描いた絵です。何を描いたのか、文で答えよう"); DrawingView(s.drawing ?: "") }
+        DrawKind.WRITE -> Caption(tr("次の人がこれを絵にします。おもしろい文を書こう！（例：{0}）", s.suggestion ?: ""))
+        DrawKind.DRAW -> Panel { Caption(tr("お題")); BigWord(s.text ?: "", MaterialTheme.colorScheme.onSurface) }
+        DrawKind.GUESS -> { Caption(tr("前の人が描いた絵です。何を描いたのか、文で答えよう")); DrawingView(s.drawing ?: "") }
     }
 
     if (s.submitted || sent) {
         Panel {
-            Text("送りました！", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.tertiary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            Caption("みんながそろうと次へ進みます", Modifier.fillMaxWidth())
+            Text(tr("送りました！"), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.tertiary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            Caption(tr("みんながそろうと次へ進みます"), Modifier.fillMaxWidth())
         }
     } else if (s.kind == DrawKind.DRAW) {
         DrawPad(strokes, color, width)
         DrawTools(color, width, strokes, onColor = { color = it }, onWidth = { width = it },
             onUndo = { if (strokes.isNotEmpty()) strokes.removeAt(strokes.size - 1) }, onClear = { if (strokes.isNotEmpty()) askClear = true })
-        BigButton("できた！") { if (strokes.isEmpty()) askBlank = true else submit() }
+        BigButton(tr("できた！")) { if (strokes.isEmpty()) askBlank = true else submit() }
     } else {
         OutlinedTextField(
             value = text, onValueChange = { text = it.replace("\n", "").take(MAX_DRAW_TEXT_LEN) },
-            label = { Text(if (s.kind == DrawKind.WRITE) "お題を書く（${MAX_DRAW_TEXT_LEN}文字まで）" else "この絵は…") },
+            label = { Text(if (s.kind == DrawKind.WRITE) tr("お題を書く（{0}文字まで）", MAX_DRAW_TEXT_LEN) else tr("この絵は…")) },
             modifier = Modifier.fillMaxWidth(),
         )
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (s.kind == DrawKind.WRITE) BigButton("おまかせ", Modifier.weight(1f), secondary = true) { text = s.suggestion ?: "" }
-            BigButton("これで決定", Modifier.weight(1f), enabled = text.isNotBlank()) { submit() }
+            if (s.kind == DrawKind.WRITE) BigButton(tr("おまかせのお題"), Modifier.weight(1f), secondary = true) { text = s.suggestion ?: "" }
+            BigButton(tr("これで決定"), Modifier.weight(1f), enabled = text.isNotBlank()) { submit() }
         }
     }
     val left = v.players.filter { it.id !in s.done }
-    Caption("できた人 ${s.done.size} / ${v.players.size}人" + if (left.isNotEmpty() && left.size <= 3) "（まだ：${left.joinToString("、") { it.name }}）" else "",
+    Caption(tr("できた人 {0} / {1}人", s.done.size, v.players.size) + if (left.isNotEmpty() && left.size <= 3) tr("（まだ：{0}）", left.joinToString(tr("、")) { it.name }) else "",
         Modifier.fillMaxWidth())
     if (v.isHost && s.done.size < v.players.size) TextButton(onClick = { vm.send(Intent.CloseVote) }, modifier = Modifier.fillMaxWidth()) {
-        Text("待たずに次へ（まだの人は白紙）")
+        Text(tr("待たずに次へ（まだの人は白紙）"))
     }
 
     if (askBlank) AlertDialog(
         onDismissRequest = { askBlank = false },
-        title = { Text("何も描いていません") }, text = { Text("このまま白紙で送りますか？") },
-        confirmButton = { TextButton(onClick = { askBlank = false; submit() }) { Text("白紙で送る") } },
-        dismissButton = { TextButton(onClick = { askBlank = false }) { Text("描く") } },
+        title = { Text(tr("何も描いていません")) }, text = { Text(tr("このまま白紙で送りますか？")) },
+        confirmButton = { TextButton(onClick = { askBlank = false; submit() }) { Text(tr("白紙で送る")) } },
+        dismissButton = { TextButton(onClick = { askBlank = false }) { Text(tr("描く")) } },
     )
     if (askClear) AlertDialog(
         onDismissRequest = { askClear = false },
-        title = { Text("全部消しますか？") }, text = { Text("描いた絵がすべて消えます") },
-        confirmButton = { TextButton(onClick = { askClear = false; strokes.clear() }) { Text("消す") } },
-        dismissButton = { TextButton(onClick = { askClear = false }) { Text("やめる") } },
+        title = { Text(tr("全部消しますか？")) }, text = { Text(tr("描いた絵がすべて消えます")) },
+        confirmButton = { TextButton(onClick = { askClear = false; strokes.clear() }) { Text(tr("消す")) } },
+        dismissButton = { TextButton(onClick = { askClear = false }) { Text(tr("やめる")) } },
     )
 }
 
@@ -254,16 +254,16 @@ private fun DrawTools(
         Spacer(Modifier.weight(1f))
     }
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        ToolButton("消しゴム", color == 0, Modifier.weight(1f)) { onColor(0) }
-        ToolButton("1つ戻す", false, Modifier.weight(1f), onUndo)
-        ToolButton("全部消す", false, Modifier.weight(1f), onClear)
+        ToolButton(tr("消しゴム"), color == 0, Modifier.weight(1f)) { onColor(0) }
+        ToolButton(tr("1つ戻す"), false, Modifier.weight(1f), onUndo)
+        ToolButton(tr("全部消す"), false, Modifier.weight(1f), onClear)
     }
     val used = bytesUsed(strokes).toFloat() / MAX_BYTES
     LinearProgressIndicator(
         progress = { (1f - used).coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
         color = if (used > .85f) Berry else Mint, trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     )
-    if (used > .97f) Caption("インクがなくなりました（「1つ戻す」で減らせます）")
+    if (used > .97f) Caption(tr("インクがなくなりました（「1つ戻す」で減らせます）"))
 }
 
 @Composable
@@ -279,18 +279,18 @@ fun DrawReveal(vm: AppViewModel, v: PlayerView, s: Screen.DrawReveal, next: @Com
     Row(verticalAlignment = Alignment.CenterVertically) {
         Art(R.drawable.icon_draw, 44.dp); Spacer(Modifier.size(10.dp))
         Column {
-            Text("${s.ownerName}さんのお題から", style = MaterialTheme.typography.headlineMedium)
-            Caption("${s.book + 1} / ${s.books}冊目　${s.entries.size} / ${s.total}コマ")
+            Text(tr("{0}さんのお題から", s.ownerName), style = MaterialTheme.typography.headlineMedium)
+            Caption(tr("{0} / {1}冊目　{2} / {3}コマ", s.book + 1, s.books, s.entries.size, s.total))
         }
     }
     s.entries.forEachIndexed { i, e -> RevealPage(e, newest = i == s.entries.size - 1 && !s.finished) }
     if (s.finished) {
-        Caption("全員の発表が終わりました！", Modifier.fillMaxWidth())
+        Caption(tr("全員の発表が終わりました！"), Modifier.fillMaxWidth())
         next()
     } else if (v.isHost) {
         val endOfBook = s.entries.size >= s.total
-        BigButton(if (!endOfBook) "次をめくる" else if (s.book + 1 < s.books) "次の人の流れへ" else "発表おわり") { vm.send(Intent.Next) }
-    } else Caption("ホストがめくるのを待っています…", Modifier.fillMaxWidth())
+        BigButton(if (!endOfBook) tr("次をめくる") else if (s.book + 1 < s.books) tr("次の人の流れへ") else tr("発表おわり")) { vm.send(Intent.Next) }
+    } else Caption(tr("ホストがめくるのを待っています…"), Modifier.fillMaxWidth())
 }
 
 @Composable
@@ -298,7 +298,7 @@ private fun RevealPage(e: DrawEntry, newest: Boolean) {
     val pop = remember(e) { Animatable(if (newest) 0.94f else 1f) }
     LaunchedEffect(e) { pop.animateTo(1f) }
     Panel(Modifier.scale(pop.value).then(if (newest) Modifier.border(BorderStroke(2.dp, Lantern), RoundedCornerShape(20.dp)) else Modifier)) {
-        Caption(e.byName + when (e.kind) { DrawKind.WRITE -> "さんのお題"; DrawKind.DRAW -> "さんが描いた絵"; DrawKind.GUESS -> "さんの答え" })
+        Caption(e.byName + when (e.kind) { DrawKind.WRITE -> tr("さんのお題"); DrawKind.DRAW -> tr("さんが描いた絵"); DrawKind.GUESS -> tr("さんの答え") })
         Spacer(Modifier.height(6.dp))
         if (e.kind == DrawKind.DRAW) DrawingView(e.drawing)
         else Text(

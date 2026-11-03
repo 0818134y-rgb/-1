@@ -1,0 +1,111 @@
+#keys keys_v1.json
+0	No internet connection. Please check your signal.	인터넷에 연결되지 않았어요. 신호를 확인해 주세요.	无法连接网络，请检查信号。
+1	Connection error ({0})	통신 오류 ({0})	连接错误（{0}）
+2	Already connecting.	이미 통신 중이에요.	已经在连接中。
+3	"Nearby devices" permission is required.	'근처 기기' 권한이 필요해요.	需要“附近的设备”权限。
+4	Couldn't connect to nearby devices. (Turn on Bluetooth, Wi-Fi and Location.)	근처 기기와 연결하지 못했어요. (블루투스, Wi-Fi, 위치를 켜 주세요)	无法与附近的设备连接（请打开蓝牙、Wi-Fi 和定位）。
+5	Close the room?	방을 닫을까요?	要关闭房间吗？
+6	Leave the room?	방에서 나갈까요?	要退出房间吗？
+7	Everyone will be disconnected.	모두의 연결이 끊어져요.	所有人都会断开连接。
+8	Leave	나가기	退出
+9	Cancel	취소	取消
+10	One-phone mode	폰 한 대 모드	单机模式
+11	Room {0}	방 {0}	房间 {0}
+12	Leave	나가기	退出
+13	Play again	한 판 더	再来一局
+14	Play again	한 번 더	再来一次
+15	No turn limit	턴 제한 없음	回合不限时
+16	{0}s per turn	턴당 {0}초	每回合 {0} 秒
+17	 · Tonight's Rule on	 · 오늘 밤의 룰 있음	 · 有今晚的规则
+18	Discussion {0} min	토론 {0}분	讨论 {0} 分钟
+19	Questions {0} min	질문 시간 {0}분	提问时间 {0} 分钟
+20	Time limit {0} min	제한 시간 {0}분	限时 {0} 分钟
+21	No answer time limit	답변 시간 제한 없음	答题不限时
+22	{0}s to answer	답변 시간 {0}초	答题时间 {0} 秒
+23	Everyone votes anonymously	모두 익명으로 투표	全员匿名投票
+24	Draw {0}s · Write {1}s	그리기 {0}초 · 쓰기 {1}초	画画 {0} 秒 · 写字 {1} 秒
+25	Online room code. Others tap "Online" → "Join a room" and enter this number (works from the PC version too).	온라인 방 코드예요. 참가할 사람은 '온라인' → '방 참가하기'에서 이 번호를 입력하세요 (PC 버전에서도 OK).	这是在线房间号。其他人请点“在线”→“加入房间”，输入这个号码（PC 版也可以加入）。
+26	People nearby: tap "Join a room" and pick this number.	근처에 있는 사람은 '방 참가하기'에서 이 번호를 고르세요.	附近的人请在“加入房间”里选择这个号码。
+27	Send invite (LINE, etc.)	초대 보내기 (카톡 등)	发送邀请（微信等）
+28	Players: {0}	참가자 {0}명	玩家 {0} 人
+29	 (you)	 (나)	（你）
+30	Remove	내보내기	请出房间
+31	Game	게임	游戏
+32	Time per turn (a card is played automatically when it runs out)	턴당 제한 시간 (지나면 카드가 자동으로 나가요)	每回合限时（超时会自动出牌）
+33	30s	30초	30 秒
+34	60s	60초	60 秒
+35	90s	90초	90 秒
+36	None	없음	无
+37	Tonight's Rule (one random rule added at the start)	오늘 밤의 룰 (시작할 때 무작위로 하나 추가)	今晚的规则（开局随机追加一条）
+38	On	있음	有
+39	Off (for first-timers)	없음 (처음 하는 사람용)	无（适合新手）
+40	Spy	스파이	间谍
+41	Wolf	울프	卧底
+42	Question time	질문 시간	提问时间
+43	Discussion time	토론 시간	讨论时间
+44	{0} min	{0}분	{0} 分钟
+45	Number of {0}s	{0} 인원	{0}人数
+46	Auto	자동	自动
+47	1	1명	1 人
+48	2	2명	2 人
+49	Topic genres (none selected = all)	주제 장르 (선택 안 하면 전부)	题目类型（不选则全部）
+50	Time limit	제한 시간	限时
+51	Word difficulty	단어 난이도	词语难度
+52	Normal	보통	普通
+53	Hard (verbal tics)	하드 (말버릇)	困难（口头禅）
+54	Mix	믹스	混合
+55	Answer time	답변 시간	答题时间
+56	No limit	제한 없음	不限时
+57	No settings. Nobody can see who voted for whom.	설정은 없어요. 누가 누구에게 투표했는지는 표시되지 않아요.	没有设置项。不会显示谁投给了谁。
+58	Write a prompt → the next person draws it → the next person guesses the drawing… repeat for everyone, then reveal how it changed along the way (3–8 players).	주제를 쓰면 → 다음 사람이 그림으로 그리고 → 그다음 사람이 그림을 보고 맞혀요… 이걸 모두 돌아가며 반복하고, 마지막에 어떻게 바뀌었는지 공개해요 (3~8명).	写下题目 → 下一个人画出来 → 再下一个人看图猜答案……全员轮一遍，最后公布题目是怎么变走样的（3～8 人）。
+59	Drawing time	그리기 시간	画画时间
+60	{0}s	{0}초	{0} 秒
+61	Time to write / guess	쓰기 · 맞히기 시간	写题 · 猜图时间
+62	Start	시작하기	开始
+63	Needs {0}+ players	{0}명부터 시작할 수 있어요	{0} 人以上才能开始
+64	Waiting for the host to start…	방장이 시작하기를 기다리는 중…	等待房主开始……
+65	Featured! NEW	강추! NEW	强推！NEW
+66	✓ Selected	✓ 선택됨	✓ 已选择
+67	Chaos Arena	혼돈의 아레나	离谱竞技场
+68	An absurd card battle where anything can happen (2–8 players)	무슨 일이 일어날지 모르는 막무가내 카드 배틀 (2~8명)	什么都可能发生的离谱卡牌对战（2～8 人）
+69	You're the Spy	당신은 스파이	你是间谍
+70	Figure out the location from everyone's questions and answers. Don't get caught!	모두의 질문과 대답에서 장소를 추리하세요. 들키지 않게!	从大家的问答中推理出地点吧。别露馅！
+71	Location	장소	地点
+72	Word	제시어	词语
+73	Your location (don't show anyone)	당신이 있는 장소 (다른 사람에게 보여 주지 마세요)	你所在的地点（不要给别人看）
+74	Your word (don't show anyone)	당신의 제시어 (다른 사람에게 보여 주지 마세요)	你的词语（不要给别人看）
+75	Everyone is in the same place, but one Spy doesn't know where. Ask each other questions without giving the location away.	모두 같은 장소에 있지만, 장소를 모르는 스파이가 한 명 섞여 있어요. 장소가 들키지 않게 서로 질문해 보세요.	大家都在同一个地方，但混进了一个不知道地点的间谍。互相提问，别让地点暴露。
+76	Nobody knows yet whether they're in the majority (Citizens) or the minority (Wolf). Feel it out as you talk.	내가 다수(시민)인지 소수(울프)인지는 아직 아무도 몰라요. 이야기하면서 알아내 보세요.	谁是多数（平民）谁是少数（卧底），现在还没人知道。边聊边试探吧。
+77	Got it	확인했어요	已确认
+78	Got it	확인	确认
+79	Checked {0} / {1}	확인 완료 {0} / {1}명	已确认 {0} / {1} 人
+80	Take turns viewing the location	돌아가며 장소 보기	轮流查看地点
+81	Take turns viewing your word	돌아가며 제시어 보기	轮流查看词语
+82	Player {0} of {1}	{1}명 중 {0}번째	第 {0} / {1} 人
+83	{0}'s turn	{0} 님 차례	轮到 {0}
+84	Everyone except {0}, look away!	{0} 님 말고는 화면을 보지 마세요	除了 {0}，其他人请不要看屏幕
+85	View location	장소 보기	查看地点
+86	View word	제시어 보기	查看词语
+87	Memorized (hide & pass on)	외웠어요 (가리고 다음 사람에게)	记住了（盖住交给下一位）
+88	Discussion	토론	讨论
+89	Your location (tap to show/hide)	당신이 있는 장소 (탭해서 보기/숨기기)	你所在的地点（点按显示/隐藏）
+90	Your word (tap to show/hide)	당신의 제시어 (탭해서 보기/숨기기)	你的词语（点按显示/隐藏）
+91	Take turns asking questions and find the Spy who doesn't know the location.	차례로 질문하면서 장소를 모르는 스파이를 찾아보세요	轮流提问，找出不知道地点的间谍
+92	Talk about your word and find the Wolf (the one with a different word).	제시어에 대해 이야기하면서 울프(다른 제시어를 받은 사람)를 찾아보세요	围绕词语聊天，找出卧底（拿到不同词语的人）
+93	e.g. "What do you come here to do?" "What are you wearing right now?"	예: "여기엔 뭐 하러 와요?" "지금 어떤 옷 입고 있어요?"	例如：“来这里是做什么的？”“你现在穿着什么衣服？”
+94	Voting starts when time is up.	시간이 되면 투표로 넘어가요	时间到了就进入投票
+95	End early and vote	끝내고 투표하기	提前结束，开始投票
+96	Runoff vote	결선 투표	决选投票
+97	Vote	투표	投票
+98	Among the tied players, pick who you think is the {0}.	동표인 사람 중에서 {0}라고 생각하는 사람을 고르세요	请在平票的人中选出你认为是{0}的人
+99	Pick who you think is the {0}.	{0}라고 생각하는 사람을 고르세요	请选出你认为是{0}的人
+100	Voted {0} / {1}	투표 완료 {0} / {1}명	已投票 {0} / {1} 人
+101	(You can change it until everyone has voted.)	(모두 투표할 때까지 바꿀 수 있어요)	（所有人投完票之前都可以更改）
+102	Close voting and count	마감하고 집계하기	截止并计票
+103	On "3, 2, 1", everyone points at who they think is the {0}. Pick the person pointed at most (if tied, talk it out and pick one).	"하나, 둘, 셋!" 하고 {0}라고 생각하는 사람을 가리킨 다음, 가장 많이 지목된 사람을 고르세요 (동표면 상의해서 한 명으로)	大家一起喊“一、二、三”，同时指向你认为是{0}的人，然后选出被指最多的人（平票就商量出一个人）
+104	{0} found!	{0} 발견!	找到{0}了！
+105	The {0} was	{0}는	{0}是
+106	, 	, 	、
+107	Last chance! Guess the location to win. Pick from below.	마지막 기회! 장소를 맞히면 역전승이에요. 아래에서 고르세요.	最后的机会！猜中地点就能逆转获胜。请从下面选择。
+108	If the Spy guesses the location, they win. Waiting for the Spy to choose…	스파이가 장소를 맞히면 역전당해요. 스파이가 고르기를 기다리는 중…	间谍猜中地点就会被逆转。正在等待间谍选择……
+109	Last chance! Guess the Citizens' word to win. Say it out loud.	마지막 기회! 시민의 제시어를 맞히면 역전승이에요. 말로 대답하세요.	最后的机会！猜中平民的词语就能逆转获胜。请直接说出来。

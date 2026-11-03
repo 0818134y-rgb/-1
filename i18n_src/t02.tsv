@@ -1,0 +1,121 @@
+#keys keys_v1.json
+110	But if the Wolf guesses the Citizens' word, they win. Let the Wolf answer.	하지만 울프가 시민의 제시어를 맞히면 역전당해요. 울프에게 대답하게 해 보세요.	不过，如果卧底猜中平民的词语就会被逆转。请卧底来回答吧。
+111	The host will judge…	방장이 판정해요…	由房主来判定……
+112	The Wolf's answer and the Citizens' word…	울프의 대답과 시민의 제시어는…	卧底的答案和平民的词语……
+113	Match	일치했다	一致
+114	Don't match	틀렸다	不一致
+115	Everyone wins!	모두의 승리!	大家赢了！
+116	Citizens win!	시민의 승리!	平民获胜！
+117	{0} wins!	{0}의 승리!	{0}获胜！
+118	You found the Spy and kept the location safe.	스파이를 찾아내고, 장소도 끝까지 지켰어요	找到了间谍，也守住了地点
+119	You found the Wolf and blocked the comeback.	울프를 찾아내고, 역전도 막았어요	找到了卧底，也阻止了逆转
+120	The Spy guessed the location for the win!	스파이가 장소를 맞혀서 역전!	间谍猜中地点，逆转获胜！
+121	The Wolf guessed the Citizens' word for the win!	울프가 시민의 제시어를 맞혀서 역전!	卧底猜中平民的词语，逆转获胜！
+122	{0} (not the {1}) got the most votes… the {2} gets away!	{0} 님({1} 아님)이 최다 득표… {2}의 도주 성공	{0}（不是{1}）得票最多……{2}成功逃脱
+123	The votes were split — the {0} gets away!	표가 갈려서 {0}의 도주 성공	票数分散，{0}成功逃脱
+124	The Spy's answer	스파이의 대답	间谍的答案
+125	Citizens' word	시민의 제시어	平民的词语
+126	Wolf's word	울프의 제시어	卧底的词语
+127	Your word: {0}	당신의 제시어: {0}	你的词语：{0}
+128	Votes	득표	得票
+129	{0}　{1} votes	{0}　{1}표	{0}　{1} 票
+130	Waiting for the host to continue…	방장이 다음으로 넘어가기를 기다리는 중…	等待房主继续……
+131	Change settings	설정 바꾸기	修改设置
+132	Back to lobby (change game)	로비로 (게임 바꾸기)	回到大厅（换游戏）
+133	Score	점수	得分
+134	{0} pts	{0}점	{0} 分
+135	Mind Sync	다 같이 싱크로	心有灵犀
+136	The more people give the same answer, the more points!	모두와 같은 답일수록 점수 획득!	和大家答案越一致，得分越高！
+137	Your answer	내 답	你的答案
+138	Submit	이걸로 답하기	就这个了
+139	Change answer	답 바꾸기	修改答案
+140	Your answer: "{0}" (you can change it until everyone answers)	내 답: '{0}' (모두 답할 때까지 바꿀 수 있어요)	你的答案：“{0}”（所有人答完前都可以修改）
+141	Answered {0} / {1}	답변 완료 {0} / {1}명	已作答 {0} / {1} 人
+142	Close and check answers	마감하고 정답 확인	截止并对答案
+143	Results	정답 확인	对答案
+144	{0} in sync!	{0}명 싱크로!	{0} 人心有灵犀！
+145	Solo	혼자	只有一人
+146	No answer: 	미응답: 	未作答：
+147	Next prompt	다음 문제로	下一题
+148	20 Questions	스무고개	是非猜猜看
+149	You're the quizmaster. The answer is	당신이 출제자예요. 정답은	你是出题人。答案是
+150	Answer everyone's questions with only "yes", "no" or "don't know". When someone gets it, tap who guessed it.	모두의 질문에 '예', '아니요', '모르겠어요'로만 대답하세요. 누가 맞히면 맞힌 사람을 눌러 주세요.	大家提问时，只能回答“是”“不是”“不知道”。有人猜中时，点一下猜中的人。
+151	The quizmaster is {0}	출제자는 {0} 님	出题人是 {0}
+152	Hide	숨기기	隐藏
+153	Only {0} looks	{0} 님만 보기	只有 {0} 看
+154	Everyone else asks yes/no questions to guess the answer.	다른 사람들은 '예/아니요'로 대답할 수 있는 질문을 해서 정답을 맞혀 보세요	其他人提出能用“是/不是”回答的问题，猜出答案吧
+155	Quizmaster	출제자	出题人
+156	{0}	{0} 님	{0}
+157	Ask yes/no questions to guess the quizmaster's answer. e.g. "Can you eat it?" "Is it found inside a house?"	'예/아니요'로 대답할 수 있는 질문으로 출제자의 정답을 맞혀 봐요. 예: "그건 먹을 수 있어요?" "집 안에 있어요?"	用能回答“是/不是”的问题猜出出题人的答案吧。例如：“它能吃吗？”“它在家里吗？”
+158	Who guessed it	맞힌 사람	猜中的人
+159	{0} got it!	{0} 님이 맞혔다!	{0} 猜中了！
+160	Give up (reveal answer)	포기 (정답 공개)	认输（公布答案）
+161	When someone guesses it, the quizmaster taps "got it".	맞히면 출제자가 '맞혔다'를 눌러요	猜中后，由出题人点“猜中了”
+162	{0} got it right!	{0} 님 정답!	{0} 答对了！
+163	Time's up!	시간 종료!	时间到！
+164	Answer	정답	答案
+165	Quizmaster: {0}	출제자: {0} 님	出题人：{0}
+166	(1 point each to the guesser and the quizmaster)	(맞힌 사람과 출제자에게 1점씩)	（猜中的人和出题人各得 1 分）
+167	Next quizmaster	다음 출제자로	下一位出题人
+168	Who's Most Likely?	솔직 질문	真心话投票
+169	Vote for whoever fits best (you can vote for yourself). Nobody can see who voted for whom.	해당된다고 생각하는 사람에게 투표하세요 (자기 자신도 OK). 누가 누구에게 투표했는지는 표시되지 않아요.	投给你觉得最符合的人（也可以投自己）。不会显示谁投给了谁。
+170	Close and reveal	마감하고 발표	截止并公布
+171	Results	발표	公布结果
+172	No votes	투표 없음	无人投票
+173	!	 님!	！
+174	{0} votes	{0}표	{0} 票
+175	Next question	다음 질문으로	下一个问题
+176	Forbidden Words	금지어 게임	禁语游戏
+177	Out!	아웃!	出局！
+178	Your forbidden word was "{0}". Keep an eye on the others.	당신의 금지어는 '{0}'였어요. 다른 사람들을 지켜보세요	你的禁语是“{0}”。去盯着其他人吧
+179	You can see everyone's forbidden word (except your own). Get them to say it, then tap "Said it!"	모두의 금지어가 보여요 (내 것만 안 보여요). 말하게 만들면 '말했다!'를 누르세요	你能看到所有人的禁语（只有自己的看不到）。引诱他们说出来，然后点“说了！”
+180	???	???	？？？
+181	Undo	취소	撤销
+182	Out	아웃	出局
+183	Said it!	말했다!	说了！
+184	End game	게임 끝내기	结束游戏
+185	Is {0} out?	{0} 님 아웃?	{0}出局了？
+186	Did they say "{0}"?	'{0}'라고 말했나요?	说了“{0}”吗？
+187	Everyone's out!	전원 아웃!	全员出局！
+188	Everyone's forbidden words	모두의 금지어	大家的禁语
+189	"{0}"	'{0}'	“{0}”
+190	　out #{0}	　{0}번째로 아웃	　第 {0} 个出局
+191	　survived	　생존	　存活
+192	Quick break…	잠깐 쉬어 가요…	稍微休息一下……
+193	We'll continue when everyone's ready.	모두 준비되면 다음으로 넘어가요	大家准备好后就继续
+194	(Banner ad)	(배너 광고)	（横幅广告）
+195	Without "Nearby devices" permission, phones can't connect to each other.	'근처 기기' 권한이 없으면 모두의 폰을 연결할 수 없어요	没有“附近的设备”权限，就无法连接大家的手机
+196	Wachapa	와챠파	Wachapa
+197	Word Wolf, Forbidden Words & more	워드울프 · 금지어 게임 외	谁是卧底 · 禁语游戏 等
+198	8 party games. Everyone plays on their own phone.	파티 게임 8종. 모두 각자 폰으로 즐겨요	8 款派对游戏，每人用自己的手机玩
+199	Play from anywhere — even with people on the PC version (internet required).	멀리 있어도 OK. PC 버전 사람과도 놀 수 있어요 (인터넷 필요)	不在一起也能玩，还能和 PC 版玩家一起（需要联网）
+200	With people in the same place. No internet needed (connects via Bluetooth/Wi-Fi).	같은 장소에 있는 사람과. 인터넷 필요 없어요 (블루투스 · Wi-Fi로 연결)	和在同一个地方的人玩，无需联网（通过蓝牙 · Wi-Fi 连接）
+201	Your name (up to {0} characters)	내 이름 (최대 {0}자)	你的名字（最多 {0} 个字）
+202	Create a room	방 만들기	创建房间
+203	Join a room	방 참가하기	加入房间
+204	Pass one phone around	폰 한 대로 돌려 하기	一部手机轮流玩
+205	Enter your name first.	먼저 이름을 입력해 주세요	请先输入名字
+206	How to play	게임 방법	玩法说明
+207	Privacy Policy	개인정보 처리방침	隐私政策
+208	Ad settings	광고 설정	广告设置
+209	Topics and cards use the room creator's language.	제시어와 카드는 방을 만든 사람의 언어로 나와요	题目和卡牌会使用创建房间者的语言
+210	Close	닫기	关闭
+211	📶 Nearby	📶 근처에서	📶 附近
+212	🌐 Online	🌐 온라인	🌐 在线
+213	Join with a room code	방 코드로 참가	用房间号加入
+214	Enter the {0}-digit number shown on the room creator's screen.	방을 만든 사람의 화면에 나온 {0}자리 숫자를 입력하세요	请输入房主屏幕上显示的 {0} 位数字
+215	Room code	방 코드	房间号
+216	Connecting…	연결하는 중…	正在连接……
+217	Join	들어가기	进入
+218	Back	돌아가기	返回
+219	Close	닫기	关闭
+220	Chaos Arena (featured)	혼돈의 아레나 (강추)	离谱竞技场（强推）
+221	On your turn, draw 1 card from the deck, play 1 card from your hand, and do what it says. Pitfalls, bombs, everyone-plays rock-paper-scissors, finger counting, nose touch, forbidden words… anything can happen. If you lose, you're out. Be the last one standing, or meet a card's win condition (15 coin points, your birth month, etc.) to win! Sometimes everyone loses. Star cards (★) are especially strong. One "Tonight's Rule" is added at the start of each game. If you catch someone breaking a speech or gesture rule, tap "Foul!" on them.	내 턴이 오면 덱에서 카드를 1장 뽑고, 손패에서 1장을 내서 적힌 대로 해요. 함정, 폭탄, 다 같이 가위바위보, 하나 둘 셋 손가락, 코 터치, 말하면 안 되는 말… 무슨 일이 일어날지 몰라요. 지면 탈락이에요. 마지막 한 명이 되거나 카드의 승리 조건(금화 15포인트, 생일 달 등)을 채우면 승리! 모두가 지는 일도 있어요. ★가 붙은 스타 카드는 특히 강력해요. 게임 시작 때 '오늘 밤의 룰'이 하나 추가돼요. 말이나 몸짓 룰을 어긴 사람을 발견하면 그 사람의 '위반!'을 누르세요.	轮到你时，从牌堆抽 1 张牌，再从手牌中打出 1 张，按牌上写的做。陷阱、炸弹、全员石头剪刀布、一起比手指、摸鼻子、不能说的词……什么都可能发生。输了就出局。成为最后一人，或满足卡牌的胜利条件（金币 15 分、生日月份等）就赢了！也可能全员都输。带★的明星卡特别强。每局开始时会追加一条“今晚的规则”。发现有人违反说话或动作类规则时，点他的“犯规！”。
+222	Word Wolf	워드울프	谁是卧底
+223	Everyone gets a word, but one player (two with 7+) gets a slightly different one — that's the "Wolf". Nobody knows which side they're on. Talk it over and vote for who you think is the Wolf. If the Wolf gets the most votes, they can still win by guessing the Citizens' word.	모두에게 제시어가 주어지지만, 한 명(7명 이상이면 두 명)만 조금 다른 제시어를 받아요. 그 사람이 '울프'예요. 내가 어느 쪽인지는 몰라요. 이야기를 나누고 울프라고 생각하는 사람에게 투표해요. 울프가 최다 득표하면, 울프는 시민의 제시어를 맞혀서 역전승할 수 있어요.	每个人都会拿到一个词语，但有一人（7 人以上时两人）的词语略有不同，他就是“卧底”。自己是哪一方并不知道。大家讨论后投票选出你认为的卧底。卧底得票最多时，只要猜中平民的词语就能逆转获胜。
+224	Everyone gets a different forbidden word, but you can't see your own. Chat away and try to make others say theirs. When you catch someone, tap "Said it!". Last one standing wins.	모두에게 각자 다른 금지어가 붙어요. 내 단어만 안 보여요. 수다를 떨면서 다른 사람이 자기 금지어를 말하게 만드세요. 말한 사람을 발견하면 '말했다!'를 눌러요. 끝까지 남은 사람이 승리.	每个人都有不同的禁语，只有自己的看不到。边聊天边引诱别人说出自己的禁语。抓到有人说了就点“说了！”。坚持到最后的人获胜。
+225	Who's the Spy?	스파이는 누구?	谁是间谍
+226	Everyone gets the same "location" except the Spy, who doesn't know it. Take turns asking questions to find the Spy. If the Spy gets the most votes, they can still win by picking the location from 12 options.	모두에게 같은 '장소'가 주어지지만, 스파이만 장소를 몰라요. 차례로 질문하면서 스파이를 찾아요. 스파이가 최다 득표하면, 스파이는 12개 후보 중에서 장소를 맞혀 역전승할 수 있어요.	除了间谍，所有人都会拿到同一个“地点”。大家轮流提问找出间谍。间谍得票最多时，只要从 12 个选项中猜中地点就能逆转获胜。
+227	Everyone answers prompts like "Name a red food" on their own phone. The more people with the same answer, the more points.	'빨간 음식 하면?' 같은 문제에 모두 각자 폰으로 답해요. 같은 답을 한 사람이 많을수록 점수를 얻어요.	大家用自己的手机回答“说到红色的食物？”这类题目。答案相同的人越多，得分越高。
+228	Only the quizmaster knows the answer. Everyone else asks yes/no questions and tries to guess it in time. The guesser and the quizmaster each get 1 point.	출제자만 정답을 알아요. 다른 사람들은 '예/아니요'로 대답할 수 있는 질문을 해서 시간 안에 맞혀요. 맞힌 사람과 출제자에게 1점.	只有出题人知道答案。其他人提出能用“是/不是”回答的问题，在限时内猜出来。猜中的人和出题人各得 1 分。
+229	Everyone anonymously votes on "Who here is most likely to…?" and the results are revealed.	'이 중에서 가장 ○○한 사람은?'에 모두 익명으로 투표하고 결과를 발표해요.	大家匿名投票回答“我们之中最○○的人是谁？”，然后公布结果。

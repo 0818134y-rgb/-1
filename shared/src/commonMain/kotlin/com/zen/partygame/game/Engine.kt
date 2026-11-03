@@ -132,7 +132,7 @@ class Engine(
     }
 
     private fun uniqueName(raw: String): String {
-        val base = raw.trim().replace("\n", " ").take(MAX_NAME_LEN).ifBlank { "プレイヤー${players.size + 1}" }
+        val base = raw.trim().replace("\n", " ").take(MAX_NAME_LEN).ifBlank { "P${players.size + 1}" }
         var name = base; var n = 2
         while (players.any { it.name == name }) name = "$base${n++}"
         return name

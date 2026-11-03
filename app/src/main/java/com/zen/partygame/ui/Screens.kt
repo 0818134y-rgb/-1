@@ -131,7 +131,7 @@ val LocalAdsReady = androidx.compose.runtime.compositionLocalOf { false }
 @Composable
 fun AdBanner(modifier: Modifier = Modifier) {
     if (!LocalAdsEnabled.current) {
-        Box(modifier.fillMaxWidth().height(60.dp).background(androidx.compose.ui.graphics.Color(0xFF3A3A3A)), contentAlignment = Alignment.Center) { Caption("（バナー広告）") }
+        Box(modifier.fillMaxWidth().height(60.dp).background(androidx.compose.ui.graphics.Color(0xFF3A3A3A)), contentAlignment = Alignment.Center) { Caption(tr("（バナー広告）")) }
         return
     }
     if (!LocalAdsReady.current) return
@@ -174,10 +174,12 @@ fun TitleScreen(vm: AppViewModel) {
     val online by vm.online.collectAsState()
     var pending by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showRules by remember { mutableStateOf(false) }
+    var showLang by remember { mutableStateOf(false) }
+    val lang by vm.lang.collectAsState()
     val ctx = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         if (result.values.all { it }) pending?.invoke()
-        else vm.notify("「付近のデバイス」の許可がないと、みんなのスマホをつなげません")
+        else vm.notify(tr("「付近のデバイス」の許可がないと、みんなのスマホをつなげません"))
         pending = null
     }
     // オンラインは「付近のデバイス」の許可がいらない
@@ -189,29 +191,29 @@ fun TitleScreen(vm: AppViewModel) {
         Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(12.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { LanguageButton(lang) { showLang = true } }
         Art(R.drawable.char_wolf_hello, 190.dp)
-        Text("わちゃパ", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
-        Text("ワードウルフ・NGワード ほか", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.secondary)
+        Text(tr("わちゃパ"), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
+        Text(tr("ワードウルフ・NGワード ほか"), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.secondary)
         Spacer(Modifier.height(6.dp))
-        Caption("8つのパーティーゲーム。全員のスマホで遊べる", Modifier.padding(bottom = 20.dp))
+        Caption(tr("8つのパーティーゲーム。全員のスマホで遊べる"), Modifier.padding(bottom = 20.dp))
 
         // つなぎ方の切り替え（これだけ）
         ModeSwitch(online, vm::setOnline)
         Caption(
-            if (online) "離れていてもOK。PC版の人とも遊べます（ネットが必要）" else "同じ場所にいる人と。ネット不要（Bluetooth・Wi-Fiでつなぐ）",
+            if (online) tr("離れていてもOK。PC版の人とも遊べます（ネットが必要）") else tr("同じ場所にいる人と。ネット不要（Bluetooth・Wi-Fiでつなぐ）"),
             Modifier.padding(top = 6.dp, bottom = 16.dp),
         )
 
         OutlinedTextField(
             value = name, onValueChange = vm::setName, singleLine = true,
-            label = { Text("あなたの名前（${MAX_NAME_LEN}文字まで）") },
+            label = { Text(tr("あなたの名前（{0}文字まで）", MAX_NAME_LEN)) },
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(20.dp))
-        BigButton("部屋を作る", enabled = name.isNotBlank(), icon = R.drawable.icon_create) { withPermissions { vm.host() } }
+        BigButton(tr("部屋を作る"), enabled = name.isNotBlank(), icon = R.drawable.icon_create) { withPermissions { vm.host() } }
         Spacer(Modifier.height(12.dp))
-        BigButton("部屋に参加する", enabled = name.isNotBlank(), secondary = true, icon = R.drawable.icon_join) {
+        BigButton(tr("部屋に参加する"), enabled = name.isNotBlank(), secondary = true, icon = R.drawable.icon_join) {
             if (online) vm.openOnlineJoin() else withPermissions { vm.find() }
         }
         Spacer(Modifier.height(12.dp))
@@ -220,23 +222,53 @@ fun TitleScreen(vm: AppViewModel) {
             modifier = Modifier.fillMaxWidth().height(60.dp), shape = RoundedCornerShape(18.dp),
         ) {
             Art(R.drawable.icon_pass, 34.dp); Spacer(Modifier.width(10.dp))
-            Text("スマホ1台でまわす")
+            Text(tr("スマホ1台でまわす"))
         }
-        if (name.isBlank()) Caption("まず名前を入れてください", Modifier.padding(top = 10.dp))
+        if (name.isBlank()) Caption(tr("まず名前を入れてください"), Modifier.padding(top = 10.dp))
 
         Spacer(Modifier.height(28.dp))
         Row {
-            TextButton(onClick = { showRules = true }) { Art(R.drawable.icon_rules, 26.dp); Spacer(Modifier.width(6.dp)); Text("遊び方") }
+            TextButton(onClick = { showRules = true }) { Art(R.drawable.icon_rules, 26.dp); Spacer(Modifier.width(6.dp)); Text(tr("遊び方")) }
             TextButton(onClick = {
                 ctx.startActivity(AndroidIntent(AndroidIntent.ACTION_VIEW, Uri.parse(BuildConfig.PRIVACY_URL)))
-            }) { Text("プライバシーポリシー") }
+            }) { Text(tr("プライバシーポリシー")) }
         }
         // ヨーロッパなど同意が必要な地域では、あとから広告の同意を変えられるようにする（ポリシーで必要）
-        if (privacyButton) TextButton(onClick = { ctx.findActivity()?.let { vm.ads.showPrivacyOptions(it) } }) { Text("広告の設定") }
+        if (privacyButton) TextButton(onClick = { ctx.findActivity()?.let { vm.ads.showPrivacyOptions(it) } }) { Text(tr("広告の設定")) }
     }
     AdBanner()
     }
     if (showRules) RulesDialog { showRules = false }
+    if (showLang) LanguageDialog(lang, onPick = { vm.setLang(it); showLang = false }, onClose = { showLang = false })
+}
+
+/** 言語の切り替えボタン（どの言語の人にも分かるよう「🌐 Language」と今の言語を出す） */
+@Composable
+fun LanguageButton(code: String, onClick: () -> Unit) {
+    OutlinedButton(onClick = onClick, shape = RoundedCornerShape(14.dp)) {
+        Text("🌐 Language · " + (I18n.langs.firstOrNull { it.code == code }?.label ?: code), style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+fun LanguageDialog(code: String, onPick: (String) -> Unit, onClose: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onClose,
+        title = { Text("Language / 言語") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                I18n.langs.forEach { l ->
+                    val on = l.code == code
+                    OutlinedButton(
+                        onClick = { onPick(l.code) }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(14.dp),
+                        border = androidx.compose.foundation.BorderStroke(2.dp, if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh),
+                    ) { Text((if (on) "✓ " else "") + l.label, style = MaterialTheme.typography.titleMedium) }
+                }
+                Caption(tr("お題やカードは、部屋を作った人の言語になります"))
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(tr("閉じる")) } },
+    )
 }
 
 /** 「近くで」「オンライン」の切り替え */
@@ -246,7 +278,7 @@ fun ModeSwitch(online: Boolean, onChange: (Boolean) -> Unit) {
         Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(NightCard).padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        listOf(false to "📶 近くで", true to "🌐 オンライン").forEach { (v, label) ->
+        listOf(false to tr("📶 近くで"), true to tr("🌐 オンライン")).forEach { (v, label) ->
             val on = online == v
             Box(
                 Modifier.weight(1f).height(46.dp).clip(RoundedCornerShape(12.dp))
@@ -268,24 +300,24 @@ fun OnlineJoinScreen(vm: AppViewModel, state: Ui.OnlineJoin) {
     var code by remember { mutableStateOf(last) }
     BackHandler { vm.leave() }
     Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        ArtTitle(R.drawable.icon_join, "部屋コードで参加")
-        Caption("部屋を作った人の画面に出ている${AppViewModel.ONLINE_CODE_LEN}けたの数字を入れてください", Modifier.padding(vertical = 8.dp))
+        ArtTitle(R.drawable.icon_join, tr("部屋コードで参加"))
+        Caption(tr("部屋を作った人の画面に出ている{0}けたの数字を入れてください", AppViewModel.ONLINE_CODE_LEN), Modifier.padding(vertical = 8.dp))
         Art(R.drawable.char_wolf_hello, 140.dp, Modifier.padding(vertical = 12.dp))
         OutlinedTextField(
             value = code,
             onValueChange = { v -> code = v.filter { it.isDigit() }.take(AppViewModel.ONLINE_CODE_LEN) },
             singleLine = true, enabled = !state.busy,
-            label = { Text("部屋コード") },
+            label = { Text(tr("部屋コード")) },
             textStyle = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.Center, letterSpacing = 6.sp),
             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.NumberPassword),
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(16.dp))
         if (state.busy) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 14.dp)) {
-            CircularProgressIndicator(Modifier.size(24.dp)); Spacer(Modifier.width(14.dp)); Text("つないでいます…")
-        } else BigButton("入る", enabled = code.length == AppViewModel.ONLINE_CODE_LEN) { vm.joinOnline(code) }
+            CircularProgressIndicator(Modifier.size(24.dp)); Spacer(Modifier.width(14.dp)); Text(tr("つないでいます…"))
+        } else BigButton(tr("入る"), enabled = code.length == AppViewModel.ONLINE_CODE_LEN) { vm.joinOnline(code) }
         Spacer(Modifier.weight(1f))
-        BigButton("もどる", secondary = true) { vm.leave() }
+        BigButton(tr("もどる"), secondary = true) { vm.leave() }
     }
 }
 
@@ -293,36 +325,36 @@ fun OnlineJoinScreen(vm: AppViewModel, state: Ui.OnlineJoin) {
 fun RulesDialog(onClose: () -> Unit) {
     AlertDialog(
         onDismissRequest = onClose,
-        confirmButton = { TextButton(onClick = onClose) { Text("とじる") } },
-        title = { Text("遊び方") },
+        confirmButton = { TextButton(onClick = onClose) { Text(tr("とじる")) } },
+        title = { Text(tr("遊び方")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                RuleHead(R.drawable.icon_arena, "なんでもアリーナ（一押し）", MaterialTheme.colorScheme.secondary)
-                Text("手番が来たら山札から1枚引き、手札から1枚出して、書かれていることに従います。落とし穴・ばくだん・全員じゃんけん・せーのでゆび・鼻タッチ・言ってはいけない言葉…何が起きるかわかりません。負けたら抜けます。最後の1人になるか、カードの勝利条件（金貨15ポイント・誕生月など）を満たせば勝ち！ 全員が負けることもあります。★のついたスターカードは特に強力。ゲームの最初に「今夜のルール」が1つ追加されます。言葉やしぐさのルールを破った人を見つけたら、その人の「違反！」を押しましょう。")
+                RuleHead(R.drawable.icon_arena, tr("なんでもアリーナ（一押し）"), MaterialTheme.colorScheme.secondary)
+                Text(tr("手番が来たら山札から1枚引き、手札から1枚出して、書かれていることに従います。落とし穴・ばくだん・全員じゃんけん・せーのでゆび・鼻タッチ・言ってはいけない言葉…何が起きるかわかりません。負けたら抜けます。最後の1人になるか、カードの勝利条件（金貨15ポイント・誕生月など）を満たせば勝ち！ 全員が負けることもあります。★のついたスターカードは特に強力。ゲームの最初に「今夜のルール」が1つ追加されます。言葉やしぐさのルールを破った人を見つけたら、その人の「違反！」を押しましょう。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_wordwolf, "ワードウルフ", MaterialTheme.colorScheme.primary)
-                Text("全員にお題が配られますが、1人（7人以上なら2人）だけ少し違うお題です。それが「ウルフ」。自分がどちらかは分かりません。話し合って、ウルフだと思う人に投票します。ウルフが最多票なら、ウルフは市民のお題を当てれば逆転勝ち。")
+                RuleHead(R.drawable.icon_wordwolf, tr("ワードウルフ"), MaterialTheme.colorScheme.primary)
+                Text(tr("全員にお題が配られますが、1人（7人以上なら2人）だけ少し違うお題です。それが「ウルフ」。自分がどちらかは分かりません。話し合って、ウルフだと思う人に投票します。ウルフが最多票なら、ウルフは市民のお題を当てれば逆転勝ち。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_ngword, "NGワード", MaterialTheme.colorScheme.secondary)
-                Text("全員に別々のNGワードが付きます。自分のワードだけ見えません。おしゃべりしながら、ほかの人にその人のNGワードを言わせましょう。言った人を見つけたら「言った！」を押します。最後まで残った人の勝ち。")
+                RuleHead(R.drawable.icon_ngword, tr("NGワード"), MaterialTheme.colorScheme.secondary)
+                Text(tr("全員に別々のNGワードが付きます。自分のワードだけ見えません。おしゃべりしながら、ほかの人にその人のNGワードを言わせましょう。言った人を見つけたら「言った！」を押します。最後まで残った人の勝ち。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_spy, "スパイはだれだ", MaterialTheme.colorScheme.primary)
-                Text("全員に同じ「場所」が配られますが、スパイだけは場所を知りません。順番に質問し合ってスパイを探します。スパイが最多票なら、スパイは12個の候補から場所を当てれば逆転勝ち。")
+                RuleHead(R.drawable.icon_spy, tr("スパイはだれだ"), MaterialTheme.colorScheme.primary)
+                Text(tr("全員に同じ「場所」が配られますが、スパイだけは場所を知りません。順番に質問し合ってスパイを探します。スパイが最多票なら、スパイは12個の候補から場所を当てれば逆転勝ち。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_sync, "みんなでシンクロ", MaterialTheme.colorScheme.primary)
-                Text("「赤い食べ物といえば？」などのお題に、全員が自分のスマホで答えます。同じ答えの人が多いほど得点。")
+                RuleHead(R.drawable.icon_sync, tr("みんなでシンクロ"), MaterialTheme.colorScheme.primary)
+                Text(tr("「赤い食べ物といえば？」などのお題に、全員が自分のスマホで答えます。同じ答えの人が多いほど得点。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_guess, "質問で当てろ", MaterialTheme.colorScheme.primary)
-                Text("出題者だけが答えを知っています。ほかの人は「はい・いいえ」で答えられる質問をして、時間内に当てます。当てた人と出題者に1点。")
+                RuleHead(R.drawable.icon_guess, tr("質問で当てろ"), MaterialTheme.colorScheme.primary)
+                Text(tr("出題者だけが答えを知っています。ほかの人は「はい・いいえ」で答えられる質問をして、時間内に当てます。当てた人と出題者に1点。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_question, "ぶっちゃけ質問", MaterialTheme.colorScheme.primary)
-                Text("「この中で一番〇〇なのは？」に全員が匿名で投票して、結果を発表します。")
+                RuleHead(R.drawable.icon_question, tr("ぶっちゃけ質問"), MaterialTheme.colorScheme.primary)
+                Text(tr("「この中で一番〇〇なのは？」に全員が匿名で投票して、結果を発表します。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_draw, "お絵かき伝言", MaterialTheme.colorScheme.primary)
-                Text("最初に全員がお題（「ねこが空を飛んでいる」など）を書きます。それが隣の人に回り、絵にします。次の人はその絵だけを見て何の絵か文で答え、さらに次の人がその文を絵に…と全員分くり返します。最後に、お題がどう変わっていったかを1コマずつ発表して笑いましょう。")
+                RuleHead(R.drawable.icon_draw, tr("お絵かき伝言"), MaterialTheme.colorScheme.primary)
+                Text(tr("最初に全員がお題（「ねこが空を飛んでいる」など）を書きます。それが隣の人に回り、絵にします。次の人はその絵だけを見て何の絵か文で答え、さらに次の人がその文を絵に…と全員分くり返します。最後に、お題がどう変わっていったかを1コマずつ発表して笑いましょう。"))
                 Spacer(Modifier.height(14.dp))
-                RuleHead(R.drawable.icon_join, "つなぎ方", MaterialTheme.colorScheme.onSurface)
-                Text("近くで：1人が「部屋を作る」、ほかの人は「部屋に参加する」で同じ部屋番号を選びます。BluetoothとWi-Fiをオンにしてください（Wi-Fiにつながっている必要はありません）。\n\nオンライン：タイトルで「オンライン」に切り替えて部屋を作ると、6けたの部屋コードが出ます。ほかの人（PC版の人も）はそのコードで参加します。話すゲームは、通話アプリをつなぎながら遊びましょう。")
+                RuleHead(R.drawable.icon_join, tr("つなぎ方"), MaterialTheme.colorScheme.onSurface)
+                Text(tr("近くで：1人が「部屋を作る」、ほかの人は「部屋に参加する」で同じ部屋番号を選びます。BluetoothとWi-Fiをオンにしてください（Wi-Fiにつながっている必要はありません）。\n\nオンライン：タイトルで「オンライン」に切り替えて部屋を作ると、6けたの部屋コードが出ます。ほかの人（PC版の人も）はそのコードで参加します。話すゲームは、通話アプリをつなぎながら遊びましょう。"))
             }
         },
     )
@@ -342,21 +374,21 @@ private fun RuleHead(@DrawableRes id: Int, text: String, color: androidx.compose
 fun FindingScreen(vm: AppViewModel, state: Ui.Finding) {
     BackHandler { vm.leave() }
     Column(Modifier.fillMaxSize().padding(24.dp)) {
-        ArtTitle(R.drawable.icon_join, "近くの部屋")
-        Caption("ホストの画面に出ている部屋番号を選んでください", Modifier.padding(vertical = 8.dp))
+        ArtTitle(R.drawable.icon_join, tr("近くの部屋"))
+        Caption(tr("ホストの画面に出ている部屋番号を選んでください"), Modifier.padding(vertical = 8.dp))
         if (state.rooms.isEmpty()) {
             Art(R.drawable.char_wolf_hello, 140.dp, Modifier.align(Alignment.CenterHorizontally).padding(top = 20.dp))
             Row(Modifier.padding(vertical = 16.dp).align(Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(Modifier.size(24.dp))
                 Spacer(Modifier.width(14.dp))
-                Text("探しています…")
+                Text(tr("探しています…"))
             }
-            Caption("見つからないときは、BluetoothとWi-Fiがオンか、ホストが「部屋を作る」を押しているか確認してください")
+            Caption(tr("見つからないときは、BluetoothとWi-Fiがオンか、ホストが「部屋を作る」を押しているか確認してください"))
         }
         LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(state.rooms, key = { it.endpointId }) { room -> RoomRow(room, state.joining) { vm.join(room) } }
         }
-        BigButton("もどる", secondary = true) { vm.leave() }
+        BigButton(tr("もどる"), secondary = true) { vm.leave() }
     }
 }
 
@@ -365,11 +397,11 @@ private fun RoomRow(room: RoomInfo, joining: String?, onClick: () -> Unit) {
     Panel {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("部屋 ${room.code}", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
-                Caption("ホスト：${room.hostName}")
+                Text(tr("部屋 {0}", room.code), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
+                Caption(tr("ホスト：{0}", room.hostName))
             }
             if (joining == room.endpointId) CircularProgressIndicator(Modifier.size(28.dp))
-            else Button(onClick = onClick, enabled = joining == null) { Text("入る") }
+            else Button(onClick = onClick, enabled = joining == null) { Text(tr("入る")) }
         }
     }
 }
@@ -379,28 +411,28 @@ private fun RoomRow(room: RoomInfo, joining: String?, onClick: () -> Unit) {
 @Composable
 fun LocalSetupScreen(vm: AppViewModel) {
     val myName by vm.name.collectAsState()
-    val names = remember { mutableStateListOf(myName.ifBlank { "プレイヤー1" }, "プレイヤー2", "プレイヤー3", "プレイヤー4") }
+    val names = remember { mutableStateListOf(myName.ifBlank { tr("プレイヤー1") }, tr("プレイヤー2"), tr("プレイヤー3"), tr("プレイヤー4")) }
     BackHandler { vm.leave() }
     Column(Modifier.fillMaxSize().padding(24.dp)) {
-        ArtTitle(R.drawable.icon_pass, "参加する人")
-        Caption("スマホを順番に渡してお題を確認します（${MIN_PLAYERS}〜${MAX_PLAYERS_LOCAL}人）", Modifier.padding(vertical = 8.dp))
+        ArtTitle(R.drawable.icon_pass, tr("参加する人"))
+        Caption(tr("スマホを順番に渡してお題を確認します（{0}〜{1}人）", MIN_PLAYERS, MAX_PLAYERS_LOCAL), Modifier.padding(vertical = 8.dp))
         LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             itemsIndexed(names) { i, n ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = n, onValueChange = { names[i] = it.take(MAX_NAME_LEN) }, singleLine = true,
-                        label = { Text("${i + 1}人目") }, modifier = Modifier.weight(1f),
+                        label = { Text(tr("{0}人目", i + 1)) }, modifier = Modifier.weight(1f),
                     )
                     if (names.size > MIN_PLAYERS) TextButton(onClick = { names.removeAt(i) }) { Text("✕") }
                 }
             }
             item {
-                if (names.size < MAX_PLAYERS_LOCAL) TextButton(onClick = { names.add("プレイヤー${names.size + 1}") }) { Text("＋ 人を増やす") }
+                if (names.size < MAX_PLAYERS_LOCAL) TextButton(onClick = { names.add(tr("プレイヤー{0}", names.size + 1)) }) { Text(tr("＋ 人を増やす")) }
             }
         }
-        BigButton("この人数ではじめる（${names.size}人）") { vm.startLocal(names.map { it.trim() }) }
+        BigButton(tr("この人数ではじめる（{0}人）", names.size)) { vm.startLocal(names.map { it.trim() }) }
         Spacer(Modifier.height(10.dp))
-        BigButton("もどる", secondary = true) { vm.leave() }
+        BigButton(tr("もどる"), secondary = true) { vm.leave() }
     }
 }
 

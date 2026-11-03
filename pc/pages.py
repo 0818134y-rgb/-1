@@ -1,7 +1,15 @@
 """ウェブ版に置く読みもののページ（遊び方・カード一覧・このサイトについて・プライバシーポリシー）を作る。
 AdSense の審査では、ゲームの画面だけでなく、内容のあるページと運営者情報・プライバシーポリシーが求められる。
 """
-import html, json, subprocess
+import html, json, os, subprocess
+import pages_text
+LANGS = ['ja', 'en', 'ko', 'zh']
+LANG_LABEL = {'ja': '日本語', 'en': 'English', 'ko': '한국어', 'zh': '中文'}
+
+
+def fname(base, lang):
+    """howto.html / howto.en.html …"""
+    return base + '.html' if lang == 'ja' else f'{base}.{lang}.html'
 
 CONTACT = 'https://github.com/0818134y-rgb/-1/issues'
 
@@ -16,18 +24,26 @@ h3{font-size:18px;margin:20px 0 4px}a{color:var(--mint)}.box{background:var(--ca
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
 .c{background:var(--paper);color:var(--ink);border-radius:14px;padding:10px;text-align:center;border:3px solid #8E86B8}.c.star{border-color:var(--berry)}
 .c img{width:84px;height:84px;object-fit:contain}.c b{display:block}.c small{display:block;font-size:12px;line-height:1.5;color:#3B3560;text-align:left;margin-top:4px}
-.c .n{color:var(--berry);font-size:12px}ul{padding-left:1.2em}.muted{color:var(--muted);font-size:14px}footer{text-align:center;color:var(--muted);font-size:13px;padding:20px}
+.c .n{color:var(--berry);font-size:12px}header .langs{font-size:13px}header .langs a{margin-left:6px;font-weight:400}ul{padding-left:1.2em}.muted{color:var(--muted);font-size:14px}footer{text-align:center;color:var(--muted);font-size:13px;padding:20px}
 '''
 
 
-def page(title, body, head_extra='', ad=''):
+def page(title, body, head_extra='', ad='', lang='ja', base='howto'):
+    if lang == 'ja':
+        brand, nav, contact, desc, hl = 'わちゃパ', ['遊び方', 'このサイトについて', 'プライバシー', '遊ぶ'], 'お問い合わせ', \
+            'なんでもアリーナ・ワードウルフ・NGワードなど8つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。', 'ja'
+    else:
+        T = pages_text.L[lang]
+        brand, nav, contact, desc, hl = T['brand'], T['nav'], T['contact'], T['desc'], T['html_lang']
+    alt = ''.join(f'<link rel="alternate" hreflang="{"zh-CN" if l == "zh" else l}" href="{fname(base, l)}">' for l in LANGS)
+    langs = ' '.join(f'<a href="{fname(base, l)}"{" style=\"color:var(--soft)\"" if l == lang else ""}>{LANG_LABEL[l]}</a>' for l in LANGS)
     return f'''<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>{html.escape(title)}｜わちゃパ</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
-<meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど8つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">
+<html lang="{hl}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{html.escape(title)}｜{brand}</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
+<meta name="description" content="{html.escape(desc)}">{alt}
 {head_extra}<style>{CSS}</style></head><body>
-<header><a href="./">わちゃパ</a><a href="howto.html">遊び方</a><a href="about.html">このサイトについて</a><a href="privacy.html">プライバシー</a><a class="play" href="./">遊ぶ</a></header>
-<main>{body}{('<div style="text-align:center;margin:30px 0">' + ad + '</div>') if ad else ''}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">お問い合わせ</a></footer></body></html>
+<header><a href="./">{brand}</a><a href="{fname('howto', lang)}">{nav[0]}</a><a href="{fname('about', lang)}">{nav[1]}</a><a href="{fname('privacy', lang)}">{nav[2]}</a><span class="langs">🌐 {langs}</span><a class="play" href="./">{nav[3]}</a></header>
+<main>{body}{('<div style="text-align:center;margin:30px 0">' + ad + '</div>') if ad else ''}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">{contact}</a></footer></body></html>
 '''
 
 
@@ -73,6 +89,31 @@ def howto(cards, chaos):
     return b
 
 
+PLAYERS = {'icon_arena': (2, 8), 'icon_wordwolf': (3,), 'icon_ngword': (3,), 'icon_spy': (3,), 'icon_sync': (2,), 'icon_guess': (2,),
+           'icon_question': (3,), 'icon_draw': (3, 8)}
+
+
+def howto_l(lang, cards, chaos, tr):
+    T = pages_text.L[lang]
+    b = T['howto_intro'] + T['start'] + f'<h2>{T["games_h"]}</h2>'
+    for icon, _, _, _ in GAMES:
+        name, text = T['games'][icon]
+        pr = PLAYERS[icon]
+        n = T['players_range'].format(*pr) if len(pr) == 2 else T['players'].format(pr[0])
+        b += f'<div class="box game"><img src="img/{icon}.webp" alt=""><div><h3>{html.escape(name)}<span class="muted">（{n}）</span></h3><p>{html.escape(text)}</p></div></div>'
+    b += f'<h2>{T["cards_h"]}</h2><p>{T["cards_p"]}</p><div class="cards">'
+    seen = set()
+    for c in cards:
+        key = (c['name'], c['text'])
+        if key in seen: continue
+        seen.add(key)
+        b += f'<div class="c{" star" if c["star"] else ""}"><img src="img/card_{c["art"]}.webp" alt=""><b>{"★ " if c["star"] else ""}{html.escape(tr(c["name"]))}</b><small>{html.escape(tr(c["text"]))}</small></div>'
+    b += f'</div><h2>{T["chaos_h"]}</h2><p>{T["chaos_p"]}</p><ul>'
+    for c in chaos.values():
+        b += f'<li><b>{html.escape(tr(c["title"]))}</b>{T["colon"]}{html.escape(tr(c["text"]))}</li>'
+    return b + '</ul>'
+
+
 def about():
     return f'''<h1>このサイトについて</h1>
 <p>「わちゃパ」は、友だちや家族と集まったとき、または通話しながら遊べるパーティーゲーム集です。なんでもアリーナ・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問・お絵かき伝言の8つを、無料で遊べます。</p>
@@ -93,12 +134,9 @@ def privacy():
 <p>入力した名前やゲームの内容は、同じ部屋に参加している端末の間でのみやり取りされ、運営者に送られることはありません。</p>
 <ul><li><b>オンライン</b>：端末どうしを WebRTC（PeerJS）で直接つなぎます。相手を見つけるために PeerJS の仲介サーバー（0.peerjs.com）と通信し、直接つながらない回線では PeerJS の中継サーバーを経由します。このとき、通信に必要な IP アドレスなどが仲介・中継サーバーと相手の端末に伝わります。</li>
 <li><b>近くで（Android アプリ）</b>：Google の Nearby Connections（Bluetooth・Wi-Fi）で近くの端末と直接つながります。近くの端末を見つけるために「付近のデバイス」「位置情報」の許可を求めますが、位置情報そのものを取得・記録・送信することはありません。</li></ul>
-<h2>3. 端末に保存する情報</h2><p>次回の入力を省くため、入力した名前と最後に入れた部屋コードを端末内（アプリの保存領域、またはブラウザの localStorage）に保存します。ウェブ版はすぐ起動できるよう、ゲームのファイルを端末に保存します。いずれもアプリの削除やブラウザのデータ削除で消えます。</p>
+<h2>3. 端末に保存する情報</h2><p>次回の入力を省くため、入力した名前、最後に入れた部屋コード、表示する言語を端末内（アプリの保存領域、またはブラウザの localStorage）に保存します。ウェブ版はすぐ起動できるよう、ゲームのファイルを端末に保存します。いずれもアプリの削除やブラウザのデータ削除で消えます。</p>
 <h2>4. 広告</h2>
-<p>本サービスは Google LLC の広告配信サービス（Android アプリでは Google AdMob、ウェブ版では Google AdSense）を利用しています。これらのサービスは、広告の配信・効果測定・不正防止のために、Cookie、広告ID、端末やブラウザの情報、おおよその位置（IP アドレスから推定）などを使用する場合があります。第三者配信事業者は Cookie を使用して、利用者が本サービスや他のサイトに過去にアクセスした際の情報に基づいて広告を配信します。</p>
-<ul><li><a href="https://policies.google.com/technologies/partner-sites?hl=ja">Google のサービスを使用するサイトやアプリから収集した情報の Google による使用</a></li>
-<li><a href="https://policies.google.com/technologies/ads?hl=ja">Google の広告に関するポリシー</a></li><li><a href="https://policies.google.com/privacy?hl=ja">Google プライバシーポリシー</a></li></ul>
-<p>パーソナライズ広告は <a href="https://adssettings.google.com/">広告設定</a> で無効にできます（Android は端末の「設定 → Google → 広告」からも変更できます）。ヨーロッパなど同意が必要な地域では、広告を表示する前に同意を確認し、あとから「広告の設定」で変更できます。</p>
+{pages_text.AD_JA}
 <h2>5. 対象年齢</h2><p>本サービスは13歳以上の方を対象としています。</p>
 <h2>6. 改定</h2><p>本ポリシーは必要に応じて改定します。改定後の内容は本ページに掲載した時点で効力を持ちます。</p>
 <h2>7. お問い合わせ</h2><p><a href="{CONTACT}">こちら（GitHub）</a> へお寄せください。</p>
@@ -110,7 +148,15 @@ def build(game_dir, kjs_path, head_extra='', ad=''):
     out = subprocess.run(['node', '-e', f'const g=require({json.dumps(kjs_path)}).com.zen.partygame.game;console.log(JSON.stringify({{cards:JSON.parse(g.arenaCardsJson()),meta:JSON.parse(g.metaJson())}}))'],
                          capture_output=True, text=True, check=True).stdout
     data = json.loads(out)
-    for name, title, body in (('howto.html', '遊び方・カード一覧', howto(data['cards'], data['meta']['chaos'])),
-                              ('about.html', 'このサイトについて', about()),
-                              ('privacy.html', 'プライバシーポリシー', privacy())):
-        open(f'{game_dir}/{name}', 'w', encoding='utf-8').write(page(title, body, head_extra, ad))
+    for base, title, body in (('howto', '遊び方・カード一覧', howto(data['cards'], data['meta']['chaos'])),
+                              ('about', 'このサイトについて', about()),
+                              ('privacy', 'プライバシーポリシー', privacy())):
+        open(f'{game_dir}/{fname(base, "ja")}', 'w', encoding='utf-8').write(page(title, body, head_extra, ad, 'ja', base))
+    i18n_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'app', 'src', 'main', 'assets', 'i18n')
+    for lang in LANGS[1:]:
+        T = pages_text.L[lang]
+        d = json.load(open(os.path.join(i18n_dir, lang + '.json'), encoding='utf-8'))
+        tr = lambda k: d.get(k, k)
+        bodies = [howto_l(lang, data['cards'], data['meta']['chaos'], tr), T['about'].replace('{contact}', CONTACT), T['privacy'].replace('{contact}', CONTACT)]
+        for base, title, body in zip(('howto', 'about', 'privacy'), T['titles'], bodies):
+            open(f'{game_dir}/{fname(base, lang)}', 'w', encoding='utf-8').write(page(title, body, head_extra, ad, lang, base))

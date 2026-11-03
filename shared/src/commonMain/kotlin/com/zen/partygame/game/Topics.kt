@@ -13,6 +13,8 @@ data class NgWord(val c: String, val w: String)
 @Serializable
 data class TopicFile(
     val version: Int,
+    /** お題の言語（ja / en / ko / zh） */
+    val lang: String = "ja",
     val wordwolf: List<WwPair>,
     val ng: List<NgWord>,
     val spy: List<String> = emptyList(),
@@ -78,13 +80,25 @@ class TopicBank(private val file: TopicFile) {
     /** お絵かき伝言のおまかせお題（だれが＋何をしている） */
     fun drawPrompt(rng: Random): String =
         if (file.drawWho.isEmpty() || file.drawWhat.isEmpty()) drawGuess(rng)
-        else drawFrom("dwho", file.drawWho, rng) + "が" + drawFrom("dwhat", file.drawWhat, rng)
+        else joinDrawPrompt(file.lang, drawFrom("dwho", file.drawWho, rng), drawFrom("dwhat", file.drawWhat, rng))
 
     /** スパイが選ぶ場所の候補（正解を含めて count 個） */
     fun spyOptions(correct: String, count: Int, rng: Random): List<String> =
         (file.spy.filter { it != correct }.shuffled(rng).take(count - 1) + correct).shuffled(rng)
 
     companion object {
+        /** 「だれが」と「何をしている」をその言語の文にする */
+        fun joinDrawPrompt(lang: String, who: String, what: String): String = when (lang) {
+            "en" -> "$who $what"
+            "zh" -> who + what
+            "ko" -> {
+                // 받침があれば「이」、なければ「가」
+                val c = who.lastOrNull() ?: ' '
+                val batchim = c in '\uAC00'..'\uD7A3' && (c - '\uAC00') % 28 != 0
+                who + (if (batchim) "이 " else "가 ") + what
+            }
+            else -> who + "が" + what
+        }
         private val json = Json { ignoreUnknownKeys = true }
         fun parse(text: String) = TopicBank(json.decodeFromString(TopicFile.serializer(), text))
     }
