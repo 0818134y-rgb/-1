@@ -787,7 +787,12 @@
     e.preventDefault(); doAct('nose');
   });
   // ホーム画面に追加したときにオフラインでも開けるよう、ファイルを端末に保存する（サイトに置いたときだけ）
-  if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(function () {});
+  if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
+    // 新しい版が届いたら、遊んでいないとき（タイトル画面）だけ自動で読み直す
+    const hadSw = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', function () { if (hadSw && S.page === 'title' && !S.view) location.reload(); });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
+  }
 
   // テスト用の入口
   window.PG = { S: S, send: send, doAct: doAct, render: render };

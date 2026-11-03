@@ -93,6 +93,9 @@ self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c =>
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('pg-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const u = new URL(e.request.url); if (e.request.method !== 'GET' || u.origin !== location.origin) return;   // 通信（PeerJS）や広告はそのまま通す
+  // 画面・設定・プログラムは「通信できれば最新を取りに行き、だめなら保存分」。画像などは保存分を先に使う
+  const fresh = e.request.mode === 'navigate' || /\\.(html|js|css|webmanifest)$/.test(u.pathname) || u.pathname.endsWith('/');
+  if (fresh) { e.respondWith(caches.open(CACHE).then(c => fetch(e.request).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; }).catch(() => c.match(e.request, { ignoreSearch: true })))); return; }
   e.respondWith(caches.open(CACHE).then(c => c.match(e.request, { ignoreSearch: true }).then(r => r || fetch(e.request).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; }))));
 });
 ''' % (cache, json.dumps(['./' + f for f in files], ensure_ascii=False)))
