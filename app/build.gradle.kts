@@ -1,4 +1,18 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+/** プロジェクトの一番上にある設定ファイルを読む（公開リポジトリには入れない） */
+fun props(name: String) = Properties().apply { rootProject.file(name).takeIf { it.exists() }?.inputStream()?.use { load(it) } }
+// 本物の広告ID（AdMob で作ったもの）。monetization.properties に書く。無ければテスト用の広告になる
+val ads = props("monetization.properties")
+// アプリの署名（Google Play に上げる鍵）。keystore.properties に書く
+val keys = props("keystore.properties")
+// Google のテスト用広告ID（開発中はこれ。自分で本物の広告をタップすると AdMob の規約違反になるため）
+val testAppId = "ca-app-pub-3940256099942544~3347511713"
+val testBanner = "ca-app-pub-3940256099942544/9214589741"
+val testInterstitial = "ca-app-pub-3940256099942544/1033173712"
+val realAppId: String? = ads.getProperty("admob.appId")
+fun q(v: String) = "\"$v\""
 
 plugins {
     alias(libs.plugins.android.application)
@@ -16,21 +30,38 @@ android {
         applicationId = "com.zen.partygame"
         minSdk = 26
         targetSdk = 36
-        versionCode = 7
-        versionName = "0.6.1"
+        versionCode = 8
+        versionName = "0.7.0"
 
-        // ↓ Google のテスト用広告ID。公開前に自分の AdMob のIDに差し替える
-        manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
-        buildConfigField("String", "AD_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
-        buildConfigField("String", "AD_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
-        // ↓ プライバシーポリシーのURL（GitHub Pages などに置く）
-        buildConfigField("String", "PRIVACY_URL", "\"https://example.com/privacy\"")
         // ↓ ウェブ版（iPhone・PC 用）を公開した URL。入れると「招待を送る」の文に載る
-        buildConfigField("String", "WEB_URL", "\"https://0818134y-rgb.github.io/-/\"")
+        val web = ads.getProperty("site.url") ?: "https://0818134y-rgb.github.io/-/"
+        buildConfigField("String", "WEB_URL", q(web))
+        // ↓ プライバシーポリシー（ウェブ版と同じ場所に置いてある）
+        buildConfigField("String", "PRIVACY_URL", q(web + "privacy.html"))
+    }
+
+    signingConfigs {
+        if (keys.getProperty("storeFile") != null) create("release") {
+            storeFile = rootProject.file(keys.getProperty("storeFile"))
+            storePassword = keys.getProperty("storePassword")
+            keyAlias = keys.getProperty("keyAlias")
+            keyPassword = keys.getProperty("keyPassword")
+        }
     }
 
     buildTypes {
+        debug {
+            // 開発中・テスト版は必ずテスト用の広告
+            manifestPlaceholders["admobAppId"] = testAppId
+            buildConfigField("String", "AD_BANNER_ID", q(testBanner))
+            buildConfigField("String", "AD_INTERSTITIAL_ID", q(testInterstitial))
+        }
         release {
+            // 公開版は本物の広告（monetization.properties が無いときはテスト用。そのままでは公開できないよう下で止める）
+            manifestPlaceholders["admobAppId"] = realAppId ?: testAppId
+            buildConfigField("String", "AD_BANNER_ID", q(ads.getProperty("admob.banner") ?: testBanner))
+            buildConfigField("String", "AD_INTERSTITIAL_ID", q(ads.getProperty("admob.interstitial") ?: testInterstitial))
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -51,6 +82,14 @@ android {
 
 kotlin {
     compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+}
+
+// 本物の広告IDが入っていない公開版は作らない（-PallowTestAds で試しに作るときだけ通す）
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    doFirst {
+        if (realAppId == null && !project.hasProperty("allowTestAds"))
+            throw GradleException("monetization.properties に AdMob の本物の広告IDがありません（MONETIZE.md を参照）")
+    }
 }
 
 dependencies {

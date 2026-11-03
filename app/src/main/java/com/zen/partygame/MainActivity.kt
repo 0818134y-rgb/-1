@@ -32,8 +32,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        vm.ads.init()
+        vm.ads.init(this)
         setContent {
+            val adsReady by vm.ads.ready.collectAsState()
+            androidx.compose.runtime.CompositionLocalProvider(com.zen.partygame.ui.LocalAdsReady provides adsReady) {
             PartyTheme {
                 val ui by vm.ui.collectAsState()
                 val snack = remember { SnackbarHostState() }
@@ -52,6 +54,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
             }
         }
     }

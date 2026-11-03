@@ -6,3 +6,6 @@ local.properties
 .idea/
 *.iml
 pc/out/
+monetization.properties
+keystore.properties
+*.jks

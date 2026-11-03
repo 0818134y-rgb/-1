@@ -17,6 +17,36 @@ shutil.rmtree(D, ignore_errors=True); os.makedirs(os.path.join(G, 'lib')); os.ma
 for f in ('index.html', 'app.js', 'style.css', 'config.js'):
     shutil.copy(os.path.join(HERE, 'src', f), G)
 shutil.copy(KJS, os.path.join(G, 'lib', 'partygame.js'))
+
+# ---- 収益化の設定（プロジェクトの一番上の monetization.properties。公開リポジトリには入れない） ----
+M = {}
+mp = os.path.join(ROOT, 'monetization.properties')
+if os.path.exists(mp):
+    for line in open(mp, encoding='utf-8'):
+        line = line.strip()
+        if line and not line.startswith('#') and '=' in line:
+            k, v = line.split('=', 1); M[k.strip()] = v.strip()
+ADSENSE = M.get('adsense.client', '')               # ca-pub-...
+DOMAIN = M.get('site.domain', '')                    # 独自ドメイン（例: partygame.jp）
+SITE = M.get('site.url') or (f'https://{DOMAIN}/' if DOMAIN else 'https://0818134y-rgb.github.io/-/')
+cfg = {'adsenseClient': ADSENSE, 'bannerSlot': M.get('adsense.banner', ''), 'breakSlot': M.get('adsense.break', ''),
+       'h5games': M.get('adsense.h5games', 'false') == 'true', 'adTest': M.get('adsense.test', 'false') == 'true'}
+open(os.path.join(G, 'config.js'), 'w', encoding='utf-8').write('/* 自動で作られる設定（pc/build.py）。手で直すときは monetization.properties を直して作り直す */\nwindow.PG_CONFIG = ' + json.dumps(cfg, ensure_ascii=False, indent=1) + ';\n')
+# AdSense の審査・自動広告のため、各ページの <head> に AdSense のコードを最初から入れておく
+HEAD_ADS = ''
+if ADSENSE:
+    HEAD_ADS = ('<meta name="google-adsense-account" content="%s">\n<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%s" crossorigin="anonymous"%s></script>\n'
+                % (ADSENSE, ADSENSE, ' data-adbreak-test="on"' if cfg['adTest'] else ''))
+    pub = ADSENSE.replace('ca-', '')
+    open(os.path.join(G, 'ads.txt'), 'w').write(f'google.com, {pub}, DIRECT, f08c47fec0942fa0\n')
+# Android アプリの広告（AdMob）用：app-ads.txt（サイトの一番上の階層に置く必要がある）
+APP_PUB = M.get('admob.appId', '').split('~')[0].replace('ca-app-', '')
+if APP_PUB:
+    open(os.path.join(G, 'app-ads.txt'), 'w').write(f'google.com, {APP_PUB}, DIRECT, f08c47fec0942fa0\n')
+if DOMAIN:
+    open(os.path.join(G, 'CNAME'), 'w').write(DOMAIN + '\n')
+sys.path.insert(0, HERE); import pages
+pages.build(G, KJS, HEAD_ADS)
 shutil.copy(os.path.join(ASSETS, 'online', 'peerjs.min.js'), os.path.join(G, 'lib'))
 shutil.copy(os.path.join(ASSETS, 'online', 'net.js'), os.path.join(G, 'lib'))
 topics = open(os.path.join(ASSETS, 'topics.json'), encoding='utf-8').read()
@@ -35,7 +65,8 @@ json.dump({'name': 'パーティーゲーム（なんでもアリーナ ほか�
                     + [{'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'}]},
           open(os.path.join(G, 'manifest.webmanifest'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 html = open(os.path.join(G, 'index.html'), encoding='utf-8').read()
-open(os.path.join(G, 'index.html'), 'w', encoding='utf-8').write(html.replace('<title>', '<meta name="version" content="%s">\n<title>' % VERSION))
+html = html.replace('<title>', '<meta name="version" content="%s">\n<meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど7つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">\n%s<title>' % (VERSION, HEAD_ADS))
+open(os.path.join(G, 'index.html'), 'w', encoding='utf-8').write(html)
 
 # サービスワーカー：ゲームのファイルを端末に保存（中身のハッシュを版名に入れるので、更新すると古い保存は消える）
 files = []
@@ -82,8 +113,6 @@ start "" "%URL%"
 exit /b 0
 '''
 open(os.path.join(D, '遊ぶ.bat'), 'wb').write(bat.replace('\n', '\r\n').encode('cp932'))
-# 公開したウェブ版の URL（ここが開くと広告も出せる）。空なら同梱のファイルを開く
-SITE = 'https://0818134y-rgb.github.io/-/'
 open(os.path.join(D, 'site.txt'), 'w', encoding='ascii').write(SITE)
 
 readme = f'''パーティーゲーム PC 版 v{VERSION}

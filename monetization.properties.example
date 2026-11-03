@@ -1,0 +1,11 @@
+# プロジェクトの一番上に monetization.properties として保存される（公開リポジトリには入れない）
+admob.appId=ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy
+admob.banner=ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz
+admob.interstitial=ca-app-pub-xxxxxxxxxxxxxxxx/wwwwwwwwww
+site.domain=party-game.jp
+adsense.client=ca-pub-xxxxxxxxxxxxxxxx
+# 任意：ディスプレイ広告ユニットを自分で作った場合
+adsense.banner=
+adsense.break=
+# H5 Games Ads が認められたら true
+adsense.h5games=false

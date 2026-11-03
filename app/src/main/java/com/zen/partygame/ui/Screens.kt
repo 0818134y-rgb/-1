@@ -124,6 +124,8 @@ fun Caption(text: String, modifier: Modifier = Modifier) {
 
 /** 広告を表示するか（画面の見た目テストでは false にする） */
 val LocalAdsEnabled = staticCompositionLocalOf { true }
+/** 同意の確認が済んで、広告を出してよい状態か */
+val LocalAdsReady = androidx.compose.runtime.compositionLocalOf { false }
 
 /** 画面下のバナー広告（ロビーと結果画面だけ） */
 @Composable
@@ -132,6 +134,7 @@ fun AdBanner(modifier: Modifier = Modifier) {
         Box(modifier.fillMaxWidth().height(60.dp).background(androidx.compose.ui.graphics.Color(0xFF3A3A3A)), contentAlignment = Alignment.Center) { Caption("（バナー広告）") }
         return
     }
+    if (!LocalAdsReady.current) return
     AndroidView(
         modifier = modifier.fillMaxWidth(),
         factory = { ctx ->
@@ -180,8 +183,10 @@ fun TitleScreen(vm: AppViewModel) {
     // オンラインは「付近のデバイス」の許可がいらない
     fun withPermissions(action: () -> Unit) { if (online) action() else { pending = action; launcher.launch(nearbyPermissions()) } }
 
+    val privacyButton by vm.ads.privacyButton.collectAsState()
+    Column(Modifier.fillMaxSize()) {
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(12.dp))
@@ -226,6 +231,10 @@ fun TitleScreen(vm: AppViewModel) {
                 ctx.startActivity(AndroidIntent(AndroidIntent.ACTION_VIEW, Uri.parse(BuildConfig.PRIVACY_URL)))
             }) { Text("プライバシーポリシー") }
         }
+        // ヨーロッパなど同意が必要な地域では、あとから広告の同意を変えられるようにする（ポリシーで必要）
+        if (privacyButton) TextButton(onClick = { ctx.findActivity()?.let { vm.ads.showPrivacyOptions(it) } }) { Text("広告の設定") }
+    }
+    AdBanner()
     }
     if (showRules) RulesDialog { showRules = false }
 }

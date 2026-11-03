@@ -164,10 +164,19 @@
   let adsLoaded = false;
   function loadAds() {
     if (!adsOn || adsLoaded) return; adsLoaded = true;
-    const s = document.createElement('script'); s.async = true; s.crossOrigin = 'anonymous';
-    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(CFG.adsenseClient);
-    document.head.appendChild(s);
+    // 公開用の index.html には AdSense のコードが最初から入っている（審査で必要）。無いときだけここで読み込む
+    if (!document.querySelector('script[src*="adsbygoogle.js"]')) {
+      const s = document.createElement('script'); s.async = true; s.crossOrigin = 'anonymous';
+      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(CFG.adsenseClient);
+      if (CFG.adTest) s.setAttribute('data-adbreak-test', 'on');
+      document.head.appendChild(s);
+    }
+    // ゲーム用の全画面広告（H5 Games Ads の Ad Placement API）
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adBreak = window.adConfig = function (o) { window.adsbygoogle.push(o); };
+    if (CFG.h5games) window.adConfig({ preloadAdBreaks: 'on', sound: 'on' });
   }
+  loadAds();
   function adUnit(slot, style) {
     if (!adsOn || !slot) return '<div class="adph">広告枠</div>';
     return '<ins class="adsbygoogle" style="' + (style || 'display:block') + '" data-ad-client="' + esc(CFG.adsenseClient) + '" data-ad-slot="' + esc(slot) + '" data-ad-format="auto" data-full-width-responsive="true"></ins>';
@@ -185,6 +194,15 @@
   function adBreak(id) {
     if (adBreakShown === id) return; adBreakShown = id;
     loadAds();
+    // AdSense のゲーム向け全画面広告が使えるときはそれを出す（出なかったときもすぐ次へ）
+    if (adsOn && CFG.h5games && typeof window.adBreak === 'function') {
+      openModal('<div class="box">' + img('icon_tea', 90, 'art') + '<h2>ちょっと休憩…</h2><div class="cap">みんなの準備ができたら次へ進みます</div></div>');
+      let finished = false;
+      const done = function () { if (finished) return; finished = true; closeModal(); send({ t: 'adDone', breakId: id }); };
+      window.adBreak({ type: 'next', name: 'round_break', adBreakDone: done });
+      setTimeout(done, 20000);   // 万一戻ってこなくても止まらないように
+      return;
+    }
     let left = adsOn && CFG.breakSlot ? 5 : 3;
     openModal('<div class="box">' + img('icon_tea', 90, 'art') + '<h2>ちょっと休憩…</h2><div class="adbox">' + adUnit(CFG.breakSlot) +
       '</div><button class="big" id="adClose" disabled>あと ' + left + ' 秒</button></div>');
@@ -250,7 +268,7 @@
       '<button class="big" data-act="host"' + (S.name.trim() ? '' : ' disabled') + '>' + img('icon_create', 36) + '部屋を作る</button>' +
       '<button class="big sec" data-act="toJoin"' + (S.name.trim() ? '' : ' disabled') + '>' + img('icon_join', 36) + '部屋に参加する</button>' +
       '<div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。' +
-      (CFG.privacyUrl ? ' <a class="link" href="' + esc(CFG.privacyUrl) + '" target="_blank">プライバシーポリシー</a>' : '') + '</div>' +
+      '</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div>' +
       '</div></div>';
   }
 
