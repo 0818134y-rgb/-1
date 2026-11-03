@@ -1,3 +1,4 @@
+import re
 """お題データ（app/src/main/assets/topics.json）を作る。
 ワードウルフ: カテゴリごとに「多数派/少数派」になりうる似たお題のペア。
 NGワード: ふつう（話題の単語）とハード（相づち・口ぐせ）。
@@ -137,6 +138,9 @@ def main(out_path):
         xs = [x.strip() for x in xs if x.strip()]
         d = [x for x in set(xs) if xs.count(x) > 1]
         assert not d, f"duplicate {label}: {d}"
+        # 2つのお題がくっついていないか（行の切れ目の書き間違いを防ぐ）
+        bad = [x for x in xs if len(re.findall("[？?]", x)) > 1]
+        assert not bad, f"joined {label}: {bad}"
         return xs
     spy = uniq(M.SPY_PLACES, "spy place")
     sync = uniq(M.SYNC_PROMPTS, "sync prompt")

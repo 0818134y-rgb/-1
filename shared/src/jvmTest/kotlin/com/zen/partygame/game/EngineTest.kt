@@ -412,6 +412,15 @@ class EngineTest {
         assertTrue(e.viewFor("h").screen is Screen.SyncReveal)
     }
 
+    @Test fun promptsAreSingleQuestions() {
+        // 2つのお題がくっついて1つになっていないこと
+        val f = listOf(File("src/main/assets/topics.json"), File("app/src/main/assets/topics.json"), File("../app/src/main/assets/topics.json")).first { it.exists() }
+        val tf = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.decodeFromString(TopicFile.serializer(), f.readText())
+        assertTrue(tf.sync.size >= 120)
+        val joined = (tf.sync + tf.questions).filter { p -> p.count { it == '？' || it == '?' } > 1 }
+        assertTrue("joined: $joined", joined.isEmpty())
+    }
+
     @Test fun allTopicListsLoaded() {
         val e = engine(3)
         for (g in listOf(GameType.SPY, GameType.SYNC, GameType.GUESS, GameType.QUESTION)) {

@@ -16,8 +16,8 @@ android {
         applicationId = "com.zen.partygame"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.6.0"
+        versionCode = 7
+        versionName = "0.6.1"
 
         // ↓ Google のテスト用広告ID。公開前に自分の AdMob のIDに差し替える
         manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
