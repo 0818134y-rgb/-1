@@ -49,6 +49,11 @@ class JsHost(roomCode: String, topicsJson: String) {
 @JsExport fun sfxCountsDown(viewJson: String): Boolean =
     runCatching { Sfx.countsDown(WireJson.decodeFromString(PlayerView.serializer(), viewJson)) }.getOrDefault(false)
 
+/** 今の画面で流すBGMの名前（部屋の外なら空文字を渡す → タイトルの曲） */
+@JsExport fun bgmTrack(viewJson: String): String = runCatching {
+    Bgm.track(if (viewJson.isEmpty()) null else WireJson.decodeFromString(PlayerView.serializer(), viewJson))
+}.getOrDefault(Bgm.TITLE)
+
 /** アリーナの記録1行を、その端末の言語にする（tr = 日本語の型 → 訳） */
 @JsExport fun formatLog(entry: String, tr: (String) -> String, sep: String): String = LogFmt.format(entry, tr, sep)
 

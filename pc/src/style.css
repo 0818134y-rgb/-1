@@ -170,3 +170,6 @@ canvas.pad.mine { opacity: .85; max-width: 360px; }
 @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
 .langbar { display: flex; justify-content: flex-end; gap: 8px; }
 .title + .langbar, .langbar + .title { margin-top: 0; }
+
+/* BGM ボタン：オフのときは薄く斜線 */
+[data-act="music"].off { opacity: .35; text-decoration: line-through; }

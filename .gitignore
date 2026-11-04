@@ -9,3 +9,6 @@ pc/out/
 monetization.properties
 keystore.properties
 *.jks
+tools/bgm_wav/
+tools/sfx_wav/
+__pycache__/

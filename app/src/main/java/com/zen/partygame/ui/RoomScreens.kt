@@ -136,6 +136,8 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(if (v.localMode) tr("1台モード") else (if (state.online) "🌐 " else "📶 ") + tr("部屋 {0}", v.roomCode), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
             val soundOn by vm.sound.collectAsState()
+            val musicOn by vm.music.collectAsState()
+            TextButton(onClick = { vm.setMusic(!musicOn) }) { MusicIcon(musicOn) }
             TextButton(onClick = { vm.setSound(!soundOn) }) { Text(if (soundOn) "🔊" else "🔇") }
             TextButton(onClick = { showLang = true }) { Text("🌐 " + lang.uppercase()) }
             TextButton(onClick = { confirmLeave = true }) { Text(tr("退出")) }

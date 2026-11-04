@@ -65,8 +65,94 @@
     } catch (e) {}
   }
   function setSound(on) { SND.on = on; save('pg.sound', on ? '1' : '0'); if (on) { sndInit(); setTimeout(function () { sfx('tap'); }, 50); } render(); }
+  // ---------- BGM（bgm/*.mp3。場面ごとの曲は G.bgmTrack が決める。切れ目なくくり返し、曲が変わるときはクロスフェード） ----------
+  // mp3 は頭に無音が入るので、曲の頭1秒を後ろにもう一度つけてある → loopStart（0.1〜0.9秒）から loopStart+曲の長さ までをくり返す
+  const MUS = { on: load('pg.music', '1') === '1', want: '', cur: null, buf: {}, ls: {}, loading: {}, loops: window.PG_BGM_LOOPS || null, out: null, vol: 0.42, ducked: false };
+  const MUS_FADE = 0.7;
+  function musOut() {
+    if (!SND.ctx) return null;
+    if (!MUS.out) { MUS.out = SND.ctx.createGain(); MUS.out.gain.value = MUS.ducked ? 0 : 1; MUS.out.connect(SND.ctx.destination); }
+    return MUS.out;
+  }
+  function musLoad(id) {
+    if (MUS.buf[id] || MUS.loading[id] || !SND.ctx) return;
+    MUS.loading[id] = true;
+    fetch('bgm/' + id + '.mp3').then(function (r) { return r.arrayBuffer(); })
+      .then(function (a) { return new Promise(function (ok, ng) { SND.ctx.decodeAudioData(a, ok, ng); }); })
+      .then(function (b) { MUS.buf[id] = b; MUS.ls[id] = musLoopStart(b, id); MUS.loading[id] = false; musSync(); })
+      .catch(function () { MUS.loading[id] = false; });
+  }
+  // つなぎ目の位置：0.1〜0.9秒の中で、1周あとの音といちばん同じになる所（mp3 の圧縮のずれが一番小さい所）を選ぶ
+  function musLoopStart(b, id) {
+    const L = Math.round(((MUS.loops && MUS.loops[id]) || (b.duration - 1)) * b.sampleRate);
+    const chs = []; for (let c = 0; c < b.numberOfChannels; c++) chs.push(b.getChannelData(c));
+    let best = 0.1 * b.sampleRate, bestE = Infinity;
+    for (let s0 = Math.round(0.1 * b.sampleRate); s0 < 0.9 * b.sampleRate && s0 + L + 16 < b.length; s0 += 64) {
+      let e = 0;
+      for (let c = 0; c < chs.length; c++) { const x = chs[c]; for (let k = -16; k < 16; k++) { const d = x[s0 + k] - x[s0 + L + k]; e += d * d; } }
+      if (e < bestE) { bestE = e; best = s0; }
+    }
+    return best / b.sampleRate;
+  }
+  function musStop(p, fade) {
+    if (!p) return;
+    try {
+      if (p.el) { musFadeEl(p, 0, fade, true); return; }
+      const t = SND.ctx.currentTime; p.gain.gain.cancelScheduledValues(t); p.gain.gain.setValueAtTime(p.gain.gain.value, t);
+      p.gain.gain.linearRampToValueAtTime(0, t + fade); p.src.stop(t + fade + 0.05);
+    } catch (e) {}
+  }
+  // ファイルを直接開いたとき（PC版）は <audio> で流し、ループの位置は少しずつ見張って戻す
+  function musFadeEl(p, to, sec, end) {
+    clearInterval(p.fade); const from = p.el.volume, t0 = performance.now();
+    p.fade = setInterval(function () {
+      const k = Math.min(1, (performance.now() - t0) / (sec * 1000)); p.el.volume = Math.max(0, Math.min(1, from + (to - from) * k));
+      if (k >= 1) { clearInterval(p.fade); if (end) { p.el.pause(); clearInterval(p.watch); p.el.src = ''; } }
+    }, 30);
+  }
+  function musSync() {
+    if (window.__bgmLog) window.__bgmLog.push(MUS.on ? MUS.want : '');   // テスト用
+    const want = MUS.on ? MUS.want : '';
+    if (MUS.cur && MUS.cur.id === want) return;
+    if (!want) { musStop(MUS.cur, 0.25); MUS.cur = null; return; }
+    if (SND_FILE) {
+      const len = (MUS.loops && MUS.loops[want]) || 0;
+      const el = new Audio('bgm/' + want + '.mp3'); el.volume = 0;
+      const p = { id: want, el: el };
+      el.addEventListener('loadedmetadata', function () { try { el.currentTime = 0.1; } catch (e) {} });
+      p.watch = setInterval(function () { if (len && el.currentTime >= 0.1 + len) el.currentTime -= len; }, 20);
+      el.play().then(function () { musFadeEl(p, MUS.vol, MUS_FADE); }).catch(function () { clearInterval(p.watch); if (MUS.cur === p) MUS.cur = null; });
+      musStop(MUS.cur, MUS_FADE); MUS.cur = p; return;
+    }
+    const out = musOut(); if (!out) return;
+    const b = MUS.buf[want]; if (!b) { musLoad(want); return; }
+    try {
+      if (SND.ctx.state === 'suspended') SND.ctx.resume();
+      const len = (MUS.loops && MUS.loops[want]) || (b.duration - 1.0);
+      const ls = MUS.ls[want] || 0.1;
+      const src = SND.ctx.createBufferSource(); src.buffer = b; src.loop = true; src.loopStart = ls; src.loopEnd = Math.min(b.duration, ls + len);
+      const gain = SND.ctx.createGain(); const t = SND.ctx.currentTime;
+      gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(MUS.vol, t + MUS_FADE);
+      src.connect(gain); gain.connect(out); src.start(t, 0.1);
+      musStop(MUS.cur, MUS_FADE); MUS.cur = { id: want, src: src, gain: gain };
+    } catch (e) {}
+  }
+  function bgm(id) { if (MUS.want === id) return; MUS.want = id; musSync(); }
+  // 全画面広告の間などは、BGM を一時的に消す
+  function musDuck(on) {
+    MUS.ducked = on;
+    if (MUS.cur && MUS.cur.el) { musFadeEl(MUS.cur, on ? 0 : MUS.vol, 0.3); return; }
+    if (!MUS.out) return;
+    try { const t = SND.ctx.currentTime; MUS.out.gain.cancelScheduledValues(t); MUS.out.gain.setValueAtTime(MUS.out.gain.value, t); MUS.out.gain.linearRampToValueAtTime(on ? 0 : 1, t + 0.3); } catch (e) {}
+  }
+  function setMusic(on) { MUS.on = on; save('pg.music', on ? '1' : '0'); if (on) sndInit(); musSync(); render(); }
+  document.addEventListener('visibilitychange', function () {
+    if (SND_FILE) { if (MUS.cur && MUS.cur.el) { if (document.hidden) MUS.cur.el.pause(); else MUS.cur.el.play().catch(function () {}); } return; }
+    if (!SND.ctx) return;
+    if (document.hidden) SND.ctx.suspend().catch(function () {}); else SND.ctx.resume().catch(function () {});
+  });
   ['pointerdown', 'keydown'].forEach(function (ev) {
-    document.addEventListener(ev, function () { sndInit(); if (SND.ctx && SND.ctx.state === 'suspended') SND.ctx.resume(); }, { capture: true, passive: true });
+    document.addEventListener(ev, function () { sndInit(); if (SND.ctx && SND.ctx.state === 'suspended') SND.ctx.resume(); if (!MUS.cur) musSync(); }, { capture: true, passive: true });
   });
 
   function setLang(code) { LANG = code; save('pg.lang', code); localize(); render(); }
@@ -161,7 +247,7 @@
     try {
       const json = JSON.stringify(v);
       if (SND.on) G.sfxCues(S.lastViewJson || '', json).forEach(sfx);
-      S.lastViewJson = json; S.countsDown = G.sfxCountsDown(json);
+      S.lastViewJson = json; S.countsDown = G.sfxCountsDown(json); S.bgm = G.bgmTrack(json);
     } catch (e) {}
     const prev = S.view;
     S.view = v; S.receivedAt = performance.now(); S.page = 'room';
@@ -293,7 +379,8 @@
     if (adsOn && CFG.h5games && typeof window.adBreak === 'function') {
       openModal(T('<div class="box">{0}<h2>ちょっと休憩…</h2><div class="cap">みんなの準備ができたら次へ進みます</div></div>', img('icon_tea', 90, 'art')));
       let finished = false;
-      const done = function () { if (finished) return; finished = true; closeModal(); send({ t: 'adDone', breakId: id }); };
+      const done = function () { if (finished) return; finished = true; musDuck(false); closeModal(); send({ t: 'adDone', breakId: id }); };
+      musDuck(true);
       window.adBreak({ type: 'next', name: 'round_break', adBreakDone: done });
       setTimeout(done, 20000);   // 万一戻ってこなくても止まらないように
       return;
@@ -326,6 +413,7 @@
     const ae = document.activeElement, focusId = ae && ae.id, sel = ae && ae.selectionStart;
     const bar = document.getElementById('roomBar');
     let html = '', banner = false;
+    bgm(S.page === 'title' || S.page === 'join' || !S.view ? 'title' : (S.bgm || 'lobby'));
     if (S.page === 'title') { bar.hidden = true; html = titlePage(); banner = true; }
     else if (S.page === 'join') { bar.hidden = true; html = joinPage(); banner = true; }
     else if (S.view) {
@@ -334,6 +422,7 @@
       document.getElementById('leaveBtn').textContent = T('退出');
       document.getElementById('langBtn').textContent = '🌐 ' + LANG.toUpperCase();
       document.getElementById('soundBtn').textContent = SND.on ? '🔊' : '🔇';
+      document.getElementById('musicBtn').classList.toggle('off', !MUS.on);
       document.getElementById('roomLabel').textContent = T('🌐 部屋 {0}{1}', v.roomCode, (v.isHost ? T('（あなたがホスト）') : ''));
       // お絵かき中は、ほかの人が送っただけなら画面を作り直さない（描きかけの絵や入力を消さないため）
       const root = document.getElementById('drawRoot');
@@ -374,7 +463,7 @@
   function localLinks(h) { return LANG === 'ja' ? h : h.replace(/href="(howto|about|privacy)\.html"/g, 'href="$1.' + LANG + '.html"'); }
   function langLabel() { return (LANGS.find(function (l) { return l[0] === LANG; }) || LANGS[0])[1]; }
   function titlePage() {
-    return '<div class="langbar"><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード・お絵かき伝言 ほか全8種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
+    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード・お絵かき伝言 ほか全8種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
   }
 
   function joinPage() {
@@ -917,7 +1006,7 @@
   document.addEventListener('click', function (e) {
     const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
     if (el.dataset.act === 'nose') return;   // 指が触れた時点（pointerdown）で処理ずみ
-    if (el.dataset.act !== 'sound') sfx('tap');
+    if (el.dataset.act !== 'sound' && el.dataset.act !== 'music') sfx('tap');
     doAct(el.dataset.act, el.dataset.arg);
   });
 
@@ -949,6 +1038,7 @@
         break;
       case 'setLang': closeModal(); setLang(arg); break;
       case 'sound': setSound(!SND.on); break;
+      case 'music': setMusic(!MUS.on); break;
       case 'closeModal': closeModal(); break;
       case 'peek': S.ui.peek = !S.ui.peek; render(); break;
       case 'ngOut': {
@@ -1023,6 +1113,6 @@
   }
 
   // テスト用の入口
-  window.PG = { S: S, send: send, doAct: doAct, render: render };
+  window.PG = { S: S, send: send, doAct: doAct, render: render, MUS: MUS };
   render();
 })();

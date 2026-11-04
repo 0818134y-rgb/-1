@@ -58,4 +58,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    // BGM: 裏に回ったら止める（全画面広告が出ている間も止まる）
+    override fun onResume() { super.onResume(); com.zen.partygame.ui.Music.onForeground(true) }
+    override fun onPause() { com.zen.partygame.ui.Music.onForeground(false); super.onPause() }
 }

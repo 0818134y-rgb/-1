@@ -18,6 +18,7 @@ for f in ('index.html', 'app.js', 'style.css', 'config.js'):
     shutil.copy(os.path.join(HERE, 'src', f), G)
 shutil.copy(KJS, os.path.join(G, 'lib', 'partygame.js'))
 shutil.copytree(os.path.join(HERE, 'src', 'sfx'), os.path.join(G, 'sfx'))   # 効果音（tools/make_sfx.py で作る）
+shutil.copytree(os.path.join(HERE, 'src', 'bgm'), os.path.join(G, 'bgm'))   # BGM（tools/make_bgm.py で作る）
 
 # ---- 収益化の設定（プロジェクトの一番上の monetization.properties。公開リポジトリには入れない） ----
 M = {}
@@ -105,6 +106,7 @@ for root, _, fs in os.walk(G):
 files.sort(); h = hashlib.sha256()
 for f in files: h.update(f.encode()); h.update(open(os.path.join(G, f), 'rb').read())
 cache = 'pg-%s-%s' % (VERSION, h.hexdigest()[:10])
+files = [f for f in files if not f.startswith('bgm/') or f.endswith('.js')]   # BGM は重いので、流したときに保存する
 open(os.path.join(G, 'sw.js'), 'w', encoding='utf-8').write('''/* パーティーゲーム：ホーム画面から開いたときもすぐ起動できるよう、ゲームのファイルを端末に保存する */
 const CACHE = '%s';
 const FILES = %s;

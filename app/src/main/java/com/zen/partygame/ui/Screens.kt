@@ -192,7 +192,10 @@ fun TitleScreen(vm: AppViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val soundOn by vm.sound.collectAsState()
+        val musicOn by vm.music.collectAsState()
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            MusicButton(musicOn) { vm.setMusic(!musicOn) }
+            Spacer(Modifier.width(8.dp))
             SoundButton(soundOn) { vm.setSound(!soundOn) }
             Spacer(Modifier.width(8.dp))
             LanguageButton(lang) { showLang = true }
@@ -253,6 +256,24 @@ fun SoundButton(on: Boolean, onClick: () -> Unit) {
     OutlinedButton(onClick = onClick, shape = RoundedCornerShape(14.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)) {
         Text(if (on) "🔊" else "🔇", style = MaterialTheme.typography.bodyMedium)
     }
+}
+
+/** BGM のオン/オフ（オフのときは薄く、斜線） */
+@Composable
+fun MusicButton(on: Boolean, onClick: () -> Unit) {
+    OutlinedButton(onClick = onClick, shape = RoundedCornerShape(14.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)) {
+        MusicIcon(on)
+    }
+}
+
+@Composable
+fun MusicIcon(on: Boolean) {
+    Text(
+        "🎵", style = MaterialTheme.typography.bodyMedium.copy(
+            textDecoration = if (on) null else androidx.compose.ui.text.style.TextDecoration.LineThrough,
+        ),
+        modifier = Modifier.alpha(if (on) 1f else 0.35f),
+    )
 }
 
 /** 言語の切り替えボタン（どの言語の人にも分かるよう「🌐 Language」と今の言語を出す） */

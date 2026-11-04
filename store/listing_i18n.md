@@ -33,6 +33,7 @@ Everyone plays on their own phone, so there's no need to pass a screen around.
 
 ■ Also
 ・Languages: English, Japanese, Korean and Simplified Chinese (switch anytime with the 🌐 Language button)
+・Original music for every scene — the title, the lobby, discussions, tense votes, card battles, drawing and results. The discussion track stays quiet so it never drowns out your call. Turn the music off any time with the 🎵 button
 ・One-phone mode for some games
 ・Free (with ads). No account needed, and no personal information is collected
 
@@ -66,6 +67,7 @@ Everyone plays on their own phone, so there's no need to pass a screen around.
 
 ■ 그 밖에
 ・언어: 한국어 · 영어 · 일본어 · 중국어(간체) 지원 (🌐 Language 버튼으로 언제든 변경)
+・장면마다 바뀌는 오리지널 BGM: 타이틀, 대기실, 토론, 긴장감 넘치는 투표, 카드 배틀, 그림 그리기, 결과 발표까지. 토론 중에는 통화 목소리를 방해하지 않는 잔잔한 곡이 흘러요. 🎵 버튼으로 BGM만 끌 수도 있어요
 ・일부 게임은 폰 한 대로도 OK
 ・무료 (광고 포함). 회원 가입 필요 없고, 개인정보도 수집하지 않아요
 
@@ -99,5 +101,6 @@ Wachapa - 派对游戏合集
 
 ■ 其他
 ・语言：支持简体中文、英语、日语、韩语（随时用 🌐 Language 按钮切换）
+・每个场景都有原创背景音乐：标题、等候室、讨论、紧张的投票、卡牌对战、画画、公布结果。讨论时播放轻柔的曲子，不会盖过通话的声音。点 🎵 按钮就能只关掉背景音乐
 ・部分游戏支持单机模式（一部手机轮流玩）
 ・免费（含广告）。无需注册账号，不收集个人信息

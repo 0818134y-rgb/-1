@@ -1,5 +1,6 @@
 package com.zen.partygame.ui
 
+import com.zen.partygame.game.Bgm
 import com.zen.partygame.game.Sfx
 import com.zen.partygame.game.GameType
 import android.app.Application
@@ -73,6 +74,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** 効果音のオン/オフ */
     val sound = MutableStateFlow(prefs.getBoolean("sound", true))
     init { Sound.init(app); Sound.enabled = sound.value }
+    /** BGM のオン/オフ */
+    val music = MutableStateFlow(prefs.getBoolean("music", true))
+    init {
+        Music.init(app); Music.enabled = music.value
+        // 画面に合わせて曲を変える（部屋の外はタイトルの曲）
+        viewModelScope.launch { _ui.collect { u -> Music.play(Bgm.track((u as? Ui.Room)?.view)) } }
+    }
     /** 前回入れた部屋コード */
     val lastCode = MutableStateFlow(prefs.getString("code", "") ?: "")
 
@@ -98,6 +106,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun setSound(v: Boolean) {
         sound.value = v; Sound.enabled = v; prefs.edit().putBoolean("sound", v).apply()
         if (v) Sound.play(Sfx.TAP)
+    }
+
+    fun setMusic(v: Boolean) {
+        music.value = v; Music.enabled = v; prefs.edit().putBoolean("music", v).apply()
     }
 
     /** 画面が変わったら、前の画面と比べて効果音を鳴らす */
