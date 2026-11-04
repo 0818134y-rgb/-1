@@ -1315,10 +1315,12 @@
       try { CG.mute = !!(g.settings && g.settings.muteAudio); } catch (e) {}
       try { g.addSettingsChangeListener(function (st) { CG.mute = !!(st && st.muteAudio); musSync(); render(); }); } catch (e) {}
       try { g.addJoinRoomListener(function (p) { cgJoin(p && p.room); }); } catch (e) {}
+      // CrazyGames のユーザー名を、自分で名前を変えていなければ使う（友だちが見つけやすいように）。返事が遅いときは待たずに先へ
+      const useName = function (u) { if (u && u.username && load('pg.nameMine', '') !== '1' && (S.page !== 'room' || !S.view)) { S.name = String(u.username).slice(0, 10); render(); } };
       const user = Promise.resolve().then(function () { return sdk.user.getUser(); }).catch(function () { return null; });
-      return user.then(function (u) {
-        // CrazyGames のユーザー名を、自分で名前を変えていなければ使う（友だちが見つけやすいように）
-        if (u && u.username && load('pg.nameMine', '') !== '1') S.name = String(u.username).slice(0, 10);
+      user.then(useName);
+      return Promise.race([user, new Promise(function (ok) { setTimeout(function () { ok(null); }, 2500); })]).then(function (u) {
+        useName(u);
         let invited = '';
         try { invited = g.getInviteParam('room') || ''; } catch (e) {}
         if (cgJoin(invited)) return;
