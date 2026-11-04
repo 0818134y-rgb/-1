@@ -411,7 +411,7 @@
           break;
         case 'WORD_WOLF': case 'SPY': {
           const role = st.game === 'SPY' ? T('スパイ') : T('ウルフ');
-          h += chips(st.game === 'SPY' ? T('質問タイム') : T('話し合いの時間'), [120, 180, 240, 300, 420].map(function (x) { return { label: x / T('{0}分', 60), on: st.talkSec === x, patch: { talkSec: x } }; }));
+          h += chips(st.game === 'SPY' ? T('質問タイム') : T('話し合いの時間'), [120, 180, 240, 300, 420].map(function (x) { return { label: T('{0}分', x / 60), on: st.talkSec === x, patch: { talkSec: x } }; }));
           h += chips(T('{0}の人数', role), [[0, T('おまかせ')], [1, T('1人')], [2, T('2人')]].map(function (x) { return { label: x[1], on: st.wolves === x[0], patch: { wolves: x[0] } }; }));
           if (st.game === 'WORD_WOLF') h += chips(T('お題のジャンル（選ばなければ全部）'), v.categories.map(function (c) {
             const on = st.categories.indexOf(c) >= 0;
@@ -420,14 +420,14 @@
           break;
         }
         case 'NG_WORD':
-          h += chips(T('制限時間'), [180, 300, 600].map(function (x) { return { label: x / T('{0}分', 60), on: st.ngSec === x, patch: { ngSec: x } }; }));
+          h += chips(T('制限時間'), [180, 300, 600].map(function (x) { return { label: T('{0}分', x / 60), on: st.ngSec === x, patch: { ngSec: x } }; }));
           h += chips(T('ワードの難しさ'), [['NORMAL', T('ふつう')], ['HARD', T('ハード（口ぐせ）')], ['MIX', T('ミックス')]].map(function (x) { return { label: x[1], on: st.ngLevel === x[0], patch: { ngLevel: x[0] } }; }));
           break;
         case 'SYNC':
           h += chips(T('回答時間'), [[30, T('30秒')], [60, T('60秒')], [90, T('90秒')], [0, T('制限なし')]].map(function (x) { return { label: x[1], on: st.syncSec === x[0], patch: { syncSec: x[0] } }; }));
           break;
         case 'GUESS':
-          h += chips(T('制限時間'), [120, 180, 300].map(function (x) { return { label: x / T('{0}分', 60), on: st.guessSec === x, patch: { guessSec: x } }; }));
+          h += chips(T('制限時間'), [120, 180, 300].map(function (x) { return { label: T('{0}分', x / 60), on: st.guessSec === x, patch: { guessSec: x } }; }));
           break;
         case 'DRAW':
           h += T('<div class="cap" style="margin-top:10px">お題を書く → 次の人が絵にする → 次の人がその絵を見て答える…を全員分くり返し、最後にどう伝わったかを発表します（3〜8人）。</div>');
