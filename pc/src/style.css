@@ -6,6 +6,8 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; -webkit-text-size-adjust: 100%; background: var(--night); color: var(--soft); min-height: 100%;
   font-family: "BIZ UDPGothic", "Yu Gothic UI", "Meiryo", "Hiragino Sans", "Noto Sans JP", sans-serif; }
+body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
 body { padding-bottom: calc(110px + env(safe-area-inset-bottom)); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
 /* スマホ：ダブルタップで拡大しない・タップの反応を速く */
 button, [data-act], .acard { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }

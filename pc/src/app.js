@@ -42,6 +42,8 @@
   }
   localize();
   // ---------- 効果音（sfx/*.mp3。最初にどこかを触ったときに音を出せるようにする） ----------
+  // CrazyGames 用（CFG.crazy のときだけ SDK を使う）。mute = サイト側の「音を消す」
+  const CG = { on: false, sdk: null, mute: false, room: '', joinable: null, playing: false };
   const SND = { on: load('pg.sound', '1') === '1', ctx: null, buf: {}, last: {} };
   const SND_FILE = location.protocol === 'file:';   // ファイルを直接開いたときは fetch が使えないので <audio> で鳴らす
   function sndInit() {
@@ -55,7 +57,7 @@
   }
   function sfx(name) {
     if (window.__sfxLog && SND.on) window.__sfxLog.push(name);   // テスト用
-    if (!SND.on) return;
+    if (!SND.on || CG.mute) return;
     const now = performance.now(); if (now - (SND.last[name] || 0) < 60) return; SND.last[name] = now;
     if (SND_FILE) { try { new Audio('sfx/' + name + '.mp3').play().catch(function () {}); } catch (e) {} return; }
     if (!SND.ctx || !SND.buf[name]) return;
@@ -112,7 +114,7 @@
   }
   function musSync() {
     if (window.__bgmLog) window.__bgmLog.push(MUS.on ? MUS.want : '');   // テスト用
-    const want = MUS.on ? MUS.want : '';
+    const want = MUS.on && !CG.mute ? MUS.want : '';
     if (MUS.cur && MUS.cur.id === want) return;
     if (!want) { musStop(MUS.cur, 0.25); MUS.cur = null; return; }
     if (SND_FILE) {
@@ -293,9 +295,9 @@
   function leave() {
     if (S.host && S.connected.size) PgNet.send(Array.from(S.connected), JSON.stringify({ t: 'bye', reason: T('ホストが部屋を閉じました') }));
     const wasHost = !!S.host;
+    S.host = null; S.view = null; S.page = 'title'; S.busy = false;   // 先に画面を戻す（自分で出たのに「接続が切れました」と出さない）
     setTimeout(function () { resetNet(); }, wasHost ? 300 : 0);
     if (!wasHost) resetNet();
-    S.host = null; S.view = null; S.page = 'title'; S.busy = false;
     closeModal(); render();
   }
 
@@ -543,6 +545,7 @@
     showBanner(banner);
     if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (e) {} } }
     tickTimers();
+    cgSync();
   }
 
   function tickTimers() {
@@ -567,6 +570,9 @@
   // ゲーム投稿サイト用（CFG.portal）は、読みものページを公式サイトの方で開く
   const SITE = 'https://wachapa.com/';
   function localLinks(h) {
+    if (CFG.crazy) {   // CrazyGames 版：ほかのサイト・アプリへの案内は出さない（プライバシーポリシーだけ残す）
+      h = h.replace(/<a class="link" href="(?:howto|about|streaming)\.html">[^<]*<\/a>/g, '').replace(/(<h1>[^<]*<\/h1><div class="cap">[^<]*)<br>[^<]*/, '$1');
+    }
     if (LANG !== 'ja') h = h.replace(/href="(howto|about|privacy|streaming)\.html"/g, 'href="$1.' + LANG + '.html"');
     if (CFG.portal) h = h.replace(/href="((?:howto|about|privacy|streaming)[^"]*\.html)"/g, 'href="' + SITE + '$1" target="_blank" rel="noopener"');
     return h;
@@ -648,7 +654,7 @@
 
   function lobby(v) {
     const st = v.settings;
-    let h = T('<div class="panel"><div class="cap center">オンラインの部屋コード。参加する人は「部屋に参加する」でこの数字を入れます（スマホのアプリは「オンライン」に切り替えてから）</div><div class="code">{0}</div><div class="center row" style="justify-content:center"><button class="btn" data-act="copy">コードをコピー</button>{1}</div></div>', esc(v.roomCode), (navigator.share ? T('<button class="btn lan" data-act="share">招待を送る</button>') : ''));
+    let h = T('<div class="panel"><div class="cap center">オンラインの部屋コード。参加する人は「部屋に参加する」でこの数字を入れます（スマホのアプリは「オンライン」に切り替えてから）</div><div class="code">{0}</div><div class="center row" style="justify-content:center"><button class="btn" data-act="copy">コードをコピー</button>{1}</div></div>', esc(v.roomCode), (navigator.share || CG.on ? T('<button class="btn lan" data-act="share">招待を送る</button>') : ''));
     h += T('<div class="panel"><h3>参加者 {0}人</h3><ul class="players">{1}</ul></div>', v.players.length, v.players.map(function (p) {
       return '<li><span class="grow">' + (p.isHost ? '👑 ' : '・ ') + esc(p.name) + (p.id === v.me ? T('（あなた）') : '') + '</span>' +
         (v.isHost && !p.isHost ? T('<button class="link" data-act="kick" data-arg="{0}">退出させる</button>', esc(p.id)) : '') + '</li>';
@@ -1164,7 +1170,7 @@
 
   document.addEventListener('input', function (e) {
     if (e.target.id === 'nameIn') {
-      S.name = e.target.value.slice(0, 10); save('pg.name', S.name);
+      S.name = e.target.value.slice(0, 10); save('pg.name', S.name); save('pg.nameMine', '1');
       document.querySelectorAll('[data-act=host],[data-act=toJoin]').forEach(function (b) { b.disabled = !S.name.trim(); });
     }
     if (e.target.id === 'codeIn') { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); S.code = e.target.value; }
@@ -1198,6 +1204,7 @@
       case 'back': resetNet(); S.page = 'title'; S.busy = false; render(); break;
       case 'leave': confirmBox(v && v.isHost ? T('部屋を閉じますか？') : T('部屋を出ますか？'), v && v.isHost ? T('全員の接続が切れます') : '', T('出る'), leave); break;
       case 'share': {
+        if (CG.on) { try { const link = CG.sdk.game.inviteLink({ room: v.roomCode }); navigator.clipboard.writeText(link).then(function () { toast(T('コピーしました')); }, function () { toast(link); }); } catch (err) {} break; }
         const url = CFG.portal ? SITE : (/^https?:/.test(location.protocol) ? location.href.split('#')[0] : '');
         navigator.share({ title: T('わちゃパ'), text: T('わちゃパで遊ぼう！ 「部屋に参加する」で部屋コード {0} を入れてね', v.roomCode), url: url || undefined }).catch(function () {});
         break;
@@ -1296,7 +1303,58 @@
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
   }
 
+  // ================= CrazyGames =================
+  // 招待リンク・「友だちと遊ぶ」から来た人はそのまま部屋へ。部屋の状態（入れるかどうか）をサイトに知らせる
+  function cgInit() {
+    const sdk = CFG.crazy && window.CrazyGames && window.CrazyGames.SDK;
+    if (!sdk) return;
+    Promise.race([sdk.init(), new Promise(function (ok, ng) { setTimeout(function () { ng(new Error('timeout')); }, 8000); })]).then(function () {
+      if (sdk.environment !== 'crazygames' && sdk.environment !== 'local') return;
+      CG.on = true; CG.sdk = sdk;
+      const g = sdk.game;
+      try { CG.mute = !!(g.settings && g.settings.muteAudio); } catch (e) {}
+      try { g.addSettingsChangeListener(function (st) { CG.mute = !!(st && st.muteAudio); musSync(); render(); }); } catch (e) {}
+      try { g.addJoinRoomListener(function (p) { cgJoin(p && p.room); }); } catch (e) {}
+      const user = Promise.resolve().then(function () { return sdk.user.getUser(); }).catch(function () { return null; });
+      return user.then(function (u) {
+        // CrazyGames のユーザー名を、自分で名前を変えていなければ使う（友だちが見つけやすいように）
+        if (u && u.username && load('pg.nameMine', '') !== '1') S.name = String(u.username).slice(0, 10);
+        let invited = '';
+        try { invited = g.getInviteParam('room') || ''; } catch (e) {}
+        if (cgJoin(invited)) return;
+        let instant = false; try { instant = !!g.isInstantMultiplayer; } catch (e) {}
+        if (instant && S.page === 'title' && !S.view) { if (!S.name.trim()) S.name = T('ゲスト'); hostRoom(); return; }
+        render();
+      });
+    }).catch(function () {});
+  }
+  function cgJoin(code) {
+    code = String(code || '').replace(/\D/g, '');
+    if (code.length !== 6) return false;
+    if (S.view && S.view.roomCode === code) return true;
+    if (!S.name.trim()) S.name = T('ゲスト');
+    if (S.page === 'room') { const wasHost = !!S.host; leave(); setTimeout(function () { joinRoom(code); }, wasHost ? 400 : 0); }
+    else joinRoom(code);
+    return true;
+  }
+  function cgSync() {
+    if (!CG.on) return;
+    const g = CG.sdk.game;
+    const code = S.page === 'room' && S.view ? S.view.roomCode : '';
+    const lobby = !!code && S.view.screen.t === 'lobby';
+    try {
+      if (code !== CG.room || lobby !== CG.joinable) {
+        if (code) g.updateRoom({ roomId: code, isJoinable: lobby, inviteParams: { room: code } });
+        else if (CG.room) g.leftRoom();
+        CG.room = code; CG.joinable = lobby;
+      }
+      const playing = !!code && !lobby;
+      if (playing !== CG.playing) { CG.playing = playing; if (playing) g.gameplayStart(); else g.gameplayStop(); }
+    } catch (e) {}
+  }
+
   // テスト用の入口
-  window.PG = { S: S, send: send, doAct: doAct, render: render, MUS: MUS };
+  window.PG = { S: S, send: send, doAct: doAct, render: render, MUS: MUS, CG: CG };
   render();
+  cgInit();
 })();

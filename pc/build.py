@@ -233,6 +233,23 @@ with zipfile.ZipFile(pz, 'w', zipfile.ZIP_DEFLATED) as z:   # zip の一番上�
             z.write(p3, os.path.relpath(p3, P))
 print('portal', pz, os.path.getsize(pz))
 
+# CrazyGames 用：投稿サイト用 ＋ CrazyGames SDK（招待リンク・部屋の状態・ユーザー名・ミュート）。zip は不可なのでフォルダごとアップロードする
+C = os.path.join(OUT, 'WachapaCrazy')
+shutil.rmtree(C, ignore_errors=True)
+shutil.copytree(P, C)
+html_c = html_p.replace('<script src="config.js"></script>', '<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>\n<script src="config.js"></script>')
+assert html_c != html_p
+open(os.path.join(C, 'index.html'), 'w', encoding='utf-8').write(html_c)
+open(os.path.join(C, 'config.js'), 'w', encoding='utf-8').write('/* CrazyGames 用（広告なし・CrazyGames SDK） */\nwindow.PG_CONFIG = ' + json.dumps({'portal': True, 'crazy': True, 'adTags': {}}) + ';\n')
+cz = os.path.join(OUT, 'WachapaCrazy-%s.zip' % VERSION)
+for old_z in [f for f in os.listdir(OUT) if f.startswith('WachapaCrazy-') and f.endswith('.zip')]: os.remove(os.path.join(OUT, old_z))
+with zipfile.ZipFile(cz, 'w', zipfile.ZIP_DEFLATED) as z:
+    for root, _, files4 in os.walk(C):
+        for f in files4:
+            p4 = os.path.join(root, f)
+            z.write(p4, os.path.relpath(p4, C))
+print('crazy', cz, os.path.getsize(cz))
+
 zp = os.path.join(OUT, 'PartyGamePC.zip')
 if os.path.exists(zp): os.remove(zp)
 with zipfile.ZipFile(zp, 'w', zipfile.ZIP_DEFLATED) as z:
