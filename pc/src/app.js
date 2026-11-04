@@ -175,6 +175,18 @@
     tickTimer: null,
     ui: {},                     // 画面だけの状態（選んだカード・のぞき見など）
   };
+  // 招待リンク（…/join/?room=123456 → ?room=123456 で開かれる）。URL からは消しておく（読み直しで入り直さないように）
+  S.invite = '';
+  (function () {
+    if (CFG.crazy) return;   // CrazyGames は CrazyGames の招待リンクを使う
+    try {
+      const q = new URLSearchParams(location.search), c = String(q.get('room') || '').replace(/\D/g, '');
+      if (!q.has('room')) return;
+      if (c.length === 6) S.invite = c;
+      q.delete('room'); const rest = q.toString();
+      history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+    } catch (e) {}
+  })();
   function load(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }
   function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -569,6 +581,11 @@
   /** 読みもののページへのリンクを、その言語のページにする */
   // ゲーム投稿サイト用（CFG.portal）は、読みものページを公式サイトの方で開く
   const SITE = 'https://wachapa.com/';
+  /** 部屋の招待リンク（開くとアプリ・ブラウザのどちらでもその部屋に入れる） */
+  function inviteUrl(code) {
+    const here = /^https?:/.test(location.protocol) && !CFG.portal ? location.origin + location.pathname.replace(/[^/]*$/, '') : SITE;
+    return here + 'join/?room=' + code;
+  }
   function localLinks(h) {
     if (CFG.crazy) {   // CrazyGames 版：ほかのサイト・アプリへの案内は出さない（プライバシーポリシーだけ残す）
       h = h.replace(/<a class="link" href="(?:howto|about|streaming)\.html">[^<]*<\/a>/g, '').replace(/(<h1>[^<]*<\/h1><div class="cap">[^<]*)<br>[^<]*/, '$1');
@@ -579,7 +596,8 @@
   }
   function langLabel() { return (LANGS.find(function (l) { return l[0] === LANG; }) || LANGS[0])[1]; }
   function titlePage() {
-    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全9種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a><a class="link" href="streaming.html">配信・動画OK</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
+    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全9種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a><a class="link" href="streaming.html">配信・動画OK</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)))
+      .replace('<input id="nameIn"', S.invite ? '<div class="panel hi invite">' + esc(T('部屋 {0} に招待されています。名前を入れて「部屋に参加する」を押してください', S.invite)) + '</div><input id="nameIn"' : '<input id="nameIn"');
   }
 
   function joinPage() {
@@ -654,7 +672,7 @@
 
   function lobby(v) {
     const st = v.settings;
-    let h = T('<div class="panel"><div class="cap center">オンラインの部屋コード。参加する人は「部屋に参加する」でこの数字を入れます（スマホのアプリは「オンライン」に切り替えてから）</div><div class="code">{0}</div><div class="center row" style="justify-content:center"><button class="btn" data-act="copy">コードをコピー</button>{1}</div></div>', esc(v.roomCode), (navigator.share || CG.on ? T('<button class="btn lan" data-act="share">招待を送る</button>') : ''));
+    let h = T('<div class="panel"><div class="cap center">オンラインの部屋コード。参加する人は「部屋に参加する」でこの数字を入れます（スマホのアプリは「オンライン」に切り替えてから）</div><div class="code">{0}</div><div class="center row" style="justify-content:center"><button class="btn" data-act="copy">コードをコピー</button>{1}</div></div>', esc(v.roomCode), (CG.on ? '' : T('<button class="btn" data-act="copyLink">招待リンクをコピー</button>')) + (navigator.share || CG.on ? T('<button class="btn lan" data-act="share">招待を送る</button>') : ''));
     h += T('<div class="panel"><h3>参加者 {0}人</h3><ul class="players">{1}</ul></div>', v.players.length, v.players.map(function (p) {
       return '<li><span class="grow">' + (p.isHost ? '👑 ' : '・ ') + esc(p.name) + (p.id === v.me ? T('（あなた）') : '') + '</span>' +
         (v.isHost && !p.isHost ? T('<button class="link" data-act="kick" data-arg="{0}">退出させる</button>', esc(p.id)) : '') + '</li>';
@@ -1199,16 +1217,17 @@
     const v = S.view;
     switch (act) {
       case 'host': if (S.name.trim()) hostRoom(); break;
-      case 'toJoin': if (S.name.trim()) { S.page = 'join'; S.busy = false; render(); setTimeout(function () { const c = document.getElementById('codeIn'); if (c) c.focus(); }, 0); } break;
+      case 'toJoin': if (S.name.trim() && S.invite) { const c = S.invite; S.invite = ''; joinRoom(c); break; }
+        if (S.name.trim()) { S.page = 'join'; S.busy = false; render(); setTimeout(function () { const c = document.getElementById('codeIn'); if (c) c.focus(); }, 0); } break;
       case 'join': joinRoom(document.getElementById('codeIn').value); break;
       case 'back': resetNet(); S.page = 'title'; S.busy = false; render(); break;
       case 'leave': confirmBox(v && v.isHost ? T('部屋を閉じますか？') : T('部屋を出ますか？'), v && v.isHost ? T('全員の接続が切れます') : '', T('出る'), leave); break;
       case 'share': {
         if (CG.on) { try { const link = CG.sdk.game.inviteLink({ room: v.roomCode }); navigator.clipboard.writeText(link).then(function () { toast(T('コピーしました')); }, function () { toast(link); }); } catch (err) {} break; }
-        const url = CFG.portal ? SITE : (/^https?:/.test(location.protocol) ? location.href.split('#')[0] : '');
-        navigator.share({ title: T('わちゃパ'), text: T('わちゃパで遊ぼう！ 「部屋に参加する」で部屋コード {0} を入れてね', v.roomCode), url: url || undefined }).catch(function () {});
+        navigator.share({ title: T('わちゃパ'), text: T('わちゃパで遊ぼう！ このリンクを開くと部屋 {0} に入れます', v.roomCode), url: inviteUrl(v.roomCode) }).catch(function () {});
         break;
       }
+      case 'copyLink': { const u = inviteUrl(v.roomCode); try { navigator.clipboard.writeText(u).then(function () { toast(T('コピーしました')); }, function () { toast(u); }); } catch (err) { toast(u); } break; }
       case 'copy': try { navigator.clipboard.writeText(v.roomCode); toast(T('コピーしました')); } catch (err) { toast(v.roomCode); } break;
       case 'kick': send({ t: 'kick', target: arg }); break;
       case 'game': send({ t: 'settings', settings: Object.assign({}, v.settings, { game: arg }) }); break;
@@ -1359,4 +1378,5 @@
   window.PG = { S: S, send: send, doAct: doAct, render: render, MUS: MUS, CG: CG };
   render();
   cgInit();
+  if (S.invite && S.name.trim()) { const c = S.invite; S.invite = ''; joinRoom(c); }
 })();

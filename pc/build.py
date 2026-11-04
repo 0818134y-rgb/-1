@@ -177,6 +177,14 @@ readme = f'''わちゃパ PC 版 v{VERSION}
 '''
 open(os.path.join(D, 'はじめにお読みください.txt'), 'w', encoding='utf-8-sig').write(readme.replace('\n', '\r\n'))
 
+# リンクを貼ったときの画像（LINE・X など）
+from PIL import Image
+_og = Image.open(os.path.join(ROOT, 'store', 'portal', 'crazygames_landscape_1920x1080.png')).convert('RGB').resize((1200, 675), Image.LANCZOS).crop((0, 22, 1200, 652))
+_og.save(os.path.join(G, 'og.jpg'), quality=86, optimize=True)
+# 招待リンク（https://wachapa.com/join/?room=123456）：アプリが入っていればアプリ（App Links）、なければウェブ版のその部屋へ
+os.makedirs(os.path.join(G, 'join'), exist_ok=True)
+open(os.path.join(G, 'join', 'index.html'), 'w', encoding='utf-8').write('<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<meta name="robots" content="noindex">\n<title>わちゃパに招待されました</title>\n<meta property="og:type" content="website">\n<meta property="og:site_name" content="わちゃパ">\n<meta property="og:title" content="わちゃパに招待されました！ / You\'re invited to Wachapa!">\n<meta property="og:description" content="リンクを開くと、そのまま部屋に入れます。登録不要・スマホでもPCでもOK。">\n<meta property="og:image" content="https://wachapa.com/og.jpg">\n<meta name="twitter:card" content="summary_large_image">\n<style>body{margin:0;background:#15102D;color:#eee;font-family:sans-serif;text-align:center;padding:40px 16px}a{color:#FFB547}</style>\n<script>location.replace(\'../\' + location.search + location.hash);</script>\n</head>\n<body><p>わちゃパを開いています… / Opening Wachapa…</p><p><a href="../">わちゃパを開く / Open Wachapa</a></p></body>\n</html>\n')
+
 # iPhone・スマホのブラウザ用：game フォルダの中身をそのままサイトに置ける形で
 W = os.path.join(OUT, 'PartyGameWeb'); shutil.rmtree(W, ignore_errors=True); shutil.copytree(G, W)
 web_readme = f'''わちゃパ ウェブ版（iPhone・スマホ・PC のブラウザ用） v{VERSION}
@@ -218,7 +226,7 @@ with zipfile.ZipFile(wz, 'w', zipfile.ZIP_DEFLATED) as z:
 # ゲーム投稿サイト（itch.io・ふりーむ!・CrazyGames など）用：広告なし（各サイトの規約に合わせる）、読みものは公式サイトへリンク
 P = os.path.join(OUT, 'WachapaPortal')
 shutil.rmtree(P, ignore_errors=True)
-shutil.copytree(G, P, ignore=shutil.ignore_patterns('*.html', 'sw.js', 'robots.txt', 'sitemap.xml', 'CNAME', 'app-ads.txt', 'bans.json', 'manifest.webmanifest', 'icons'))
+shutil.copytree(G, P, ignore=shutil.ignore_patterns('*.html', 'join', 'og.jpg', 'sw.js', 'robots.txt', 'sitemap.xml', 'CNAME', 'app-ads.txt', 'bans.json', 'manifest.webmanifest', 'icons'))
 html_p = open(os.path.join(G, 'index.html'), encoding='utf-8').read()
 if HEAD_ADS: html_p = html_p.replace(HEAD_ADS, '')
 html_p = re.sub(r'<link rel="manifest"[^>]*>\n?', '', html_p)

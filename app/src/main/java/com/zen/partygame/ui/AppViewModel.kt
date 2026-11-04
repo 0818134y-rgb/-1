@@ -195,13 +195,33 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         openLink(true).requestJoin(code, name.value.ifBlank { tr("ゲスト") }, meta)
     }
 
-    /** 部屋コードをLINEなどで送る */
+    /** 部屋の招待リンクをLINEなどで送る（開くとアプリ・ブラウザのどちらでもその部屋に入れる） */
     fun shareInvite(code: String) {
         val web = com.zen.partygame.BuildConfig.WEB_URL
-        val text = tr("わちゃパで遊ぼう！\nアプリで「オンライン」→「部屋に参加する」を押して、部屋コード {0} を入れてね", code) +
-            if (web.isNotBlank()) tr("\niPhone・PCはこちらから：{0}", web) else ""
+        val text = if (web.isNotBlank()) tr("わちゃパで遊ぼう！ このリンクを開くと部屋 {0} に入れます", code) + "\n" + inviteUrl(web, code)
+            else tr("わちゃパで遊ぼう！\nアプリで「オンライン」→「部屋に参加する」を押して、部屋コード {0} を入れてね", code)
         val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(android.content.Intent.EXTRA_TEXT, text) }
         getApplication<Application>().startActivity(android.content.Intent.createChooser(send, tr("招待を送る")).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
+    /** 招待リンク（…/join/?room=123456）からアプリが開かれたとき */
+    fun openInvite(raw: String) {
+        val code = raw.filter { it.isDigit() }
+        if (code.length != ONLINE_CODE_LEN) return
+        val now = _ui.value
+        if (now is Ui.Room) {
+            if (now.view.roomCode != code) say(tr("今の部屋を出てから、もう一度招待リンクを開いてください"))
+            return
+        }
+        if (now is Ui.OnlineJoin && now.busy) return
+        lastCode.value = code; prefs.edit().putString("code", code).apply()
+        setOnline(true)
+        if (name.value.isBlank()) {
+            reset(); _ui.value = Ui.Title
+            say(tr("部屋 {0} に招待されています。名前を入れて「部屋に参加する」を押してください", code))
+            return
+        }
+        joinOnline(code)
     }
 
     fun join(room: RoomInfo) {
@@ -458,6 +478,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private fun newOnlineCode() = (100000 + Random.nextInt(900000)).toString()
 
     companion object {
+        /** 招待リンク。web はウェブ版の URL（最後は /） */
+        fun inviteUrl(web: String, code: String) = web.trimEnd('/') + "/join/?room=" + code
+        /** 招待リンクから部屋コードを取り出す（違うリンクなら null） */
+        fun inviteCode(uri: android.net.Uri?): String? {
+            if (uri == null || uri.scheme != "https" || uri.path?.trimEnd('/') != "/join") return null
+            val c = (uri.getQueryParameter("room") ?: return null).filter { it.isDigit() }
+            return if (c.length == ONLINE_CODE_LEN) c else null
+        }
         const val HOST_ID = "h"
         const val ONLINE_CODE_LEN = 6
     }

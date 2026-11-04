@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         vm.ads.init(this)
+        if (savedInstanceState == null) handleInvite(intent)
         setContent {
             val adsReady by vm.ads.ready.collectAsState()
             androidx.compose.runtime.CompositionLocalProvider(com.zen.partygame.ui.LocalAdsReady provides adsReady) {
@@ -60,6 +61,13 @@ class MainActivity : ComponentActivity() {
             }
             }
         }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) { super.onNewIntent(intent); setIntent(intent); handleInvite(intent) }
+    /** 招待リンク（https://wachapa.com/join/?room=123456）で開かれたら、その部屋に入る */
+    private fun handleInvite(i: android.content.Intent?) {
+        if (BuildConfig.ADMIN || i?.action != android.content.Intent.ACTION_VIEW) return
+        AppViewModel.inviteCode(i.data)?.let { vm.openInvite(it) }
     }
 
     // BGM: 裏に回ったら止める（全画面広告が出ている間も止まる）

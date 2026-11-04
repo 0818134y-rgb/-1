@@ -1,0 +1,5 @@
+#keys keys_v7.json
+348	Let's play Wachapa! Open this link to join room {0}	와챠파 하자! 이 링크를 열면 방 {0}에 들어갈 수 있어요	一起玩 Wachapa 吧！打开这个链接就能进入房间 {0}
+351	Leave your current room first, then open the invite link again	지금 있는 방에서 나온 뒤 초대 링크를 다시 열어 주세요	请先退出当前房间，再重新打开邀请链接
+352	You're invited to room {0}. Enter your name and tap "Join a room"	방 {0}에 초대받았어요. 이름을 입력하고 「방 참가하기」를 눌러 주세요	你被邀请加入房间 {0}。请输入名字，然后点「加入房间」
+489	<button class="btn" data-act="copyLink">Copy invite link</button>	<button class="btn" data-act="copyLink">초대 링크 복사</button>	<button class="btn" data-act="copyLink">复制邀请链接</button>
