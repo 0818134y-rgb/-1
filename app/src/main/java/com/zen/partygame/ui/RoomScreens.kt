@@ -68,6 +68,7 @@ import com.zen.partygame.game.PlayerView
 import com.zen.partygame.game.ResultReason
 import com.zen.partygame.game.Screen
 import com.zen.partygame.game.Settings
+import com.zen.partygame.game.Sfx
 import com.zen.partygame.game.Team
 import kotlinx.coroutines.delay
 
@@ -118,12 +119,24 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
         else -> false
     }
     val scroll = rememberScrollState()
+    // 残り10秒からカウント音、0秒でブザー
+    val countdown = Sfx.countsDown(v)
+    val secLeft = if (countdown) ((rememberRemainingMs(v, state.receivedAt) + 999) / 1000).toInt() else -1
+    LaunchedEffect(secLeft) {
+        when {
+            secLeft in 4..10 -> Sound.play(Sfx.TICK)
+            secLeft in 1..3 -> Sound.play(Sfx.TICK_LAST)
+            secLeft == 0 -> Sound.play(Sfx.BUZZER)
+        }
+    }
     // お絵かき伝言の発表：新しいコマがめくられたら下までスクロール
     val revealKey = (v.screen as? Screen.DrawReveal)?.let { it.book * 100 + it.entries.size }
     LaunchedEffect(revealKey) { if (revealKey != null) { delay(120); scroll.animateScrollTo(scroll.maxValue) } }
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(if (v.localMode) tr("1台モード") else (if (state.online) "🌐 " else "📶 ") + tr("部屋 {0}", v.roomCode), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+            val soundOn by vm.sound.collectAsState()
+            TextButton(onClick = { vm.setSound(!soundOn) }) { Text(if (soundOn) "🔊" else "🔇") }
             TextButton(onClick = { showLang = true }) { Text("🌐 " + lang.uppercase()) }
             TextButton(onClick = { confirmLeave = true }) { Text(tr("退出")) }
         }
@@ -314,7 +327,7 @@ private fun FeaturedGame(selected: Boolean, onClick: () -> Unit) {
     Box(
         Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(22.dp))
             .border(BorderStroke(if (selected) 4.dp else 2.dp, if (selected) Lantern else Berry), RoundedCornerShape(22.dp))
-            .clickable(onClick = onClick),
+            .clickable { Sound.play(com.zen.partygame.game.Sfx.TAP); onClick() },
     ) {
         Image(painterResource(R.drawable.arena_hero), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         Row(
@@ -348,7 +361,7 @@ private fun GameCard(@DrawableRes icon: Int, label: String, selected: Boolean, m
             .clip(RoundedCornerShape(16.dp))
             .background(if (selected) cs.surfaceContainerHigh else cs.background)
             .border(BorderStroke(2.dp, if (selected) cs.primary else cs.surfaceContainerHigh), RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
+            .clickable { Sound.play(com.zen.partygame.game.Sfx.TAP); onClick() }
             .padding(vertical = 10.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -452,7 +465,7 @@ private fun WwVote(vm: AppViewModel, v: PlayerView, s: Screen.WwVote) {
 @Composable
 private fun ChoiceButton(label: String, selected: Boolean, onClick: () -> Unit) {
     Button(
-        onClick = onClick,
+        onClick = { Sound.play(com.zen.partygame.game.Sfx.TAP); onClick() },
         modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(14.dp),
         colors = if (selected) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
         else ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, contentColor = MaterialTheme.colorScheme.onSurface),

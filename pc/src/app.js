@@ -41,6 +41,34 @@
     document.title = T('わちゃパ｜ワードウルフ・NGワードほかパーティーゲーム');
   }
   localize();
+  // ---------- 効果音（sfx/*.mp3。最初にどこかを触ったときに音を出せるようにする） ----------
+  const SND = { on: load('pg.sound', '1') === '1', ctx: null, buf: {}, last: {} };
+  const SND_FILE = location.protocol === 'file:';   // ファイルを直接開いたときは fetch が使えないので <audio> で鳴らす
+  function sndInit() {
+    if (SND_FILE || SND.ctx || !(window.AudioContext || window.webkitAudioContext)) return;
+    try { SND.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+    ['tap', 'card_play', 'card_draw', 'your_turn', 'tick', 'tick_last', 'buzzer', 'win', 'lose', 'reveal', 'page', 'sent', 'join', 'bomb', 'alert', 'sync', 'start', 'vote', 'out'].forEach(function (n) {
+      fetch('sfx/' + n + '.mp3').then(function (r) { return r.arrayBuffer(); })
+        .then(function (a) { return new Promise(function (ok, ng) { SND.ctx.decodeAudioData(a, ok, ng); }); })
+        .then(function (b) { SND.buf[n] = b; }).catch(function () {});
+    });
+  }
+  function sfx(name) {
+    if (window.__sfxLog && SND.on) window.__sfxLog.push(name);   // テスト用
+    if (!SND.on) return;
+    const now = performance.now(); if (now - (SND.last[name] || 0) < 60) return; SND.last[name] = now;
+    if (SND_FILE) { try { new Audio('sfx/' + name + '.mp3').play().catch(function () {}); } catch (e) {} return; }
+    if (!SND.ctx || !SND.buf[name]) return;
+    try {
+      if (SND.ctx.state === 'suspended') SND.ctx.resume();
+      const src = SND.ctx.createBufferSource(); src.buffer = SND.buf[name]; src.connect(SND.ctx.destination); src.start();
+    } catch (e) {}
+  }
+  function setSound(on) { SND.on = on; save('pg.sound', on ? '1' : '0'); if (on) { sndInit(); setTimeout(function () { sfx('tap'); }, 50); } render(); }
+  ['pointerdown', 'keydown'].forEach(function (ev) {
+    document.addEventListener(ev, function () { sndInit(); if (SND.ctx && SND.ctx.state === 'suspended') SND.ctx.resume(); }, { capture: true, passive: true });
+  });
+
   function setLang(code) { LANG = code; save('pg.lang', code); localize(); render(); }
   const CFG = window.PG_CONFIG || {};
   const HOST_ID = 'h';
@@ -106,6 +134,7 @@
   }
 
   function resetNet() {
+    S.lastViewJson = ''; S.countsDown = false;
     if (S.tickTimer) clearInterval(S.tickTimer); S.tickTimer = null;
     PgNet.stop();
     S.connected.clear(); S.pendingNames.clear(); S.lastVersion = -1;
@@ -129,6 +158,11 @@
   }
 
   function setView(v) {
+    try {
+      const json = JSON.stringify(v);
+      if (SND.on) G.sfxCues(S.lastViewJson || '', json).forEach(sfx);
+      S.lastViewJson = json; S.countsDown = G.sfxCountsDown(json);
+    } catch (e) {}
     const prev = S.view;
     S.view = v; S.receivedAt = performance.now(); S.page = 'room';
     if (!prev || prev.screen.t !== v.screen.t) S.ui = {};
@@ -289,6 +323,7 @@
       bar.hidden = false;
       document.getElementById('leaveBtn').textContent = T('退出');
       document.getElementById('langBtn').textContent = '🌐 ' + LANG.toUpperCase();
+      document.getElementById('soundBtn').textContent = SND.on ? '🔊' : '🔇';
       document.getElementById('roomLabel').textContent = T('🌐 部屋 {0}{1}', v.roomCode, (v.isHost ? T('（あなたがホスト）') : ''));
       // お絵かき中は、ほかの人が送っただけなら画面を作り直さない（描きかけの絵や入力を消さないため）
       const root = document.getElementById('drawRoot');
@@ -309,6 +344,10 @@
 
   function tickTimers() {
     const r = remaining();
+    if (S.countsDown && r != null && S.page === 'room') {
+      const sec = Math.ceil(Math.max(0, r) / 1000);
+      if (sec !== S.lastSec) { S.lastSec = sec; if (sec >= 4 && sec <= 10) sfx('tick'); else if (sec >= 1 && sec <= 3) sfx('tick_last'); else if (sec === 0) sfx('buzzer'); }
+    } else S.lastSec = null;
     if (r != null && r <= 0 && S.view && S.view.screen.t === 'drawTask' && !S.view.screen.submitted) drawSend();
     document.querySelectorAll('[data-timer]').forEach(function (el) {
       if (r == null) { el.textContent = ''; return; }
@@ -325,7 +364,7 @@
   function localLinks(h) { return LANG === 'ja' ? h : h.replace(/href="(howto|about|privacy)\.html"/g, 'href="$1.' + LANG + '.html"'); }
   function langLabel() { return (LANGS.find(function (l) { return l[0] === LANG; }) || LANGS[0])[1]; }
   function titlePage() {
-    return '<div class="langbar"><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード・お絵かき伝言 ほか全8種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
+    return '<div class="langbar"><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード・お絵かき伝言 ほか全8種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
   }
 
   function joinPage() {
@@ -868,6 +907,7 @@
   document.addEventListener('click', function (e) {
     const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
     if (el.dataset.act === 'nose') return;   // 指が触れた時点（pointerdown）で処理ずみ
+    if (el.dataset.act !== 'sound') sfx('tap');
     doAct(el.dataset.act, el.dataset.arg);
   });
 
@@ -898,6 +938,7 @@
         }).join('') + '</div><div class="cap">' + T('お題やカードは、部屋を作った人の言語になります') + '</div><button class="big sec" data-act="closeModal">' + T('閉じる') + '</button></div>');
         break;
       case 'setLang': closeModal(); setLang(arg); break;
+      case 'sound': setSound(!SND.on); break;
       case 'closeModal': closeModal(); break;
       case 'peek': S.ui.peek = !S.ui.peek; render(); break;
       case 'ngOut': {

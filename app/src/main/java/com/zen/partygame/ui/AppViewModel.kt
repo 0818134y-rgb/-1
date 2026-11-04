@@ -1,5 +1,6 @@
 package com.zen.partygame.ui
 
+import com.zen.partygame.game.Sfx
 import com.zen.partygame.game.GameType
 import android.app.Application
 import android.content.Context
@@ -69,6 +70,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val name = MutableStateFlow(prefs.getString("name", "") ?: "")
     /** つなぎ方：false = 近くで（Bluetooth/Wi-Fi）、true = オンライン（離れていても・PCとも） */
     val online = MutableStateFlow(prefs.getBoolean("online", false))
+    /** 効果音のオン/オフ */
+    val sound = MutableStateFlow(prefs.getBoolean("sound", true))
+    init { Sound.init(app); Sound.enabled = sound.value }
     /** 前回入れた部屋コード */
     val lastCode = MutableStateFlow(prefs.getString("code", "") ?: "")
 
@@ -89,6 +93,19 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun setName(v: String) {
         name.value = v.take(10)
         prefs.edit().putString("name", name.value).apply()
+    }
+
+    fun setSound(v: Boolean) {
+        sound.value = v; Sound.enabled = v; prefs.edit().putBoolean("sound", v).apply()
+        if (v) Sound.play(Sfx.TAP)
+    }
+
+    /** 画面が変わったら、前の画面と比べて効果音を鳴らす */
+    private var lastView: PlayerView? = null
+    private fun showRoom(view: PlayerView) {
+        Sound.playAll(Sfx.cues(lastView, view))
+        lastView = view
+        _ui.value = Ui.Room(view, SystemClock.elapsedRealtime(), linkOnline)
     }
 
     fun setOnline(v: Boolean) {
@@ -195,7 +212,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         tickJob?.cancel(); tickJob = null
         linkJob?.cancel(); linkJob = null
         if (stopNow) link?.stopAll()
-        link = null; engine = null; hostEndpoint = null; lastVersion = -1
+        link = null; engine = null; hostEndpoint = null; lastVersion = -1; lastView = null
         pendingNames.clear(); connected.clear(); rooms.clear()
     }
 
@@ -214,7 +231,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val e = engine ?: return
         if (!force && e.version == lastVersion) return
         lastVersion = e.version
-        _ui.value = Ui.Room(e.viewFor(HOST_ID), SystemClock.elapsedRealtime(), linkOnline)
+        showRoom(e.viewFor(HOST_ID))
         val l = link ?: return
         val ids = e.players.map { it.id }.toSet()
         for (id in connected.toList()) {
@@ -293,7 +310,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             is NetEvent.Received -> {
                 if (ev.endpointId != hostEndpoint) return
                 when (val msg = runCatching { WireJson.decodeFromString(HostMsg.serializer(), ev.bytes.decodeToString()) }.getOrNull()) {
-                    is HostMsg.ViewMsg -> _ui.value = Ui.Room(msg.view, SystemClock.elapsedRealtime(), linkOnline)
+                    is HostMsg.ViewMsg -> showRoom(msg.view)
                     is HostMsg.Bye -> { reset(); _ui.value = Ui.Title; say(msg.reason) }
                     null -> Unit
                 }

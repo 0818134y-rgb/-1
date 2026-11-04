@@ -17,6 +17,7 @@ shutil.rmtree(D, ignore_errors=True); os.makedirs(os.path.join(G, 'lib')); os.ma
 for f in ('index.html', 'app.js', 'style.css', 'config.js'):
     shutil.copy(os.path.join(HERE, 'src', f), G)
 shutil.copy(KJS, os.path.join(G, 'lib', 'partygame.js'))
+shutil.copytree(os.path.join(HERE, 'src', 'sfx'), os.path.join(G, 'sfx'))   # 効果音（tools/make_sfx.py で作る）
 
 # ---- 収益化の設定（プロジェクトの一番上の monetization.properties。公開リポジトリには入れない） ----
 M = {}

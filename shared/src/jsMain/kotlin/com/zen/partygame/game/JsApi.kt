@@ -39,6 +39,16 @@ class JsHost(roomCode: String, topicsJson: String) {
 
 @JsExport fun protoVersion(): Int = PROTO
 
+/** 前の画面（JSON、無ければ空）と次の画面（JSON）から、鳴らす効果音の名前 */
+@JsExport fun sfxCues(prevJson: String, nextJson: String): Array<String> = runCatching {
+    val prev = if (prevJson.isEmpty()) null else WireJson.decodeFromString(PlayerView.serializer(), prevJson)
+    Sfx.cues(prev, WireJson.decodeFromString(PlayerView.serializer(), nextJson)).toTypedArray()
+}.getOrDefault(emptyArray())
+
+/** 残り時間のカウント音を鳴らす画面か */
+@JsExport fun sfxCountsDown(viewJson: String): Boolean =
+    runCatching { Sfx.countsDown(WireJson.decodeFromString(PlayerView.serializer(), viewJson)) }.getOrDefault(false)
+
 /** アリーナの記録1行を、その端末の言語にする（tr = 日本語の型 → 訳） */
 @JsExport fun formatLog(entry: String, tr: (String) -> String, sep: String): String = LogFmt.format(entry, tr, sep)
 

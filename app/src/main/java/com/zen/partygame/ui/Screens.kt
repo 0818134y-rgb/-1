@@ -85,7 +85,7 @@ fun BigButton(
     @DrawableRes icon: Int? = null, onClick: () -> Unit,
 ) {
     Button(
-        onClick = onClick, enabled = enabled,
+        onClick = { Sound.play(com.zen.partygame.game.Sfx.TAP); onClick() }, enabled = enabled,
         modifier = modifier.fillMaxWidth().height(if (icon != null) 64.dp else 56.dp),
         shape = RoundedCornerShape(18.dp),
         colors = if (secondary) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, contentColor = MaterialTheme.colorScheme.onSurface)
@@ -191,7 +191,12 @@ fun TitleScreen(vm: AppViewModel) {
         Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { LanguageButton(lang) { showLang = true } }
+        val soundOn by vm.sound.collectAsState()
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            SoundButton(soundOn) { vm.setSound(!soundOn) }
+            Spacer(Modifier.width(8.dp))
+            LanguageButton(lang) { showLang = true }
+        }
         Art(R.drawable.char_wolf_hello, 190.dp)
         Text(tr("わちゃパ"), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
         Text(tr("ワードウルフ・NGワード ほか"), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.secondary)
@@ -240,6 +245,14 @@ fun TitleScreen(vm: AppViewModel) {
     }
     if (showRules) RulesDialog { showRules = false }
     if (showLang) LanguageDialog(lang, onPick = { vm.setLang(it); showLang = false }, onClose = { showLang = false })
+}
+
+/** 効果音のオン/オフ */
+@Composable
+fun SoundButton(on: Boolean, onClick: () -> Unit) {
+    OutlinedButton(onClick = onClick, shape = RoundedCornerShape(14.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)) {
+        Text(if (on) "🔊" else "🔇", style = MaterialTheme.typography.bodyMedium)
+    }
 }
 
 /** 言語の切り替えボタン（どの言語の人にも分かるよう「🌐 Language」と今の言語を出す） */
