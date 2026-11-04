@@ -262,14 +262,24 @@
       old.replaceWith(s);
     });
   }
-  function bannerTag() { return innerWidth < 740 ? (TAGS.bannerSp || TAGS.bannerPc) : (TAGS.bannerPc || TAGS.bannerSp); }
-  function breakTag() { return innerWidth <= 520 ? (TAGS.break || bannerTag()) : (TAGS.breakPc || TAGS.break || bannerTag()); }
+  // 広告の枠は「スマホ向け」「PC向け」で配信が分かれているので、画面の幅ではなく端末の種類で選ぶ
+  // （PC で窓を狭くしてもスマホ向けの枠を出すと、広告が来ない）
+  const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+  function bannerTag() { return IS_MOBILE ? (TAGS.bannerSp || TAGS.bannerPc) : (TAGS.bannerPc || TAGS.bannerSp); }
+  function breakTag() { return IS_MOBILE ? (TAGS.break || TAGS.bannerSp || bannerTag()) : (TAGS.breakPc || TAGS.bannerPc || bannerTag()); }
+  /** PC で窓が狭いときは、横長の広告を縮めて収める */
+  function fitBanner() {
+    const a = $banner.querySelector('.admax-ads'); if (!a || IS_MOBILE) return;
+    const k = Math.min(1, (innerWidth - 8) / 728);
+    a.style.transform = k < 1 ? 'scale(' + k + ')' : ''; a.style.transformOrigin = 'center bottom';
+  }
+  addEventListener('resize', fitBanner);
   function showBanner(on) {
     $banner.hidden = !on;
     if (on && !bannerReady) {
       bannerReady = true;
       if (adsOn && CFG.bannerSlot) { loadAds(); $banner.innerHTML = adUnit(CFG.bannerSlot, innerWidth <= 520 ? 'display:inline-block;width:320px;height:50px' : 'display:inline-block;width:728px;height:90px'); pushAd(); }
-      else if (bannerTag()) injectTag($banner, bannerTag());
+      else if (bannerTag()) { injectTag($banner, bannerTag()); setTimeout(fitBanner, 50); setTimeout(fitBanner, 3000); }
       else $banner.innerHTML = adUnit('');
     }
   }

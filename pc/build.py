@@ -57,7 +57,14 @@ open(os.path.join(G, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitema
 open(os.path.join(G, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     + ''.join(f'  <url><loc>{SITE}{p}</loc></url>\n' for p in [''] + [b + ('.html' if l == 'ja' else '.' + l + '.html') for b in ('howto', 'about', 'privacy') for l in ('ja', 'en', 'ko', 'zh')]) + '</urlset>\n')
 sys.path.insert(0, HERE); import pages
-pages.build(G, KJS, HEAD_ADS, AD_TAGS['page'] or AD_TAGS['bannerSp'] or AD_TAGS['bannerPc'])
+# 読みもののページの広告：スマホならスマホ向けの枠、PC なら PC 向けの枠を、開いた端末で選んで差し込む
+_sp = AD_TAGS['page'] or AD_TAGS['bannerSp'] or AD_TAGS['bannerPc']; _pc = AD_TAGS['bannerPc'] or _sp
+PAGE_AD = ('<div id="pgad"></div><script>(function(){var m=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));'
+           'var el=document.getElementById("pgad");el.innerHTML=m?%s:%s;el.querySelectorAll("script").forEach(function(o){var s=document.createElement("script");'
+           'for(var i=0;i<o.attributes.length;i++)s.setAttribute(o.attributes[i].name,o.attributes[i].value);s.text=o.textContent;o.replaceWith(s);});'
+           'if(!m&&innerWidth<760){el.style.transform="scale("+((innerWidth-24)/728)+")";el.style.transformOrigin="center top";}})();</script>'
+           % (json.dumps(_sp).replace('</', '<\\/'), json.dumps(_pc).replace('</', '<\\/'))) if (_sp or _pc) else ''
+pages.build(G, KJS, HEAD_ADS, PAGE_AD)
 shutil.copy(os.path.join(ASSETS, 'online', 'peerjs.min.js'), os.path.join(G, 'lib'))
 shutil.copy(os.path.join(ASSETS, 'online', 'net.js'), os.path.join(G, 'lib'))
 # お題（言語ごと）と、画面の訳
