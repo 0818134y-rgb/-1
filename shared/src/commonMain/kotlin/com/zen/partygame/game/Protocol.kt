@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** 通信の版。違う版の端末どうしは同じ部屋に入れない */
-const val PROTO = 7
+const val PROTO = 8
 const val MIN_PLAYERS = 3
 const val MAX_PLAYERS_NEARBY = 8
 const val MAX_PLAYERS_LOCAL = 12
@@ -166,6 +166,9 @@ sealed interface Intent {
     @Serializable @SerialName("scalePlay") data object ScalePlay : Intent
     /** みんなのものさし：ヒントがそろっていなくても並べ始める（ホスト） */
     @Serializable @SerialName("scaleBegin") data object ScaleBegin : Intent
+
+    /** 管理者の操作（ホストの端末が、署名を確かめた管理者からのものだけ実行する。ゲームの進行には渡さない） */
+    @Serializable @SerialName("adminOp") data class AdminOp(val op: String, val target: String = "", val text: String = "") : Intent
 
     @Serializable @SerialName("next") data object Next : Intent
     @Serializable @SerialName("lobby") data object BackToLobby : Intent
@@ -408,4 +411,8 @@ data class PlayerView(
 sealed interface HostMsg {
     @Serializable @SerialName("view") data class ViewMsg(val view: PlayerView) : HostMsg
     @Serializable @SerialName("bye") data class Bye(val reason: String) : HostMsg
+    /** 管理者からのお知らせ（全員に表示）。text は日本語の型（受け取った端末がその言語に訳す）、args は {0} などに入る値 */
+    @Serializable @SerialName("notice") data class Notice(val text: String, val args: List<String> = emptyList()) : HostMsg
+    /** 管理者アプリだけに送る、部屋の様子 */
+    @Serializable @SerialName("adminView") data class AdminViewMsg(val room: AdminRoom) : HostMsg
 }

@@ -148,7 +148,8 @@ class Engine(
     }
 
     private fun uniqueName(raw: String): String {
-        val base = raw.trim().replace("\n", " ").take(MAX_NAME_LEN).ifBlank { "P${players.size + 1}" }
+        // 🛡 は管理者の印なので、参加者の名前には使えない（「管理者」のふりを防ぐ）
+        val base = raw.replace("🛡", "").replace("\uFE0F", "").trim().replace("\n", " ").take(MAX_NAME_LEN).ifBlank { "P${players.size + 1}" }
         var name = base; var n = 2
         while (players.any { it.name == name }) name = "$base${n++}"
         return name
@@ -316,6 +317,8 @@ class Engine(
             }
             Intent.ScaleBegin -> if (isHost && phase == Phase.SCALE_HINT) startScalePlay()
             Intent.ScalePlay -> if (phase == Phase.SCALE_PLAY) playScale(from)
+            // 管理者の操作はホストの端末の通信部分が扱う（ゲームの進行には関係しない）
+            is Intent.AdminOp -> Unit
 
             // --- 共通 ---
             Intent.Next -> if (isHost && phase == Phase.DRAW_REVEAL && !revealDone) {

@@ -57,7 +57,13 @@ class OnlineLink(context: Context) : Link {
         val o = runCatching { Json.parseToJsonElement(json).jsonObject }.getOrNull() ?: return null
         fun str(k: String) = (o[k] as? JsonPrimitive)?.content ?: ""
         return when (str("ev")) {
-            "join" -> NetEvent.JoinRequest(str("id"), str("name"), o["proto"]?.jsonPrimitive?.intOrNull ?: -1)
+            "join" -> NetEvent.JoinRequest(
+                str("id"), str("name"), o["proto"]?.jsonPrimitive?.intOrNull ?: -1, str("did"),
+                (o["admin"] as? kotlinx.serialization.json.JsonObject)?.let { a ->
+                    val ts = (a["ts"] as? JsonPrimitive)?.content?.toDoubleOrNull()?.toLong() ?: 0L
+                    AdminProof(ts, (a["nonce"] as? JsonPrimitive)?.content ?: "", (a["sig"] as? JsonPrimitive)?.content ?: "")
+                },
+            )
             "connected" -> NetEvent.Connected(str("id"))
             "failed" -> when (str("reason")) {
                 "notfound" -> NetEvent.RoomNotFound
@@ -80,7 +86,9 @@ class OnlineLink(context: Context) : Link {
     override fun accept(endpointId: String) { call("PgNet.accept(${q(endpointId)})") }
     override fun reject(endpointId: String) { call("PgNet.reject(${q(endpointId)})") }
     /** endpointId には部屋コードを渡す */
-    override fun requestJoin(endpointId: String, myName: String) { call("PgNet.join(${PROTO}, ${q(endpointId)}, ${q(myName)})") }
+    override fun requestJoin(endpointId: String, myName: String, meta: String, myId: String?) {
+        call("PgNet.join(${PROTO}, ${q(endpointId)}, ${q(myName)}, $meta, ${if (myId == null) "null" else q(myId)})")
+    }
     override fun send(endpointIds: List<String>, bytes: ByteArray) {
         if (endpointIds.isEmpty()) return
         call("PgNet.send(${JsonArray(endpointIds.map { JsonPrimitive(it) })}, ${q(bytes.decodeToString())})")

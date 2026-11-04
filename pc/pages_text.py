@@ -40,21 +40,25 @@ L = {
 <h2>Contact</h2><p>Please send feedback and bug reports <a href="{contact}">here (GitHub)</a>.</p>''',
         'privacy': '''<h1>Privacy Policy</h1>
 <p>This page explains how "Wachapa" (including the web version on this site, the PC version and the Android app; the "Service") handles user information.</p>
-<h2>1. Information collected by the operator</h2><p>The operator does not collect or store users' personal information. The Service does not use the operator's servers.</p>
+<h2>1. Information collected by the operator</h2><p>The operator does not collect or store users' personal information (except as described in 4. Preventing abuse). The Service does not use the operator's servers.</p>
 <h2>2. Communication between devices</h2>
 <p>The names you enter and the game content are exchanged only between the devices in the same room and are never sent to the operator.</p>
 <ul><li><b>Online</b>: devices connect directly via WebRTC (PeerJS). To find each other, devices communicate with the PeerJS signaling server (0.peerjs.com), and on networks where a direct connection isn't possible, traffic is relayed through PeerJS relay servers. Information needed for the connection, such as IP addresses, is shared with these servers and the other devices.</li>
 <li><b>Nearby (Android app)</b>: devices connect directly with Google Nearby Connections (Bluetooth / Wi-Fi). The app asks for the "Nearby devices" and "Location" permissions to find nearby devices, but it never obtains, records or sends your location itself.</li></ul>
 <h2>3. Information stored on your device</h2><p>To save you typing next time, your name, the last room code you entered and your language setting are stored on your device (app storage or the browser's localStorage). The web version also stores game files on your device so it starts quickly. All of this is removed when you delete the app or clear your browser data.</p>
-<h2>4. Advertising</h2>
+<h2>4. Preventing abuse</h2><p>To prevent abuse, the Service creates a random number for each device (a "device number", unrelated to advertising IDs or your device's hardware identifiers), stores it on your device and sends it to the host's device when you join an online room.</p>
+<ul><li>If the operator confirms abusive behavior, the operator may publish a one-way (SHA-256 hashed) form of that device number on this site (bans.json) as a ban list. Devices on the list can no longer join or create online rooms. Names and game content are never put on the list.</li>
+<li>To deal with abuse, the operator may enter an online room as an administrator to check the room (player names, hashed device numbers and the game screen), remove players or close the room. Everyone in the room is notified when an administrator enters.</li>
+<li>The device number is removed when you delete the app or clear your browser data. To request removal from the ban list, please contact us.</li></ul>
+<h2>5. Advertising</h2>
 <p>The Service shows ads. The Android app uses Google AdMob by Google LLC, and the web and PC versions use Ninja AdMax by Ninja Tools Inc. These services may use cookies, advertising IDs, device and browser information, and approximate location (estimated from your IP address) to deliver ads, measure their performance and prevent fraud. Third-party vendors may use cookies to show ads based on your past visits to the Service and other websites.</p>
 <ul><li><a href="https://policies.google.com/technologies/partner-sites?hl=en">How Google uses information from sites or apps that use its services</a></li>
 <li><a href="https://policies.google.com/privacy?hl=en">Google Privacy Policy</a></li><li><a href="https://www.shinobi.jp/etc/policy.html">Ninja Tools Privacy Policy (Japanese)</a></li></ul>
 <p>You can turn off personalized Google ads in <a href="https://adssettings.google.com/">Ad Settings</a> (on Android, also via Settings → Google → Ads). In regions where consent is required, such as Europe, consent is requested before ads are shown and can be changed later from "Ad settings".</p>
-<h2>5. Age requirement</h2><p>The Service is intended for users aged 13 and over.</p>
-<h2>6. Changes</h2><p>This policy may be updated as needed. Changes take effect when they are posted on this page.</p>
-<h2>7. Contact</h2><p>Please contact us <a href="{contact}">here (GitHub)</a>.</p>
-<p class="muted">Effective date: November 3, 2026</p>''',
+<h2>6. Age requirement</h2><p>The Service is intended for users aged 13 and over.</p>
+<h2>7. Changes</h2><p>This policy may be updated as needed. Changes take effect when they are posted on this page.</p>
+<h2>8. Contact</h2><p>Please contact us <a href="{contact}">here (GitHub)</a>.</p>
+<p class="muted">Effective date: November 3, 2026 / Updated: November 4, 2026</p>''',
     },
     'ko': {
         'html_lang': 'ko', 'brand': '와챠파', 'nav': ['게임 방법', '사이트 소개', '개인정보', '플레이'], 'contact': '문의',
@@ -86,21 +90,25 @@ L = {
 <h2>문의</h2><p>의견이나 버그 신고는 <a href="{contact}">여기(GitHub)</a>로 보내 주세요.</p>''',
         'privacy': '''<h1>개인정보 처리방침</h1>
 <p>"와챠파"(이 사이트의 웹 버전, PC 버전, Android 앱을 포함합니다. 이하 "본 서비스")에서 이용자의 정보를 어떻게 다루는지 설명합니다.</p>
-<h2>1. 운영자가 수집하는 정보</h2><p>운영자는 이용자의 개인정보를 수집 · 저장하지 않습니다. 본 서비스는 운영자의 서버를 사용하지 않습니다.</p>
+<h2>1. 운영자가 수집하는 정보</h2><p>운영자는 이용자의 개인정보를 수집 · 저장하지 않습니다(4. 비매너 행위 방지 제외). 본 서비스는 운영자의 서버를 사용하지 않습니다.</p>
 <h2>2. 기기 간 통신</h2>
 <p>입력한 이름과 게임 내용은 같은 방에 참가한 기기 사이에서만 주고받으며, 운영자에게 전송되지 않습니다.</p>
 <ul><li><b>온라인</b>: 기기끼리 WebRTC(PeerJS)로 직접 연결합니다. 상대를 찾기 위해 PeerJS 중개 서버(0.peerjs.com)와 통신하고, 직접 연결되지 않는 회선에서는 PeerJS 중계 서버를 거칩니다. 이때 통신에 필요한 IP 주소 등이 중개 · 중계 서버와 상대 기기에 전달됩니다.</li>
 <li><b>근처에서 (Android 앱)</b>: Google Nearby Connections(블루투스 · Wi-Fi)로 근처 기기와 직접 연결합니다. 근처 기기를 찾기 위해 "근처 기기"와 "위치" 권한을 요청하지만, 위치 정보 자체를 가져오거나 기록 · 전송하지 않습니다.</li></ul>
 <h2>3. 기기에 저장하는 정보</h2><p>다음 입력을 줄이기 위해 입력한 이름, 마지막으로 입력한 방 코드, 언어 설정을 기기 안(앱 저장 공간 또는 브라우저의 localStorage)에 저장합니다. 웹 버전은 빠르게 실행할 수 있도록 게임 파일을 기기에 저장합니다. 모두 앱을 삭제하거나 브라우저 데이터를 삭제하면 사라집니다.</p>
-<h2>4. 광고</h2>
+<h2>4. 비매너 행위 방지</h2><p>비매너 행위를 막기 위해 본 서비스는 기기마다 무작위 번호(기기 번호. 광고 ID나 기기 고유 식별 번호와는 관계없습니다)를 만들어 기기에 저장하고, 온라인 방에 참가할 때 방을 만든 사람의 기기로 보냅니다.</p>
+<ul><li>운영자가 비매너 행위를 확인한 경우, 그 기기 번호를 원래대로 되돌릴 수 없는 형태(SHA-256 해시값)로 바꾼 것을 참가 금지 목록으로 이 사이트(bans.json)에 게시할 수 있습니다. 목록에 있는 기기는 온라인 방에 참가하거나 방을 만들 수 없게 됩니다. 이름이나 게임 내용은 목록에 올리지 않습니다.</li>
+<li>운영자는 비매너 행위에 대응하기 위해 관리자로서 온라인 방에 들어가 방 상황(참가자 이름 · 기기 번호의 해시값 · 게임 화면)을 확인하거나, 참가자를 퇴장시키거나, 방을 닫을 수 있습니다. 관리자가 들어오면 방에 있는 모두에게 표시됩니다.</li>
+<li>기기 번호는 앱을 삭제하거나 브라우저 데이터를 지우면 사라집니다. 참가 금지 해제를 원하시면 문의처로 연락해 주세요.</li></ul>
+<h2>5. 광고</h2>
 <p>본 서비스는 광고를 표시합니다. Android 앱은 Google LLC의 Google AdMob을, 웹 버전 · PC 버전은 Ninja Tools Inc.의 Ninja AdMax를 이용합니다. 이 서비스들은 광고 게재 · 효과 측정 · 부정 방지를 위해 쿠키, 광고 ID, 기기나 브라우저 정보, 대략적인 위치(IP 주소로 추정) 등을 사용할 수 있습니다. 제3자 광고 사업자는 쿠키를 사용하여 이용자가 과거에 본 서비스나 다른 사이트를 방문한 정보를 바탕으로 광고를 게재할 수 있습니다.</p>
 <ul><li><a href="https://policies.google.com/technologies/partner-sites?hl=ko">Google 서비스를 사용하는 사이트 또는 앱의 정보를 Google이 사용하는 방법</a></li>
 <li><a href="https://policies.google.com/privacy?hl=ko">Google 개인정보처리방침</a></li><li><a href="https://www.shinobi.jp/etc/policy.html">Ninja Tools 개인정보 처리방침 (일본어)</a></li></ul>
 <p>Google의 맞춤 광고는 <a href="https://adssettings.google.com/">광고 설정</a>에서 끌 수 있습니다 (Android는 기기의 "설정 → Google → 광고"에서도 변경할 수 있습니다). 유럽 등 동의가 필요한 지역에서는 광고를 표시하기 전에 동의를 확인하며, 나중에 "광고 설정"에서 변경할 수 있습니다.</p>
-<h2>5. 이용 연령</h2><p>본 서비스는 만 13세 이상을 대상으로 합니다.</p>
-<h2>6. 개정</h2><p>본 방침은 필요에 따라 개정합니다. 개정된 내용은 이 페이지에 게시한 시점부터 효력을 가집니다.</p>
-<h2>7. 문의</h2><p><a href="{contact}">여기(GitHub)</a>로 보내 주세요.</p>
-<p class="muted">제정일: 2026년 11월 3일</p>''',
+<h2>6. 이용 연령</h2><p>본 서비스는 만 13세 이상을 대상으로 합니다.</p>
+<h2>7. 개정</h2><p>본 방침은 필요에 따라 개정합니다. 개정된 내용은 이 페이지에 게시한 시점부터 효력을 가집니다.</p>
+<h2>8. 문의</h2><p><a href="{contact}">여기(GitHub)</a>로 보내 주세요.</p>
+<p class="muted">제정일: 2026년 11월 3일 / 개정일: 2026년 11월 4일</p>''',
     },
     'zh': {
         'html_lang': 'zh-CN', 'brand': 'Wachapa', 'nav': ['玩法', '关于本站', '隐私', '开始玩'], 'contact': '联系我们',
@@ -132,20 +140,24 @@ L = {
 <h2>联系我们</h2><p>意见和问题反馈请发送到<a href="{contact}">这里（GitHub）</a>。</p>''',
         'privacy': '''<h1>隐私政策</h1>
 <p>本页面说明“Wachapa”（包括本站的网页版、PC 版及安卓 App，以下称“本服务”）如何处理用户信息。</p>
-<h2>1. 运营者收集的信息</h2><p>运营者不收集、不保存用户的个人信息。本服务不使用运营者的服务器。</p>
+<h2>1. 运营者收集的信息</h2><p>运营者不收集、不保存用户的个人信息（“4. 防止恶意行为”所述情况除外）。本服务不使用运营者的服务器。</p>
 <h2>2. 设备之间的通信</h2>
 <p>你输入的名字和游戏内容只在同一房间内的设备之间传输，不会发送给运营者。</p>
 <ul><li><b>在线</b>：设备之间通过 WebRTC（PeerJS）直接连接。为了找到对方，会与 PeerJS 信令服务器（0.peerjs.com）通信；在无法直接连接的网络环境下，会经由 PeerJS 中继服务器传输。此时，连接所需的 IP 地址等信息会传给这些服务器和对方的设备。</li>
 <li><b>附近（安卓 App）</b>：通过 Google Nearby Connections（蓝牙 · Wi-Fi）与附近的设备直接连接。为了寻找附近的设备，App 会请求“附近的设备”和“位置信息”权限，但不会获取、记录或发送位置信息本身。</li></ul>
 <h2>3. 保存在设备上的信息</h2><p>为了让你下次少输入一些内容，你输入的名字、最后输入的房间号和语言设置会保存在设备内（App 存储空间或浏览器的 localStorage）。网页版为了快速启动，还会把游戏文件保存在设备上。删除 App 或清除浏览器数据后，这些信息都会被删除。</p>
-<h2>4. 广告</h2>
+<h2>4. 防止恶意行为</h2><p>为防止恶意行为，本服务会为每台设备生成一个随机编号（设备编号，与广告 ID 或设备本身的识别码无关），保存在设备内，并在加入在线房间时发送给房主的设备。</p>
+<ul><li>如果运营者确认存在恶意行为，可能会将该设备编号转换为无法还原的形式（SHA-256 哈希值），作为禁止加入名单发布在本站（bans.json）。名单上的设备将无法加入或创建在线房间。名字和游戏内容不会放入名单。</li>
+<li>为处理恶意行为，运营者可能会以管理员身份进入在线房间，查看房间情况（玩家名字、设备编号的哈希值、游戏画面），将玩家移出房间或关闭房间。管理员进入时，房间里的所有人都会看到提示。</li>
+<li>删除 App 或清除浏览器数据后，设备编号会消失。如需解除禁止，请联系我们。</li></ul>
+<h2>5. 广告</h2>
 <p>本服务会显示广告。安卓 App 使用 Google LLC 的 Google AdMob，网页版和 PC 版使用忍者工具株式会社（Ninja Tools Inc.）的忍者 AdMax。这些服务可能会为了投放广告、衡量效果和防止作弊，使用 Cookie、广告 ID、设备或浏览器信息、大致位置（根据 IP 地址推测）等。第三方广告商可能会使用 Cookie，根据用户过去访问本服务或其他网站的情况投放广告。</p>
 <ul><li><a href="https://policies.google.com/technologies/partner-sites?hl=zh-CN">Google 如何使用来自使用其服务的网站或应用的信息</a></li>
 <li><a href="https://policies.google.com/privacy?hl=zh-CN">Google 隐私权政策</a></li><li><a href="https://www.shinobi.jp/etc/policy.html">忍者工具隐私政策（日语）</a></li></ul>
 <p>Google 的个性化广告可以在<a href="https://adssettings.google.com/">广告设置</a>中关闭（安卓也可以在设备的“设置 → Google → 广告”中更改）。在欧洲等需要征得同意的地区，会在显示广告前确认同意，之后也可以在“广告设置”中更改。</p>
-<h2>5. 适用年龄</h2><p>本服务面向 13 岁及以上的用户。</p>
-<h2>6. 修订</h2><p>本政策会根据需要进行修订。修订后的内容自发布在本页面时起生效。</p>
-<h2>7. 联系我们</h2><p>请发送到<a href="{contact}">这里（GitHub）</a>。</p>
-<p class="muted">制定日期：2026 年 11 月 3 日</p>''',
+<h2>6. 适用年龄</h2><p>本服务面向 13 岁及以上的用户。</p>
+<h2>7. 修订</h2><p>本政策会根据需要进行修订。修订后的内容自发布在本页面时起生效。</p>
+<h2>8. 联系我们</h2><p>请发送到<a href="{contact}">这里（GitHub）</a>。</p>
+<p class="muted">制定日期：2026 年 11 月 3 日／修订日期：2026 年 11 月 4 日</p>''',
     },
 }

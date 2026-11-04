@@ -12,6 +12,10 @@ val testAppId = "ca-app-pub-3940256099942544~3347511713"
 val testBanner = "ca-app-pub-3940256099942544/9214589741"
 val testInterstitial = "ca-app-pub-3940256099942544/1033173712"
 val realAppId: String? = ads.getProperty("admob.appId")
+// 管理者アプリ（gradle assembleRelease -Padmin）。秘密鍵は admin.properties（リポジトリには入れない）から読んでアプリに入れる
+val adminBuild = project.hasProperty("admin")
+val adminKey: String = if (adminBuild) (props("admin.properties").getProperty("adminKey")
+    ?: throw GradleException("admin.properties に adminKey がありません")) else ""
 fun q(v: String) = "\"$v\""
 
 plugins {
@@ -30,14 +34,25 @@ android {
         applicationId = "com.zen.partygame"
         minSdk = 26
         targetSdk = 36
-        versionCode = 15
-        versionName = "0.10.0"
+        versionCode = 16
+        versionName = "0.11.0"
 
         // ↓ ウェブ版（iPhone・PC 用）を公開した URL。入れると「招待を送る」の文に載る
         val web = ads.getProperty("site.url") ?: ads.getProperty("site.domain")?.let { "https://$it/" } ?: "https://0818134y-rgb.github.io/-/"
         buildConfigField("String", "WEB_URL", q(web))
         // ↓ プライバシーポリシー（ウェブ版と同じ場所に置いてある）
         buildConfigField("String", "PRIVACY_URL", q(web + "privacy.html"))
+
+        // 管理者アプリは別のアプリとして入る（ふつうのわちゃパと並べて置ける）。広告は出さない
+        buildConfigField("boolean", "ADMIN", adminBuild.toString())
+        buildConfigField("String", "ADMIN_KEY", q(adminKey))
+        if (adminBuild) {
+            applicationIdSuffix = ".admin"
+            versionNameSuffix = "-admin"
+            resValue("string", "app_name", "わちゃパ管理")
+        } else {
+            resValue("string", "app_name", "わちゃパ")
+        }
     }
 
     signingConfigs {
@@ -87,7 +102,7 @@ kotlin {
 // 本物の広告IDが入っていない公開版は作らない（-PallowTestAds で試しに作るときだけ通す）
 tasks.matching { it.name == "preReleaseBuild" }.configureEach {
     doFirst {
-        if (realAppId == null && !project.hasProperty("allowTestAds"))
+        if (realAppId == null && !project.hasProperty("allowTestAds") && !adminBuild)
             throw GradleException("monetization.properties に AdMob の本物の広告IDがありません（MONETIZE.md を参照）")
     }
 }

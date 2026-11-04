@@ -652,5 +652,11 @@
 "答え（小さい順）": "Answers (lowest first)",
 "ヒントを書いてね": "Write a hint first",
 "ものさし": "Line Up",
-"今回のお題": "Topic"
+"今回のお題": "Topic",
+"この端末はオンラインの部屋を作れません": "This device can't create online rooms",
+"管理者により退出させられました": "You were removed by an administrator",
+"🛡 {0}さんは管理者により退出させられました": "🛡 {0} was removed by an administrator",
+"🛡 管理者：{0}": "🛡 Admin: {0}",
+"管理者が部屋を閉じました": "An administrator closed this room",
+"🛡 管理者が部屋の様子を確認しています": "🛡 An administrator is checking on this room"
 }

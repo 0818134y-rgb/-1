@@ -7,7 +7,7 @@
  * 出てくるできごと：
  *   {ev:'hosting'}                       部屋を開いた
  *   {ev:'taken'}                         その部屋コードは使われていた（別のコードで開き直す）
- *   {ev:'join', id, name, proto}         ホスト：参加の申し込み（accept / reject で答える）
+ *   {ev:'join', id, name, proto, did, admin} ホスト：参加の申し込み（accept / reject で答える）。did = 端末番号、admin = 管理者の署名 {ts, nonce, sig}
  *   {ev:'connected', id}                 つながった（参加者側の id は 'host'）
  *   {ev:'failed', reason}                参加できなかった（notfound / rejected / network）
  *   {ev:'data', id, text}                データが届いた
@@ -70,7 +70,8 @@
       c.on('open', function () {
         track(id, c);
         const m = c.metadata || {};
-        emit({ ev: 'join', id: id, name: String(m.name || 'ゲスト').slice(0, 10), proto: Number(m.proto || -1) });
+        const a = m.admin && typeof m.admin === 'object' ? { ts: Number(m.admin.ts) || 0, nonce: String(m.admin.nonce || '').slice(0, 64), sig: String(m.admin.sig || '').slice(0, 200) } : null;
+        emit({ ev: 'join', id: id, name: String(m.name || 'ゲスト').slice(0, 10), proto: Number(m.proto || -1), did: String(m.did || '').slice(0, 64), admin: a });
       });
     });
     peer.on('disconnected', function () { if (peer && !peer.destroyed) setTimeout(function () { try { peer.reconnect(); } catch (e) {} }, 1500); });
@@ -89,15 +90,15 @@
     if (c) { try { c.send('__reject'); } catch (e) {} setTimeout(function () { drop(id, false); }, 400); }
   };
 
-  /** 部屋に入る（参加者） */
-  net.join = function (proto, code, name) {
+  /** 部屋に入る（参加者）。meta = 申し込みに付ける情報（端末番号・管理者の署名）、myId = 自分の接続ID（管理者が署名に入れる） */
+  net.join = function (proto, code, name, meta, myId) {
     net.stop(); isHost = false;
-    peer = new Peer(opts());
+    peer = myId ? new Peer(myId, opts()) : new Peer(opts());
     let done = false;
     function fail(reason) { if (done) return; done = true; emit({ ev: 'failed', reason: reason }); net.stop(); }
     joinTimer = setTimeout(function () { fail('network'); }, 20000);
     peer.on('open', function () {
-      const c = peer.connect(peerId(proto, code), { reliable: true, metadata: { name: name, proto: proto } });
+      const c = peer.connect(peerId(proto, code), { reliable: true, metadata: Object.assign({}, meta || {}, { name: name, proto: proto }) });
       c.on('open', function () {
         if (done) return; done = true; clearTimeout(joinTimer);
         track('host', c); startPing(); emit({ ev: 'connected', id: 'host' });

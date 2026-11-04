@@ -27,7 +27,7 @@ sealed interface NetEvent {
     data class RoomFound(val room: RoomInfo) : NetEvent
     data class RoomLost(val endpointId: String) : NetEvent
     /** ホスト側：参加の申し込みが来た（受けるか断るかは呼び出し側が決める） */
-    data class JoinRequest(val endpointId: String, val name: String, val proto: Int) : NetEvent
+    data class JoinRequest(val endpointId: String, val name: String, val proto: Int, val did: String = "", val admin: AdminProof? = null) : NetEvent
     data class Connected(val endpointId: String) : NetEvent
     data class ConnectFailed(val endpointId: String, val rejected: Boolean) : NetEvent
     data class Disconnected(val endpointId: String) : NetEvent
@@ -46,7 +46,8 @@ interface Link {
     fun accept(endpointId: String)
     fun reject(endpointId: String)
     /** 近く：部屋の endpointId に、オンライン：部屋コードに申し込む */
-    fun requestJoin(endpointId: String, myName: String)
+    /** meta = 申し込みに付ける情報（JSON。端末番号・管理者の署名）、myId = 自分の接続ID（オンラインの管理者だけ使う） */
+    fun requestJoin(endpointId: String, myName: String, meta: String = "{}", myId: String? = null)
     fun send(endpointIds: List<String>, bytes: ByteArray)
     fun disconnect(endpointId: String)
     fun stopAll()
@@ -130,7 +131,7 @@ class NearbyLink(context: Context) : Link {
 
     fun stopDiscovery() = client.stopDiscovery()
 
-    override fun requestJoin(endpointId: String, myName: String) {
+    override fun requestJoin(endpointId: String, myName: String, meta: String, myId: String?) {
         client.requestConnection("${PREFIX}|${PROTO}|${myName}", endpointId, lifecycle)
             .addOnFailureListener { _events.tryEmit(NetEvent.ConnectFailed(endpointId, false)) }
     }

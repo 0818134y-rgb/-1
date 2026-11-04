@@ -1,0 +1,7 @@
+#keys keys_v6.json
+345	This device can't create online rooms	이 기기에서는 온라인 방을 만들 수 없어요	这台设备无法创建在线房间
+353	You were removed by an administrator	관리자에 의해 퇴장되었어요	你已被管理员移出房间
+354	🛡 {0} was removed by an administrator	🛡 {0}님이 관리자에 의해 퇴장되었어요	🛡 {0} 已被管理员移出房间
+355	🛡 Admin: {0}	🛡 관리자: {0}	🛡 管理员：{0}
+356	An administrator closed this room	관리자가 방을 닫았어요	管理员关闭了房间
+357	🛡 An administrator is checking on this room	🛡 관리자가 방 상황을 확인하고 있어요	🛡 管理员正在查看房间情况

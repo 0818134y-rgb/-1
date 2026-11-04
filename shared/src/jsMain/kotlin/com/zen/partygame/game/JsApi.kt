@@ -2,6 +2,7 @@
 
 package com.zen.partygame.game
 
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -34,10 +35,29 @@ class JsHost(roomCode: String, topicsJson: String) {
     fun viewJson(id: String): String = WireJson.encodeToString(PlayerView.serializer(), engine.viewFor(id))
     fun playerIds(): Array<String> = engine.players.map { it.id }.toTypedArray()
     fun canJoin(): Boolean = engine.inLobby && engine.players.size < engine.maxPlayers
+    /** 管理者アプリに送る部屋の様子（HostMsg の JSON）。devicesJson = {"id":"ハッシュ"}、bannedJson = ["ハッシュ"] */
+    fun adminViewMsg(watching: String, devicesJson: String, bannedJson: String): String {
+        val devices = runCatching { WireJson.decodeFromString<Map<String, String>>(devicesJson) }.getOrDefault(emptyMap())
+        val banned = runCatching { WireJson.decodeFromString<List<String>>(bannedJson) }.getOrDefault(emptyList())
+        val room = Admin.room(engine, engine.hostId ?: "h", watching, devices, banned, "web")
+        return WireJson.encodeToString(HostMsg.serializer(), HostMsg.AdminViewMsg(room))
+    }
+    /** 管理者：今の場面を締め切って次へ */
+    fun adminSkip(): Boolean = Admin.skip(engine, engine.hostId ?: "h")
+    /** 管理者：ロビーへ戻す */
+    fun adminLobby(): Boolean = engine.apply(engine.hostId ?: "h", Intent.BackToLobby)
     fun preferArena() { engine.hostId?.let { engine.apply(it, Intent.UpdateSettings(engine.settings.copy(game = GameType.ARENA))) } }
 }
 
 @JsExport fun protoVersion(): Int = PROTO
+
+/** 管理者の確認に使う値（公開鍵・参加禁止リストの場所・署名の有効時間） */
+@JsExport fun adminConfigJson(): String = buildJsonObject {
+    put("publicKey", Admin.PUBLIC_KEY); put("bansUrl", Admin.BANS_URL); put("windowMs", Admin.SIG_WINDOW_MS); put("name", Admin.NAME)
+}.toString()
+
+/** 管理者の署名する文 */
+@JsExport fun adminMessage(roomCode: String, peerId: String, ts: Double, nonce: String): String = Admin.message(roomCode, peerId, ts.toLong(), nonce)
 
 /** 前の画面（JSON、無ければ空）と次の画面（JSON）から、鳴らす効果音の名前 */
 @JsExport fun sfxCues(prevJson: String, nextJson: String): Array<String> = runCatching {

@@ -41,6 +41,7 @@ class AdController(context: Context) {
 
     /** 起動時に呼ぶ */
     fun init(activity: Activity) {
+        if (BuildConfig.ADMIN) return   // 管理者アプリには広告を出さない（自分の広告を見たり押したりしないように）
         val params = ConsentRequestParameters.Builder().build()
         consent.requestConsentInfoUpdate(activity, params, {
             UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) {
@@ -88,6 +89,7 @@ class AdController(context: Context) {
 
     /** 広告を出す。閉じた・出せなかった・無かった、のいずれでも [onDone] を1回だけ呼ぶ */
     fun show(activity: Activity, onDone: () -> Unit) {
+        if (BuildConfig.ADMIN) { onDone(); return }
         val current = ad?.takeIf { !expired() }
         ad = null
         if (current == null) { onDone(); preload(); return }

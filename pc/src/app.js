@@ -168,6 +168,8 @@
     view: null, receivedAt: 0,
     host: null,                 // JsHost（自分がホストのとき）
     connected: new Set(), pendingNames: new Map(), lastVersion: -1,
+    // 管理者・荒らし対策（ホスト側）
+    admins: new Map(), pendingAdmins: new Set(), devices: new Map(), pendingDevices: new Map(), sessionBans: new Set(),
     tickTimer: null,
     ui: {},                     // 画面だけの状態（選んだカード・のぞき見など）
   };
@@ -183,6 +185,82 @@
   function fmt(ms) { const s = Math.ceil(Math.max(0, ms) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
   function remaining() { const v = S.view; if (!v || v.remainingMs == null) return null; return v.remainingMs - (performance.now() - S.receivedAt); }
 
+  // ================= 荒らし対策（端末番号・参加禁止リスト・管理者の署名） =================
+
+  const ADM = JSON.parse(G.adminConfigJson());
+  const DID = (function () {
+    let d = load('pg.did', '');
+    if (!d) { d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2) + String(Date.now()); save('pg.did', d); }
+    return d;
+  })();
+  let BANS = { bans: [] }, bansAt = 0, MY_DEVICE = '';
+  function sha256hex(text) {
+    if (!(window.crypto && crypto.subtle) || !text) return Promise.resolve('');
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (b) {
+      return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+    }).catch(function () { return ''; });
+  }
+  sha256hex(DID).then(function (h) { MY_DEVICE = h; });
+  function refreshBans(force) {
+    if (!force && Date.now() - bansAt < 5 * 60000) return Promise.resolve();
+    bansAt = Date.now();
+    return fetch(ADM.bansUrl + '?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j && Array.isArray(j.bans)) BANS = j; }).catch(function () {});
+  }
+  refreshBans(true);
+  function isBanned(h) { return !!h && (S.sessionBans.has(h) || BANS.bans.some(function (b) { return b.h === h; })); }
+  function b64bytes(b64) { const s = atob(b64); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+  /** 管理者の署名を確かめる（ECDSA P-256 / SHA-256） */
+  function verifyAdmin(code, peerId, a) {
+    if (!a || !(window.crypto && crypto.subtle) || Math.abs(Date.now() - a.ts) > ADM.windowMs) return Promise.resolve(false);
+    return crypto.subtle.importKey('spki', b64bytes(ADM.publicKey), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify'])
+      .then(function (key) { return crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, b64bytes(a.sig), new TextEncoder().encode(G.adminMessage(code, peerId, a.ts, a.nonce))); })
+      .catch(function () { return false; });
+  }
+  function sendAdminView(id) {
+    const h = S.host; if (!h) return;
+    const dev = {}; S.devices.forEach(function (v, k) { dev[k] = v; });
+    PgNet.send([id], h.adminViewMsg(S.admins.get(id) || '', JSON.stringify(dev), JSON.stringify(Array.from(S.sessionBans))));
+  }
+  function notice(text, args) {
+    const json = JSON.stringify({ t: 'notice', text: text, args: args || [] });
+    PgNet.send(Array.from(S.connected), json);
+    toast(T.apply(null, [text].concat(args || [])));
+  }
+  function handleAdmin(from, op) {
+    const h = S.host; if (!h || !op || op.t !== 'adminOp') return;
+    switch (op.op) {
+      case 'kick': case 'ban': {
+        const t = op.target;
+        if (op.op === 'ban' && S.devices.get(t)) S.sessionBans.add(S.devices.get(t));
+        if (t === HOST_ID) { closeByAdmin(); return; }
+        const who = nameOf(t); if (h.playerIds().indexOf(t) < 0) break;
+        if (S.connected.delete(t)) {
+          PgNet.send([t], JSON.stringify({ t: 'bye', reason: T('管理者により退出させられました') }));
+          setTimeout(function () { PgNet.disconnect(t); }, 500);
+        }
+        h.leave(t);
+        notice('🛡 {0}さんは管理者により退出させられました', [who]);
+        publish(true);
+        break;
+      }
+      case 'close': closeByAdmin(); return;
+      case 'lobby': if (h.adminLobby()) publish(); break;
+      case 'next': if (h.adminSkip()) publish(); break;
+      case 'notice': { const t = String(op.text || '').trim().replace(/\n/g, ' ').slice(0, 100); if (t) notice('🛡 管理者：{0}', [t]); break; }
+      case 'watch': S.admins.set(from, String(op.target || '')); break;
+      case 'unban': S.sessionBans.delete(String(op.target || '')); break;
+    }
+    if (S.admins.has(from)) sendAdminView(from);
+  }
+  function closeByAdmin() {
+    const all = Array.from(S.connected).concat(Array.from(S.admins.keys()));
+    PgNet.send(all, JSON.stringify({ t: 'bye', reason: T('管理者が部屋を閉じました') }));
+    setTimeout(function () { resetNet(); }, 300);
+    S.host = null; S.view = null; S.page = 'title'; S.busy = false;
+    closeModal(); render(); toast(T('管理者が部屋を閉じました'));
+  }
+
   // ================= 通信 =================
 
   function send(intent) {
@@ -192,13 +270,15 @@
   }
 
   function hostRoom() {
+    if (MY_DEVICE && BANS.bans.some(function (b) { return b.h === MY_DEVICE; })) { toast(T('この端末はオンラインの部屋を作れません')); return; }
     resetNet();
     const code = String(100000 + Math.floor(Math.random() * 900000));
     S.host = new G.JsHost(code, (window.TOPICS_BY_LANG || {})[LANG] || window.TOPICS_JSON);
     S.host.join(HOST_ID, S.name, true);
     S.host.preferArena();
     PgNet.host(PROTO, code, S.name);
-    S.tickTimer = setInterval(function () { if (S.host && S.host.tick()) publish(); }, 250);
+    S.devices.set(HOST_ID, MY_DEVICE);
+    S.tickTimer = setInterval(function () { if (S.host && S.host.tick()) publish(); refreshBans(false); }, 250);
     S.page = 'room'; publish(true);
   }
 
@@ -207,7 +287,7 @@
     if (code.length !== 6) { toast(T('部屋コードは6けたの数字です')); return; }
     S.code = code; save('pg.code', code);
     resetNet(); S.busy = true; S.page = 'join'; render();
-    PgNet.join(PROTO, code, S.name || T('ゲスト'));
+    PgNet.join(PROTO, code, S.name || T('ゲスト'), { did: DID });
   }
 
   function leave() {
@@ -224,6 +304,7 @@
     if (S.tickTimer) clearInterval(S.tickTimer); S.tickTimer = null;
     PgNet.stop();
     S.connected.clear(); S.pendingNames.clear(); S.lastVersion = -1;
+    S.admins.clear(); S.pendingAdmins.clear(); S.devices.clear(); S.pendingDevices.clear(); S.sessionBans.clear();
   }
 
   /** ホスト：状態が変わっていれば自分の画面と全員に送る */
@@ -241,6 +322,7 @@
         setTimeout(function () { PgNet.disconnect(id); }, 500);
       }
     });
+    S.admins.forEach(function (_, id) { sendAdminView(id); });
   }
 
   function setView(v) {
@@ -262,21 +344,40 @@
   function onHostNet(e) {
     const h = S.host;
     switch (e.ev) {
-      case 'join':
-        if (e.proto !== PROTO || !h.canJoin()) PgNet.reject(e.id);
-        else { S.pendingNames.set(e.id, e.name); PgNet.accept(e.id); }
+      case 'join': {
+        if (e.proto !== PROTO) { PgNet.reject(e.id); break; }
+        const code = S.view && S.view.roomCode;
+        Promise.all([e.admin ? verifyAdmin(code, e.id, e.admin) : Promise.resolve(false), sha256hex(e.did)]).then(function (r) {
+          if (S.host !== h) return;
+          if (r[0]) { S.pendingAdmins.add(e.id); PgNet.accept(e.id); return; }        // 管理者：ゲーム中・満員でも入れる
+          if (e.admin) { PgNet.reject(e.id); return; }                                   // 署名がおかしい「管理者」は入れない
+          if (isBanned(r[1]) || !h.canJoin()) { PgNet.reject(e.id); return; }         // 参加禁止の端末・ゲーム中・満員
+          S.pendingNames.set(e.id, e.name); S.pendingDevices.set(e.id, r[1]); PgNet.accept(e.id);
+        });
         break;
+      }
       case 'connected': {
+        if (S.pendingAdmins.delete(e.id)) {
+          S.admins.set(e.id, '');
+          notice('🛡 管理者が部屋の様子を確認しています');
+          sendAdminView(e.id);
+          break;
+        }
+        if (S.pendingDevices.has(e.id)) { S.devices.set(e.id, S.pendingDevices.get(e.id)); S.pendingDevices.delete(e.id); }
         const n = S.pendingNames.get(e.id) || T('ゲスト'); S.pendingNames.delete(e.id);
         if (h.join(e.id, n, false) === 'ok') { S.connected.add(e.id); publish(true); }
         else { PgNet.send([e.id], JSON.stringify({ t: 'bye', reason: T('ゲーム中のため参加できませんでした') })); setTimeout(function () { PgNet.disconnect(e.id); }, 500); }
         break;
       }
-      case 'data':
+      case 'data': {
+        if (S.admins.has(e.id)) { let op = null; try { op = JSON.parse(e.text); } catch (err) {} handleAdmin(e.id, op); break; }
+        if (e.text.indexOf('"adminOp"') >= 0) break;   // 管理者でない人の管理者操作は無視
         if (S.connected.has(e.id) && h.apply(e.id, e.text)) publish();
         break;
+      }
       case 'closed':
-        S.pendingNames.delete(e.id);
+        S.pendingNames.delete(e.id); S.pendingAdmins.delete(e.id); S.pendingDevices.delete(e.id);
+        if (S.admins.delete(e.id)) break;
         if (S.connected.delete(e.id)) {
           const who = nameOf(e.id);
           h.leave(e.id); publish();
@@ -300,6 +401,7 @@
         let m = null; try { m = JSON.parse(e.text); } catch (err) { return; }
         if (m.t === 'view') { S.busy = false; setView(m.view); }
         else if (m.t === 'bye') { resetNet(); S.view = null; S.page = 'title'; closeModal(); render(); toast(m.reason); }
+        else if (m.t === 'notice') toast(T.apply(null, [String(m.text || '')].concat(m.args || [])));
         break;
       }
       case 'closed':

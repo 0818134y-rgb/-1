@@ -28,6 +28,7 @@ import com.zen.partygame.ui.Ui
 
 class MainActivity : ComponentActivity() {
     private val vm: AppViewModel by viewModels()
+    private val admin: com.zen.partygame.ui.AdminViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,12 +41,14 @@ class MainActivity : ComponentActivity() {
                 val ui by vm.ui.collectAsState()
                 val snack = remember { SnackbarHostState() }
                 LaunchedEffect(Unit) { vm.messages.collect { snack.showSnackbar(it) } }
+                if (BuildConfig.ADMIN) LaunchedEffect(Unit) { admin.messages.collect { snack.showSnackbar(it) } }
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,
                     snackbarHost = { SnackbarHost(snack) },
                 ) { pad ->
                     Box(Modifier.fillMaxSize().padding(pad)) {
-                        when (val s = ui) {
+                        if (BuildConfig.ADMIN) com.zen.partygame.ui.AdminApp(admin, vm)
+                        else when (val s = ui) {
                             Ui.Title -> TitleScreen(vm)
                             Ui.LocalSetup -> LocalSetupScreen(vm)
                             is Ui.Finding -> FindingScreen(vm, s)

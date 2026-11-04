@@ -12,3 +12,4 @@ keystore.properties
 tools/bgm_wav/
 tools/sfx_wav/
 __pycache__/
+admin.properties

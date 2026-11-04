@@ -130,6 +130,7 @@ val LocalAdsReady = androidx.compose.runtime.compositionLocalOf { false }
 /** 画面下のバナー広告（ロビーと結果画面だけ） */
 @Composable
 fun AdBanner(modifier: Modifier = Modifier) {
+    if (com.zen.partygame.BuildConfig.ADMIN) return
     if (!LocalAdsEnabled.current) {
         Box(modifier.fillMaxWidth().height(60.dp).background(androidx.compose.ui.graphics.Color(0xFF3A3A3A)), contentAlignment = Alignment.Center) { Caption(tr("（バナー広告）")) }
         return

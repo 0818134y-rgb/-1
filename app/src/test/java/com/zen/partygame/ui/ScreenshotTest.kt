@@ -57,11 +57,14 @@ class ScreenshotTest {
         vm.setName("ゆうき")
         vm.setLang("ja")
         var content by mutableStateOf<Ui>(Ui.Title)
+        var adminShot by mutableStateOf(false)
+        val adminVm = AdminViewModel(ApplicationProvider.getApplicationContext())
         rule.setContent {
             CompositionLocalProvider(LocalAdsEnabled provides false) {
                 PartyTheme {
                     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                        when (val s = content) {
+                        if (adminShot) AdminApp(adminVm, vm)
+                        else when (val s = content) {
                             Ui.Title -> TitleScreen(vm)
                             Ui.LocalSetup -> LocalSetupScreen(vm)
                             is Ui.Finding -> FindingScreen(vm, s)
@@ -243,6 +246,14 @@ class ScreenshotTest {
             shot("${lang}_04_arena", room(ar.also { it.apply("h", Intent.UpdateSettings(Settings(game = GameType.ARENA))); it.apply("h", Intent.Start) }, "h"))
         }
         vm.setLang("ja")
+        // --- 管理者アプリ ---
+        val ae = engine(settings = Settings(game = GameType.SCALE)); ae.apply("h", Intent.Start)
+        val room = com.zen.partygame.game.Admin.room(ae, "h", "p1", ae.players.associate { it.id to it.id.hashCode().toString(16).padStart(12, '0') }, listOf("ab12cd34ef56aa"), "web")
+        adminShot = true
+        adminVm.showForTest(AdminUi.Home); shot("50_admin_home", Ui.Title)
+        adminVm.showForTest(AdminUi.Room(room)); shot("51_admin_room", Ui.Title)
+        adminVm.showForTest(AdminUi.Bans, com.zen.partygame.game.BanList(bans = listOf(com.zen.partygame.game.BanEntry("ab12cd34ef56".repeat(5) + "abcd", "2026-11-04")))); shot("52_admin_bans", Ui.Title)
+        adminShot = false
         vm.setOnline(false)
         val local = engine(local = true)
         local.apply("h", Intent.Start)

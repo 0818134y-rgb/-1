@@ -1,5 +1,8 @@
 package com.zen.partygame.ui
 
+import com.zen.partygame.game.Admin
+import com.zen.partygame.net.Guard
+import kotlinx.coroutines.Dispatchers
 import com.zen.partygame.game.Bgm
 import com.zen.partygame.game.Sfx
 import com.zen.partygame.game.GameType
@@ -73,11 +76,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val online = MutableStateFlow(prefs.getBoolean("online", false))
     /** 効果音のオン/オフ */
     val sound = MutableStateFlow(prefs.getBoolean("sound", true))
-    init { Sound.init(app); Sound.enabled = sound.value }
+    init {
+        Sound.init(app); Sound.enabled = sound.value && !com.zen.partygame.BuildConfig.ADMIN
+        viewModelScope.launch(Dispatchers.IO) { Guard.refreshBans(force = true) }   // 参加禁止リスト（自分が入っていればオンラインの部屋は作れない）
+    }
     /** BGM のオン/オフ */
     val music = MutableStateFlow(prefs.getBoolean("music", true))
     init {
-        Music.init(app); Music.enabled = music.value
+        Music.init(app); Music.enabled = music.value && !com.zen.partygame.BuildConfig.ADMIN
         // 画面に合わせて曲を変える（部屋の外はタイトルの曲）
         viewModelScope.launch { _ui.collect { u -> Music.play(Bgm.track((u as? Ui.Room)?.view)) } }
     }
@@ -94,6 +100,17 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     // ホスト側
     private val pendingNames = mutableMapOf<String, String>()
     private val connected = linkedSetOf<String>()
+    // 管理者・荒らし対策（ホスト側）
+    /** 管理者の接続 → 見ている参加者の id */
+    private val admins = linkedMapOf<String, String>()
+    private val pendingAdmins = mutableSetOf<String>()
+    /** 参加者 id → 端末番号のハッシュ */
+    private val devices = mutableMapOf<String, String>()
+    private val pendingDevices = mutableMapOf<String, String>()
+    /** この部屋で管理者が BAN した端末 */
+    private val sessionBans = linkedSetOf<String>()
+    private val myDevice by lazy { Guard.hash(Guard.deviceId(getApplication())) }
+    private var bansJob: Job? = null
     // 参加者側
     private var hostEndpoint: String? = null
     private val rooms = linkedMapOf<String, RoomInfo>()
@@ -133,14 +150,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun host() {
         reset()
         val isOnline = online.value
+        if (isOnline && Guard.bans.has(myDevice)) { say(tr("この端末はオンラインの部屋を作れません")); return }
         val code = if (isOnline) newOnlineCode() else newCode()
         val e = Engine(code, localMode = false, topics = topics(), rng = Random.Default) { SystemClock.elapsedRealtime() }
         e.join(HOST_ID, name.value, isHost = true)
         e.apply(HOST_ID, Intent.UpdateSettings(e.settings.copy(game = GameType.ARENA)))   // 一押しを最初から選んでおく
         engine = e
+        devices[HOST_ID] = myDevice
         val l = openLink(isOnline)
         l.startHosting(code, e.players.first().name)
         startTicking(); publish(force = true)
+        // 全部屋共通の参加禁止リストを読み、部屋を開いている間は5分ごとに読み直す
+        if (isOnline) bansJob = viewModelScope.launch(Dispatchers.IO) { while (isActive) { Guard.refreshBans(); delay(5 * 60_000L) } }
     }
 
     fun startLocal(names: List<String>) {
@@ -170,7 +191,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         lastCode.value = code; prefs.edit().putString("code", code).apply()
         reset()
         _ui.value = Ui.OnlineJoin(busy = true)
-        openLink(true).requestJoin(code, name.value.ifBlank { tr("ゲスト") })
+        val meta = kotlinx.serialization.json.buildJsonObject { put("did", kotlinx.serialization.json.JsonPrimitive(Guard.deviceId(getApplication()))) }.toString()
+        openLink(true).requestJoin(code, name.value.ifBlank { tr("ゲスト") }, meta)
     }
 
     /** 部屋コードをLINEなどで送る */
@@ -190,7 +212,21 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     // ================= 操作 =================
 
+    // ================= 管理者アプリ：参加者の画面を見るだけ =================
+
+    /** null でなければ「見るだけ」の状態。退出ボタンなどで呼ばれる */
+    var onWatchExit: (() -> Unit)? = null
+        private set
+
+    fun watch(view: PlayerView, onExit: () -> Unit) {
+        onWatchExit = onExit
+        _ui.value = Ui.Room(view, SystemClock.elapsedRealtime(), true)
+    }
+
+    fun stopWatching() { onWatchExit = null; _ui.value = Ui.Title }
+
     fun send(intent: Intent) {
+        if (onWatchExit != null) return
         val e = engine
         if (e != null) {
             if (e.apply(HOST_ID, intent)) publish()
@@ -201,6 +237,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun leave() {
+        onWatchExit?.let { it(); return }
         val e = engine; val l = link
         val sayBye = e != null && l != null && connected.isNotEmpty()
         if (sayBye) sendTo(connected.toList(), HostMsg.Bye(tr("ホストが部屋を閉じました")))
@@ -222,6 +259,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun reset(stopNow: Boolean = true) {
         tickJob?.cancel(); tickJob = null
+        bansJob?.cancel(); bansJob = null
+        admins.clear(); pendingAdmins.clear(); devices.clear(); pendingDevices.clear(); sessionBans.clear()
         linkJob?.cancel(); linkJob = null
         if (stopNow) link?.stopAll()
         link = null; engine = null; hostEndpoint = null; lastVersion = -1; lastView = null
@@ -254,6 +293,55 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 viewModelScope.launch { delay(500); l.disconnect(id) }
             }
         }
+        admins.keys.toList().forEach { sendAdminView(e, it) }
+    }
+
+    // ================= 管理者（ホスト側） =================
+
+    private fun sendAdminView(e: Engine, adminId: String) {
+        val room = Admin.room(e, HOST_ID, admins[adminId] ?: "", devices, sessionBans.toList(), "android")
+        sendTo(listOf(adminId), HostMsg.AdminViewMsg(room))
+    }
+
+    private fun handleAdmin(e: Engine, from: String, op: Intent.AdminOp) {
+        val l = link ?: return
+        when (op.op) {
+            Admin.Op.KICK, Admin.Op.BAN -> {
+                val t = op.target
+                if (op.op == Admin.Op.BAN) devices[t]?.takeIf { it.isNotEmpty() }?.let { sessionBans += it }
+                if (t == HOST_ID) { closeByAdmin(); return }
+                val who = e.players.firstOrNull { it.id == t }?.name ?: return
+                if (connected.remove(t)) {
+                    sendTo(listOf(t), HostMsg.Bye(tr("管理者により退出させられました")))
+                    viewModelScope.launch { delay(500); l.disconnect(t) }
+                }
+                e.leave(t)
+                sendTo(connected.toList(), HostMsg.Notice("🛡 {0}さんは管理者により退出させられました", listOf(who)))
+                say(tr("🛡 {0}さんは管理者により退出させられました", who))
+                publish(force = true)
+            }
+            Admin.Op.CLOSE -> closeByAdmin()
+            Admin.Op.LOBBY -> if (e.apply(HOST_ID, Intent.BackToLobby)) publish()
+            Admin.Op.NEXT -> if (Admin.skip(e, HOST_ID)) publish()
+            Admin.Op.NOTICE -> op.text.trim().replace("\n", " ").take(100).takeIf { it.isNotEmpty() }?.let {
+                sendTo(connected.toList(), HostMsg.Notice("🛡 管理者：{0}", listOf(it)))
+                say(tr("🛡 管理者：{0}", it))
+            }
+            Admin.Op.WATCH -> admins[from] = op.target
+            Admin.Op.UNBAN -> sessionBans.remove(op.target)
+        }
+        if (from in admins) sendAdminView(e, from)
+    }
+
+    /** 管理者が部屋を閉じる：全員を切って、ホストもタイトルへ */
+    private fun closeByAdmin() {
+        val l = link
+        val everyone = connected.toList() + admins.keys
+        sendTo(everyone, HostMsg.Bye(tr("管理者が部屋を閉じました")))
+        reset(stopNow = false)
+        viewModelScope.launch { delay(400); l?.stopAll() }
+        _ui.value = Ui.Title
+        say(tr("管理者が部屋を閉じました"))
     }
 
     private fun sendTo(ids: List<String>, msg: HostMsg) {
@@ -269,10 +357,27 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val l = link ?: return
         when (ev) {
             is NetEvent.JoinRequest -> {
-                if (ev.proto != PROTO || !e.inLobby || e.players.size >= e.maxPlayers) l.reject(ev.endpointId)
-                else { pendingNames[ev.endpointId] = ev.name; l.accept(ev.endpointId) }
+                val device = Guard.hash(ev.did)
+                when {
+                    ev.proto != PROTO -> l.reject(ev.endpointId)
+                    // 管理者（署名を確かめる）：ゲーム中・満員でも入れる
+                    ev.admin != null -> if (linkOnline && Guard.verifyAdmin(e.roomCode, ev.endpointId, ev.admin)) { pendingAdmins += ev.endpointId; l.accept(ev.endpointId) }
+                        else l.reject(ev.endpointId)   // 署名がおかしい「管理者」は入れない
+                    // 参加禁止の端末（この部屋で BAN された／全部屋共通のリストにある）
+                    device.isNotEmpty() && (device in sessionBans || Guard.bans.has(device)) -> l.reject(ev.endpointId)
+                    !e.inLobby || e.players.size >= e.maxPlayers -> l.reject(ev.endpointId)
+                    else -> { pendingNames[ev.endpointId] = ev.name; pendingDevices[ev.endpointId] = device; l.accept(ev.endpointId) }
+                }
             }
             is NetEvent.Connected -> {
+                if (pendingAdmins.remove(ev.endpointId)) {
+                    admins[ev.endpointId] = ""
+                    sendTo(connected.toList(), HostMsg.Notice("🛡 管理者が部屋の様子を確認しています"))
+                    say(tr("🛡 管理者が部屋の様子を確認しています"))
+                    sendAdminView(e, ev.endpointId)
+                    return
+                }
+                pendingDevices.remove(ev.endpointId)?.let { devices[ev.endpointId] = it }
                 val n = pendingNames.remove(ev.endpointId) ?: tr("ゲスト")
                 when (e.join(ev.endpointId, n)) {
                     is Engine.JoinResult.Ok -> { connected += ev.endpointId; publish(force = true) }
@@ -283,7 +388,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             is NetEvent.Disconnected -> {
-                pendingNames.remove(ev.endpointId)
+                pendingNames.remove(ev.endpointId); pendingAdmins.remove(ev.endpointId); pendingDevices.remove(ev.endpointId)
+                if (admins.remove(ev.endpointId) != null) return
                 if (connected.remove(ev.endpointId)) {
                     val who = e.players.firstOrNull { it.id == ev.endpointId }?.name
                     e.leave(ev.endpointId); publish()
@@ -291,10 +397,16 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             is NetEvent.Received -> {
+                if (ev.endpointId in admins) {
+                    val op = runCatching { WireJson.decodeFromString(Intent.serializer(), ev.bytes.decodeToString()) }.getOrNull()
+                    if (op is Intent.AdminOp) handleAdmin(e, ev.endpointId, op)
+                    return
+                }
                 if (ev.endpointId !in connected) return
                 val intent = runCatching {
                     WireJson.decodeFromString(Intent.serializer(), ev.bytes.decodeToString())
                 }.getOrNull() ?: return
+                if (intent is Intent.AdminOp) return   // 管理者でない人の管理者操作は無視
                 if (e.apply(ev.endpointId, intent)) publish()
             }
             is NetEvent.ConnectFailed -> pendingNames.remove(ev.endpointId)
@@ -324,7 +436,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 when (val msg = runCatching { WireJson.decodeFromString(HostMsg.serializer(), ev.bytes.decodeToString()) }.getOrNull()) {
                     is HostMsg.ViewMsg -> showRoom(msg.view)
                     is HostMsg.Bye -> { reset(); _ui.value = Ui.Title; say(msg.reason) }
-                    null -> Unit
+                    is HostMsg.Notice -> say(tr(msg.text, *msg.args.toTypedArray()))
+                    is HostMsg.AdminViewMsg, null -> Unit
                 }
             }
             is NetEvent.Disconnected -> if (ev.endpointId == hostEndpoint) {
