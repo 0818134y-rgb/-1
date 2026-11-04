@@ -34,6 +34,7 @@ class Engine(
         Q_VOTE, Q_REVEAL,
         ARENA, ARENA_RESULT,
         DRAW_TASK, DRAW_REVEAL,
+        SCALE_HINT, SCALE_PLAY, SCALE_RESULT,
         AD_BREAK,
     }
     private enum class AfterAd { NEXT_ROUND, LOBBY }
@@ -104,6 +105,21 @@ class Engine(
     private var revealShown = 1
     private var revealDone = false
 
+    // --- みんなのものさし ---
+    private class SCard(val uid: Int, val owner: String, val ownerName: String, val value: Int) {
+        var hint = ""
+        var state = ScaleState.HELD
+        var order = 0
+        fun view(showValue: Boolean) = ScaleCard(uid, owner, ownerName, hint, if (showValue) value else null, state, order)
+    }
+    private var scaleTopic = ScaleTopic("", "", "")
+    private val scaleCards = mutableListOf<SCard>()
+    private var scaleLives = SCALE_LIVES
+    private var scaleOrder = 0
+    private var scaleLastMiss = listOf<Int>()
+    private var scaleStreak = 0
+    private var scaleCleared = false
+
     // --- 広告 ---
     private var lastAdAt = now()
     private var roundsSinceAd = 0
@@ -148,7 +164,15 @@ class Engine(
         changed()
         when (phase) {
             Phase.LOBBY, Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT,
-            Phase.DRAW_REVEAL -> Unit
+            Phase.DRAW_REVEAL, Phase.SCALE_RESULT -> Unit
+            Phase.SCALE_HINT, Phase.SCALE_PLAY -> {
+                scaleCards.removeAll { it.owner == id && it.state == ScaleState.HELD }
+                when {
+                    players.size < 2 -> toLobby()
+                    phase == Phase.SCALE_HINT && scaleCards.all { it.hint.isNotEmpty() } -> startScalePlay()
+                    phase == Phase.SCALE_PLAY && scaleCards.none { it.state == ScaleState.HELD } -> finishScale(true)
+                }
+            }
             Phase.DRAW_TASK -> if (players.size < 2) toLobby() else { fillMissing(onlyGone = true); if (drawSubs.keys.containsAll(drawOrder)) nextDrawStep() }
             Phase.ARENA -> { arena?.forfeit(id); syncArena() }
             Phase.AD_BREAK -> if (adPending.isEmpty()) finishAdBreak()
@@ -194,7 +218,7 @@ class Engine(
             }
             is Intent.Kick -> if (isHost && phase == Phase.LOBBY && intent.target != from) leave(intent.target)
             Intent.Start -> if (isHost && phase == Phase.LOBBY) {
-                scores.clear(); askerTurn = -1; startRound()
+                scores.clear(); askerTurn = -1; scaleStreak = 0; startRound()
             }
 
             // --- ワードウルフ／スパイ ---
@@ -281,6 +305,18 @@ class Engine(
                 if (drawSubs.keys.containsAll(drawOrder)) nextDrawStep()
             }
 
+            // --- みんなのものさし ---
+            is Intent.ScaleHint -> if (phase == Phase.SCALE_HINT || phase == Phase.SCALE_PLAY) {
+                val c = scaleCards.firstOrNull { it.uid == intent.uid && it.owner == from && it.state == ScaleState.HELD }
+                val text = intent.text.trim().replace("\n", " ").take(MAX_SCALE_HINT_LEN)
+                if (c != null && text.isNotEmpty() && c.hint != text) {
+                    c.hint = text; changed()
+                    if (phase == Phase.SCALE_HINT && scaleCards.all { it.hint.isNotEmpty() }) startScalePlay()
+                }
+            }
+            Intent.ScaleBegin -> if (isHost && phase == Phase.SCALE_HINT) startScalePlay()
+            Intent.ScalePlay -> if (phase == Phase.SCALE_PLAY) playScale(from)
+
             // --- 共通 ---
             Intent.Next -> if (isHost && phase == Phase.DRAW_REVEAL && !revealDone) {
                 drawRevealNext()
@@ -297,7 +333,8 @@ class Engine(
         return version != before
     }
 
-    private fun isResult() = phase in setOf(Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT) ||
+    private fun isResult() = phase in setOf(Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT,
+        Phase.SCALE_RESULT) ||
         (phase == Phase.DRAW_REVEAL && revealDone)
 
     /** 時間切れの処理。@return 状態が変わったら true */
@@ -335,6 +372,7 @@ class Engine(
             GameType.QUESTION -> startQ()
             GameType.ARENA -> startArena()
             GameType.DRAW -> startDraw()
+            GameType.SCALE -> startScale()
         }
     }
 
@@ -580,6 +618,65 @@ class Engine(
         )
     }
 
+    // --- みんなのものさし ---
+
+    /** 1人に配る枚数（自動なら、少ない人数ほど多く） */
+    private fun scalePerPlayer(n: Int) = settings.scaleCards.takeIf { it > 0 } ?: when {
+        n <= 2 -> 3
+        n == 3 -> 2
+        else -> 1
+    }
+
+    private fun startScale() {
+        scaleTopic = topics.drawScale(rng)
+        val per = scalePerPlayer(players.size)
+        val nums = (1..100).shuffled(rng).take(players.size * per)
+        scaleCards.clear()
+        var uid = 0
+        players.forEachIndexed { i, p ->
+            nums.subList(i * per, (i + 1) * per).sorted().forEach { v -> scaleCards += SCard(uid++, p.id, p.name, v) }
+        }
+        scaleLives = SCALE_LIVES; scaleOrder = 0; scaleLastMiss = emptyList(); scaleCleared = false
+        phase = Phase.SCALE_HINT; deadline = null; changed()
+    }
+
+    private fun startScalePlay() {
+        phase = Phase.SCALE_PLAY; deadline = null; changed()
+    }
+
+    /** from の一番小さい数字を出す。まだ誰かの手元にもっと小さい数字があればミス（ライフ -1、その数字は捨てる） */
+    private fun playScale(from: String) {
+        val c = scaleCards.filter { it.owner == from && it.state == ScaleState.HELD }.minByOrNull { it.value } ?: return
+        c.state = ScaleState.PLAYED; c.order = ++scaleOrder
+        val lower = scaleCards.filter { it.state == ScaleState.HELD && it.value < c.value }
+        lower.forEach { it.state = ScaleState.MISSED }
+        scaleLastMiss = lower.map { it.uid }
+        if (lower.isNotEmpty()) scaleLives--
+        changed()
+        when {
+            scaleLives <= 0 -> finishScale(false)
+            scaleCards.none { it.state == ScaleState.HELD } -> finishScale(true)
+        }
+    }
+
+    private fun finishScale(cleared: Boolean) {
+        scaleCleared = cleared && scaleLives > 0
+        scaleStreak = if (scaleCleared) scaleStreak + 1 else 0
+        roundsSinceAd++
+        phase = Phase.SCALE_RESULT; deadline = null; changed()
+    }
+
+    private fun scaleView(id: String) = Screen.Scale(
+        topic = scaleTopic, playing = phase == Phase.SCALE_PLAY, lives = scaleLives, maxLives = SCALE_LIVES,
+        cards = scaleCards.map { it.view(showValue = it.owner == id || it.state != ScaleState.HELD) },
+        lastMiss = scaleLastMiss, streak = scaleStreak,
+    )
+
+    private fun scaleResultView() = Screen.ScaleResult(
+        topic = scaleTopic, cleared = scaleCleared, lives = scaleLives.coerceAtLeast(0), maxLives = SCALE_LIVES,
+        cards = scaleCards.sortedBy { it.value }.map { it.view(showValue = true) }, streak = scaleStreak,
+    )
+
     // ================= 広告休憩 =================
 
     private fun adDue() = roundsSinceAd >= 1 && now() - lastAdAt >= AD_MIN_INTERVAL_MS
@@ -628,6 +725,8 @@ class Engine(
             Phase.ARENA, Phase.ARENA_RESULT -> arena!!.view(id)
             Phase.DRAW_TASK -> drawTaskFor(id)
             Phase.DRAW_REVEAL -> drawRevealView()
+            Phase.SCALE_HINT, Phase.SCALE_PLAY -> scaleView(id)
+            Phase.SCALE_RESULT -> scaleResultView()
             Phase.AD_BREAK -> Screen.AdBreak(breakId)
         }
         return PlayerView(

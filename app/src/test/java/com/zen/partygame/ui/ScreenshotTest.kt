@@ -210,6 +210,26 @@ class ScreenshotTest {
         repeat(2) { dr.apply("h", Intent.Next) }
         shot("40_draw_reveal", room(dr, "h"))
 
+        // --- みんなのものさし ---
+        val sc = engine(settings = Settings(game = GameType.SCALE))
+        shot("41_lobby_scale", Ui.Room(sc.viewFor("h"), 0L, online = true))
+        sc.apply("h", Intent.Start)
+        fun scaleCards(id: String) = (sc.viewFor(id).screen as Screen.Scale).cards.filter { it.owner == id }
+        val hintWords = listOf("ありんこ", "ねこ", "ゴリラ", "ライオン", "くま", "ぞう")
+        sc.players.drop(1).forEachIndexed { i, p -> scaleCards(p.id).forEach { c -> sc.apply(p.id, Intent.ScaleHint(c.uid, hintWords[(i + c.uid) % hintWords.size])) } }
+        shot("42_scale_hint", room(sc, "h"))
+        scaleCards("h").forEach { c -> sc.apply("h", Intent.ScaleHint(c.uid, "トラ")) }
+        val owners = sc.players.flatMap { p -> scaleCards(p.id).map { it.value!! to p.id } }.sortedBy { it.first }
+        sc.apply(owners[0].second, Intent.ScalePlay)
+        shot("43_scale_play", room(sc, "h"))
+        sc.apply(owners.last().second, Intent.ScalePlay)
+        shot("44_scale_miss", room(sc, "h"))
+        while (sc.viewFor("h").screen is Screen.Scale) {
+            val held = sc.players.flatMap { p -> (sc.viewFor(p.id).screen as Screen.Scale).cards.filter { it.owner == p.id && it.state == com.zen.partygame.game.ScaleState.HELD }.map { it.value!! to p.id } }
+            sc.apply(held.minBy { it.first }.second, Intent.ScalePlay)
+        }
+        shot("45_scale_result", room(sc, "h"))
+
         // --- 多言語（タイトル・ロビー・アリーナ・お絵かき） ---
         for (lang in listOf("en", "ko", "zh")) {
             vm.setLang(lang)
@@ -218,6 +238,8 @@ class ScreenshotTest {
             shot("${lang}_02_lobby", Ui.Room(le.viewFor("h"), 0L, online = true))
             le.apply("h", Intent.Start)
             shot("${lang}_03_draw_write", room(le, "h"))
+            val ls = engine(settings = Settings(game = GameType.SCALE)); ls.apply("h", Intent.Start)
+            shot("${lang}_05_scale", room(ls, "h"))
             shot("${lang}_04_arena", room(ar.also { it.apply("h", Intent.UpdateSettings(Settings(game = GameType.ARENA))); it.apply("h", Intent.Start) }, "h"))
         }
         vm.setLang("ja")

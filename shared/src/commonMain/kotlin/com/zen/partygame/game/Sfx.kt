@@ -32,7 +32,7 @@ object Sfx {
     /** 遊んでいる最中の画面（ロビー・結果・休憩以外） */
     private fun isPlay(s: Screen) = when (s) {
         Screen.Lobby, is Screen.AdBreak, is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult,
-        is Screen.QReveal, is Screen.ArenaResult, is Screen.DrawReveal -> false
+        is Screen.QReveal, is Screen.ArenaResult, is Screen.DrawReveal, is Screen.ScaleResult -> false
         else -> true
     }
 
@@ -106,6 +106,17 @@ object Sfx {
                 s.finished && !p.finished -> out += WIN
                 s.book != p.book || s.entries.size != p.entries.size -> out += PAGE
             }
+            is Screen.Scale -> if (p is Screen.Scale) {
+                val played = s.cards.count { it.state == ScaleState.PLAYED }; val before = p.cards.count { it.state == ScaleState.PLAYED }
+                val hints = s.cards.count { it.hint.isNotEmpty() }; val hintsBefore = p.cards.count { it.hint.isNotEmpty() }
+                when {
+                    s.lives < p.lives -> out += BUZZER
+                    played > before -> out += CARD_PLAY
+                    s.playing && !p.playing -> out += ALERT
+                    hints > hintsBefore -> out += if (s.cards.count { it.owner == me && it.hint.isNotEmpty() } > p.cards.count { it.owner == me && it.hint.isNotEmpty() }) SENT else VOTE
+                }
+            }
+            is Screen.ScaleResult -> if (p !is Screen.ScaleResult) out += if (s.cleared) WIN else LOSE
             else -> Unit
         }
         if (!sameKind && out.isEmpty() && isPlay(s) && isPlay(p)) out += PAGE

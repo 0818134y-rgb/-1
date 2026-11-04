@@ -17,7 +17,7 @@ object Bgm {
     val ALL = listOf(TITLE, LOBBY, TALK, TENSION, ARENA, DRAW, RESULT, BREAK)
 
     /** 部屋の外（view が null）ならタイトルの曲 */
-    fun track(v: PlayerView?): String = when (v?.screen) {
+    fun track(v: PlayerView?): String = when (val s = v?.screen) {
         null -> TITLE
         Screen.Lobby -> LOBBY
         is Screen.AdBreak -> BREAK
@@ -26,7 +26,8 @@ object Bgm {
         is Screen.WwVote, is Screen.WwAccuse, is Screen.WwGuess -> TENSION
         is Screen.Arena -> ARENA
         is Screen.DrawTask -> DRAW
+        is Screen.Scale -> if (s.playing) TENSION else TALK
         is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult,
-        is Screen.QReveal, is Screen.ArenaResult, is Screen.DrawReveal -> RESULT
+        is Screen.QReveal, is Screen.ArenaResult, is Screen.DrawReveal, is Screen.ScaleResult -> RESULT
     }
 }

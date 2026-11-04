@@ -120,6 +120,7 @@ def parse_pairs(text):
 def main(out_path):
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import topics_more as M
+    import scale_topics
     ww, seen = [], set()
     merged = {c: WW.get(c, "") + "\n" + M.WW_MORE.get(c, "") for c in list(WW) + [c for c in M.WW_MORE if c not in WW]}
     for cat, text in merged.items():
@@ -151,7 +152,7 @@ def main(out_path):
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump({"version": 2, "wordwolf": ww, "ng": ng, "spy": spy, "sync": sync, "guess": guess, "questions": questions,
-                   "drawWho": draw_who, "drawWhat": draw_what},
+                   "drawWho": draw_who, "drawWhat": draw_what, "scales": scale_topics.as_json(scale_topics.JA)},
                   f, ensure_ascii=False, separators=(",", ":"))
     print("spy places:", len(spy), " sync prompts:", len(sync), " guess words:", len(guess), " questions:", len(questions))
     by = {}

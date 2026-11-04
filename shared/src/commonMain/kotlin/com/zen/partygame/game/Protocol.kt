@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** 通信の版。違う版の端末どうしは同じ部屋に入れない */
-const val PROTO = 6
+const val PROTO = 7
 const val MIN_PLAYERS = 3
 const val MAX_PLAYERS_NEARBY = 8
 const val MAX_PLAYERS_LOCAL = 12
@@ -20,6 +20,7 @@ val WireJson = Json {
 /** ゲームの種類。localOk = スマホ1台でも遊べる、minPlayers = 必要な人数 */
 enum class GameType(val label: String, val short: String, val localOk: Boolean, val minPlayers: Int) {
     ARENA("なんでもアリーナ", "アリーナ", false, 2),
+    SCALE("みんなのものさし", "ものさし", false, 2),
     WORD_WOLF("ワードウルフ", "ワードウルフ", true, 3),
     NG_WORD("NGワード", "NGワード", false, 3),
     SPY("スパイはだれだ", "スパイ", true, 3),
@@ -28,6 +29,31 @@ enum class GameType(val label: String, val short: String, val localOk: Boolean, 
     QUESTION("ぶっちゃけ質問", "ぶっちゃけ", false, 3),
     DRAW("お絵かき伝言", "お絵かき", false, 3),
 }
+
+/** みんなのものさし：ライフの数・ヒントの長さ */
+const val SCALE_LIVES = 3
+const val MAX_SCALE_HINT_LEN = 20
+
+/** みんなのものさしのお題。t = お題、lo = 1 のときの言葉、hi = 100 のときの言葉 */
+@Serializable
+data class ScaleTopic(val t: String, val lo: String, val hi: String)
+
+/** みんなのものさしのカード：手元にある／出した／小さいのに出しそびれた（ミスで捨てられた） */
+enum class ScaleState { HELD, PLAYED, MISSED }
+
+@Serializable
+data class ScaleCard(
+    val uid: Int,
+    val owner: String,
+    /** 途中で抜けた人の名前も出せるように */
+    val ownerName: String,
+    val hint: String = "",
+    /** 自分のカードか、もう場に出たカードだけ数字が入る */
+    val value: Int? = null,
+    val state: ScaleState = ScaleState.HELD,
+    /** 出した順番（1始まり）。出していなければ 0 */
+    val order: Int = 0,
+)
 
 /** お絵かき伝言の各手番でやること */
 enum class DrawKind { WRITE, DRAW, GUESS }
@@ -76,6 +102,8 @@ data class Settings(
     val drawSec: Int = 90,
     /** お絵かき伝言：お題を書く・絵を見て答える時間（秒） */
     val writeSec: Int = 45,
+    /** みんなのものさし：1人に配る数字の枚数。0 = 人数に合わせて自動 */
+    val scaleCards: Int = 0,
 ) {
     fun sanitized(): Settings = copy(
         talkSec = talkSec.coerceIn(60, 600),
@@ -86,6 +114,7 @@ data class Settings(
         arenaTurnSec = arenaTurnSec.coerceIn(0, 300),
         drawSec = drawSec.coerceIn(30, 300),
         writeSec = writeSec.coerceIn(15, 180),
+        scaleCards = scaleCards.coerceIn(0, 3),
     )
 }
 
@@ -130,6 +159,13 @@ sealed interface Intent {
 
     /** お絵かき伝言：書いた文・描いた絵を出す（step は今の手番の番号。古い手番の送信は無視される） */
     @Serializable @SerialName("drawSubmit") data class DrawSubmit(val step: Int, val text: String = "", val drawing: String = "") : Intent
+
+    /** みんなのものさし：自分のカードのヒント（場に出すまでは書き直せる） */
+    @Serializable @SerialName("scaleHint") data class ScaleHint(val uid: Int, val text: String) : Intent
+    /** みんなのものさし：自分の一番小さい数字を出す */
+    @Serializable @SerialName("scalePlay") data object ScalePlay : Intent
+    /** みんなのものさし：ヒントがそろっていなくても並べ始める（ホスト） */
+    @Serializable @SerialName("scaleBegin") data object ScaleBegin : Intent
 
     @Serializable @SerialName("next") data object Next : Intent
     @Serializable @SerialName("lobby") data object BackToLobby : Intent
@@ -320,6 +356,31 @@ sealed interface Screen {
         val entries: List<DrawEntry>,
         val total: Int,
         val finished: Boolean,
+    ) : Screen
+
+    /** みんなのものさし。playing = false はヒントを書く時間、true は小さい順に出していく時間 */
+    @Serializable @SerialName("scale")
+    data class Scale(
+        val topic: ScaleTopic,
+        val playing: Boolean,
+        val lives: Int,
+        val maxLives: Int,
+        val cards: List<ScaleCard>,
+        /** 直前の「出す」で捨てられたカード（ミスの演出用） */
+        val lastMiss: List<Int> = emptyList(),
+        /** 連続クリアの回数 */
+        val streak: Int = 0,
+    ) : Screen
+
+    @Serializable @SerialName("scaleResult")
+    data class ScaleResult(
+        val topic: ScaleTopic,
+        val cleared: Boolean,
+        val lives: Int,
+        val maxLives: Int,
+        /** 全部の数字入り、小さい順 */
+        val cards: List<ScaleCard>,
+        val streak: Int = 0,
     ) : Screen
 
     @Serializable @SerialName("adBreak")

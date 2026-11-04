@@ -115,7 +115,8 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
 
     if (showLang) LanguageDialog(lang, onPick = { vm.setLang(it); showLang = false }, onClose = { showLang = false })
     val withBanner = when (v.screen) {
-        Screen.Lobby, is Screen.ArenaResult, is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult, is Screen.QReveal -> true
+        Screen.Lobby, is Screen.ArenaResult, is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult, is Screen.QReveal,
+        is Screen.ScaleResult -> true
         else -> false
     }
     val scroll = rememberScrollState()
@@ -168,6 +169,8 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
                 is Screen.AdBreak -> AdBreak(vm, s)
                 is Screen.DrawTask -> DrawTask(vm, v, s, rememberRemainingMs(v, state.receivedAt))
                 is Screen.DrawReveal -> DrawReveal(vm, v, s) { NextButtons(vm, v, tr("もう一回")) }
+                is Screen.Scale -> ScalePlay(vm, v, s)
+                is Screen.ScaleResult -> ScaleResult(vm, v, s) { NextButtons(vm, v, tr("次のお題へ")) }
             }
             Spacer(Modifier.height(8.dp))
         }
@@ -192,6 +195,7 @@ fun gameIcon(g: GameType): Int = when (g) {
     GameType.GUESS -> R.drawable.icon_guess
     GameType.QUESTION -> R.drawable.icon_question
     GameType.DRAW -> R.drawable.icon_draw
+    GameType.SCALE -> R.drawable.icon_scale
 }
 
 private fun gameSummary(st: Settings): String = when (st.game) {
@@ -203,6 +207,7 @@ private fun gameSummary(st: Settings): String = when (st.game) {
     GameType.GUESS -> tr("制限時間 {0}分", st.guessSec / 60)
     GameType.QUESTION -> tr("全員で匿名投票")
     GameType.DRAW -> tr("描く {0}秒・書く {1}秒", st.drawSec, st.writeSec)
+    GameType.SCALE -> if (st.scaleCards == 0) tr("全員で協力・ライフ{0}", com.zen.partygame.game.SCALE_LIVES) else tr("1人{0}枚・ライフ{1}", st.scaleCards, com.zen.partygame.game.SCALE_LIVES)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -295,6 +300,14 @@ private fun Lobby(vm: AppViewModel, v: PlayerView, online: Boolean) {
                     listOf(120, 180, 300).forEach { sec -> FilterChip(st.guessSec == sec, { set(st.copy(guessSec = sec)) }, { Text(tr("{0}分", sec / 60)) }) }
                 }
                 GameType.QUESTION -> Caption(tr("設定はありません。だれが誰に入れたかは表示されません。"))
+                GameType.SCALE -> {
+                    Caption(tr("全員にひみつの数字（1〜100）を配ります。お題に合わせて数字を「ことば」で表し、話し合いながら小さい順に出していく協力ゲーム。もっと小さい数字が残っていたらミスでライフ -1（2〜8人）。"))
+                    ChipRow(tr("1人に配る数字の枚数")) {
+                        listOf(0 to tr("おまかせ"), 1 to tr("1枚"), 2 to tr("2枚"), 3 to tr("3枚")).forEach { (n, label) ->
+                            FilterChip(st.scaleCards == n, { set(st.copy(scaleCards = n)) }, { Text(label) })
+                        }
+                    }
+                }
                 GameType.DRAW -> {
                     Caption(tr("お題を書く → 次の人が絵にする → 次の人がその絵を見て答える…を全員分くり返し、最後にどう伝わったかを発表します（3〜8人）。"))
                     ChipRow(tr("絵を描く時間")) {

@@ -1,6 +1,8 @@
 """英語・韓国語・中国語のお題（app/src/main/assets/topics_<言語>.json）を作る。
 使い方: python3 tools/make_topics_lang.py en ko zh"""
 import importlib, json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import scale_topics
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 OUT = os.path.join(os.path.dirname(HERE), 'app', 'src', 'main', 'assets')
@@ -31,7 +33,8 @@ for lang in sys.argv[1:]:
     data = {'version': 2, 'lang': M.LANG, 'wordwolf': ww, 'ng': ng,
             'spy': uniq(M.SPY_PLACES, 'spy', lang), 'sync': uniq(M.SYNC_PROMPTS, 'sync', lang), 'guess': guess,
             'questions': uniq(M.QUESTIONS, 'question', lang),
-            'drawWho': uniq(M.DRAW_WHO, 'draw who', lang), 'drawWhat': uniq(M.DRAW_WHAT, 'draw what', lang)}
+            'drawWho': uniq(M.DRAW_WHO, 'draw who', lang), 'drawWhat': uniq(M.DRAW_WHAT, 'draw what', lang),
+            'scales': scale_topics.as_json(getattr(scale_topics, lang.upper()))}
     assert len(data['spy']) >= 13
     json.dump(data, open(os.path.join(OUT, f'topics_{lang}.json'), 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
     print(lang, 'pairs', len(ww), 'ng', len(ng), 'spy', len(data['spy']), 'sync', len(data['sync']), 'guess', len(guess),

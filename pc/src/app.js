@@ -431,7 +431,7 @@
         showBanner(false); tickTimers(); return;
       }
       html = screenHtml(v);
-      banner = ['lobby', 'arenaResult', 'wwResult', 'ngResult', 'syncReveal', 'guessResult', 'qReveal'].indexOf(v.screen.t) >= 0;
+      banner = ['lobby', 'arenaResult', 'wwResult', 'ngResult', 'syncReveal', 'guessResult', 'qReveal', 'scaleResult'].indexOf(v.screen.t) >= 0;
       if (v.screen.t === 'adBreak') adBreak(v.screen.breakId);
     }
     $main.innerHTML = html;
@@ -463,7 +463,7 @@
   function localLinks(h) { return LANG === 'ja' ? h : h.replace(/href="(howto|about|privacy)\.html"/g, 'href="$1.' + LANG + '.html"'); }
   function langLabel() { return (LANGS.find(function (l) { return l[0] === LANG; }) || LANGS[0])[1]; }
   function titlePage() {
-    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・ワードウルフ・NGワード・お絵かき伝言 ほか全8種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
+    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全9種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
   }
 
   function joinPage() {
@@ -507,6 +507,8 @@
       case 'arenaResult': return arenaResult(v, s);
       case 'drawTask': return drawTask(v, s);
       case 'drawReveal': return drawReveal(v, s);
+      case 'scale': return scalePlay(v, s);
+      case 'scaleResult': return scaleResult(v, s);
       case 'adBreak': return T('<div class="center" style="margin-top:80px">{0}<h2>ちょっと休憩…</h2><div class="cap">全員の準備ができたら次へ進みます</div></div>', img('icon_tea', 120, 'art'));
       default: return T('<div class="cap">（この画面は PC 版では表示できません）</div>');
     }
@@ -514,7 +516,7 @@
 
   // ---------- ロビー ----------
 
-  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question', DRAW: 'icon_draw' };
+  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question', DRAW: 'icon_draw', SCALE: 'icon_scale' };
   function summary(st) {
     switch (st.game) {
       case 'ARENA': return (st.arenaTurnSec === 0 ? T('手番の制限なし') : T('手番 {0}秒', st.arenaTurnSec)) + (st.arenaChaos ? T('・今夜のルールあり') : '');
@@ -524,6 +526,7 @@
       case 'SYNC': return st.syncSec === 0 ? T('回答時間 制限なし') : T('回答時間 {0}秒', st.syncSec);
       case 'GUESS': return T('制限時間 {0}分', st.guessSec / 60);
       case 'DRAW': return T('描く {0}秒・書く {1}秒', st.drawSec, st.writeSec);
+      case 'SCALE': return st.scaleCards === 0 ? T('全員で協力・ライフ{0}', 3) : T('1人{0}枚・ライフ{1}', st.scaleCards, 3);
       default: return T('全員で匿名投票');
     }
   }
@@ -568,6 +571,10 @@
           break;
         case 'GUESS':
           h += chips(T('制限時間'), [120, 180, 300].map(function (x) { return { label: T('{0}分', x / 60), on: st.guessSec === x, patch: { guessSec: x } }; }));
+          break;
+        case 'SCALE':
+          h += '<div class="cap" style="margin-top:10px">' + esc(T('全員にひみつの数字（1〜100）を配ります。お題に合わせて数字を「ことば」で表し、話し合いながら小さい順に出していく協力ゲーム。もっと小さい数字が残っていたらミスでライフ -1（2〜8人）。')) + '</div>';
+          h += chips(T('1人に配る数字の枚数'), [[0, T('おまかせ')], [1, T('1枚')], [2, T('2枚')], [3, T('3枚')]].map(function (x) { return { label: x[1], on: st.scaleCards === x[0], patch: { scaleCards: x[0] } }; }));
           break;
         case 'DRAW':
           h += T('<div class="cap" style="margin-top:10px">お題を書く → 次の人が絵にする → 次の人がその絵を見て答える…を全員分くり返し、最後にどう伝わったかを発表します（3〜8人）。</div>');
@@ -700,6 +707,66 @@
     const no = v.players.filter(function (p) { return !s.groups.some(function (g) { return g.ids.indexOf(p.id) >= 0; }); });
     if (no.length) h += T('<div class="cap">未回答：{0}</div>', esc(no.map(function (p) { return p.name; }).join(T('、'))));
     return h + scoreboard(s.scores, s.gained) + nextButtons(v, T('次のお題へ'));
+  }
+
+  // ---------- みんなのものさし ----------
+
+  function lives(n, max) { return '<span class="lives">' + '❤️'.repeat(Math.max(0, n)) + '🖤'.repeat(Math.max(0, max - n)) + '</span>'; }
+  function ntag(c, big) {
+    return '<span class="ntag ' + c.state.toLowerCase() + (big ? ' big' : '') + '">' + (c.value == null ? '?' : c.value) + '</span>';
+  }
+  function scaleRow(v, c) {
+    return '<div class="srow">' + ntag(c) + '<div class="grow"><b' + (c.hint ? '' : ' class="mutedtxt"') + '>' + (c.hint ? esc(T('「{0}」', c.hint)) : esc(T('（考え中…）'))) + '</b><div class="cap">' +
+      esc(c.ownerName) + (c.owner === v.me ? T('（あなた）') : '') + (c.state === 'MISSED' ? T('・ミスで捨てられた') : '') + '</div></div></div>';
+  }
+  function ruler(t) {
+    return '<div class="panel"><div class="cap">' + T('今回のお題') + '</div><div class="word s">' + esc(t.t) + '</div><div class="ruler"></div>' +
+      '<div class="row" style="justify-content:space-between;align-items:flex-start"><div><b style="color:var(--mint)">1</b><div class="cap">' + esc(t.lo) + '</div></div>' +
+      '<div style="text-align:right"><b style="color:var(--berry)">100</b><div class="cap">' + esc(t.hi) + '</div></div></div></div>';
+  }
+  function scalePlay(v, s) {
+    const key = s.topic.t + '|' + s.cards.map(function (c) { return c.uid; }).join(',');
+    if (S.ui.scaleKey !== key) { S.ui.scaleKey = key; S.ui.hints = {}; }
+    let h = '<div class="row">' + img('icon_scale', 48) + '<h2 class="grow">' + T('みんなのものさし') + '</h2>' + lives(s.lives, s.maxLives) + '</div>';
+    if (s.streak > 0) h += '<div class="cap">' + T('連続クリア {0}回中', s.streak) + '</div>';
+    h += ruler(s.topic);
+    if (s.lastMiss.length) {
+      const missed = s.cards.filter(function (c) { return s.lastMiss.indexOf(c.uid) >= 0; }).sort(function (a, b) { return a.value - b.value; });
+      h += '<div class="panel"><b style="color:var(--berry)">' + T('ミス！ もっと小さい数字がありました') + '</b><div class="cap">' +
+        esc(missed.map(function (c) { return T('{0}（{1}さん）', c.value, c.ownerName); }).join(T('、'))) + '</div></div>';
+    }
+    const mine = s.cards.filter(function (c) { return c.owner === v.me; }).sort(function (a, b) { return a.value - b.value; });
+    const next = mine.filter(function (c) { return c.state === 'HELD'; })[0];
+    if (!s.playing) h += '<div class="cap">' + T('自分の数字を、お題に合わせた「ことば」で表しましょう。数字そのものは言わないで！') + '</div>';
+    else if (next) h += '<button class="big" data-act="send" data-arg=\'{"t":"scalePlay"}\'>' + img('icon_scale', 36) + T('{0} を出す', next.value) + '</button><div class="cap">' + T('自分の数字がいちばん小さいと思ったら出しましょう。話し合ってOK（数字は言わない）') + '</div>';
+    else h += '<div class="cap">' + T('あなたのカードは全部出ました。みんなを応援しよう') + '</div>';
+    h += mine.map(function (c) {
+      let x = '<div class="panel"><div class="row">' + ntag(c, true) + '<div class="grow">';
+      if (c.state === 'PLAYED') x += '<b style="color:var(--mint)">' + T('出しました') + '</b><div class="cap">' + esc(T('「{0}」', c.hint)) + '</div></div></div>';
+      else if (c.state === 'MISSED') x += '<b style="color:var(--berry)">' + T('ミスで捨てられました') + '</b><div class="cap">' + esc(T('「{0}」', c.hint)) + '</div></div></div>';
+      else {
+        const d = S.ui.hints[c.uid] != null ? S.ui.hints[c.uid] : c.hint;
+        x += '<input id="scaleIn' + c.uid + '" class="text" maxlength="20" placeholder="' + esc(T('この数字をお題で表すと？')) + '" value="' + esc(d) + '"></div></div>' +
+          '<button class="big' + (c.hint ? ' sec' : '') + '" data-act="scaleHint" data-arg="' + c.uid + '">' + (c.hint ? T('ヒントを変える') : T('このヒントで決める')) + '</button>';
+      }
+      return x + '</div>';
+    }).join('');
+    const played = s.cards.filter(function (c) { return c.state !== 'HELD'; }).sort(function (a, b) { return (a.order || 1e9) - (b.order || 1e9) || a.value - b.value; });
+    if (played.length) h += '<div class="panel"><h3>' + T('場に出たカード') + '</h3>' + played.map(function (c) { return scaleRow(v, c); }).join('') + '</div>';
+    const others = s.cards.filter(function (c) { return c.owner !== v.me && c.state === 'HELD'; });
+    if (others.length) h += '<div class="panel"><h3>' + T('みんなのヒント（まだ出ていない）') + '</h3>' + others.map(function (c) { return scaleRow(v, c); }).join('') + '</div>';
+    if (!s.playing) {
+      h += '<div class="cap center">' + T('ヒント {0} / {1}枚。全員そろうと並べ始めます', s.cards.filter(function (c) { return c.hint; }).length, s.cards.length) + '</div>';
+      h += hostOnly(v, '', '<button class="big sec" data-act="send" data-arg=\'{"t":"scaleBegin"}\'>' + T('そろわなくても並べ始める') + '</button>');
+    }
+    return h;
+  }
+  function scaleResult(v, s) {
+    let h = '<div class="row">' + img('icon_scale', 48) + '<h2 style="color:' + (s.cleared ? 'var(--mint)' : 'var(--berry)') + '">' + (s.cleared ? T('クリア！') : T('しっぱい…')) + '</h2></div>';
+    h += '<div class="row">' + lives(s.lives, s.maxLives) + '<span class="cap">' + (s.cleared ? T('連続クリア {0}回', s.streak) : T('ライフがなくなりました')) + '</span></div>';
+    h += '<div class="panel"><div class="cap">' + T('今回のお題') + '</div><h2>' + esc(s.topic.t) + '</h2><div class="cap">' + T('1＝{0} ／ 100＝{1}', s.topic.lo, s.topic.hi) + '</div></div>';
+    h += '<div class="panel"><h3>' + T('答え（小さい順）') + '</h3>' + s.cards.map(function (c) { return scaleRow(v, c); }).join('') + '</div>';
+    return h + nextButtons(v, T('次のお題へ'));
   }
 
   // ---------- 質問で当てろ ----------
@@ -992,11 +1059,13 @@
     }
     if (e.target.id === 'codeIn') { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); S.code = e.target.value; }
     if (e.target.id === 'syncIn') S.ui.draft = e.target.value.slice(0, 20);
+    if (e.target.id && e.target.id.indexOf('scaleIn') === 0) { S.ui.hints = S.ui.hints || {}; S.ui.hints[e.target.id.slice(7)] = e.target.value.slice(0, 20); }
     if (e.target.id === 'drawIn') S.ui.text = e.target.value.slice(0, DR.maxText);
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && e.target.id === 'codeIn') joinRoom(e.target.value);
     if (e.key === 'Enter' && e.target.id === 'syncIn') doAct('syncSend');
+    if (e.key === 'Enter' && e.target.id && e.target.id.indexOf('scaleIn') === 0 && !e.isComposing) doAct('scaleHint', e.target.id.slice(7));
     if (e.key === 'Enter' && e.target.id === 'drawIn' && !e.isComposing) doAct('dsend');
     const v = S.view; if (!v || v.screen.t !== 'arena' || !v.screen.mini || e.target.tagName === 'INPUT') return;
     const m = v.screen.mini;
@@ -1044,6 +1113,11 @@
       case 'ngOut': {
         const e2 = v.screen.entries.find(function (x) { return x.id === arg; });
         confirmBox(T('{0}さんがアウト？', nameOf(arg)), T('「{0}」と言いましたか？', (e2 && e2.word)), T('言った！'), function () { send({ t: 'out', target: arg }); });
+        break;
+      }
+      case 'scaleHint': {
+        const uid = +arg; const t = ((S.ui.hints || {})[uid] || '').trim();
+        if (t) send({ t: 'scaleHint', uid: uid, text: t }); else toast(T('ヒントを書いてね'));
         break;
       }
       case 'syncSend': { const t = (S.ui.draft || '').trim(); if (t) send({ t: 'syncAnswer', text: t }); break; }

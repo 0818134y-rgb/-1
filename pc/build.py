@@ -95,7 +95,7 @@ json.dump({'name': 'わちゃパ（パーティーゲーム）', 'short_name': '
                     + [{'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'}]},
           open(os.path.join(G, 'manifest.webmanifest'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 html = open(os.path.join(G, 'index.html'), encoding='utf-8').read()
-html = html.replace('<title>', '<meta name="version" content="%s">\n<meta name="description" content="なんでもアリーナ・ワードウルフ・NGワードなど8つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">\n%s<title>' % (VERSION, HEAD_ADS))
+html = html.replace('<title>', '<meta name="version" content="%s">\n<meta name="description" content="なんでもアリーナ・みんなのものさし・ワードウルフなど9つのパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。">\n%s<title>' % (VERSION, HEAD_ADS))
 open(os.path.join(G, 'index.html'), 'w', encoding='utf-8').write(html)
 
 # サービスワーカー：ゲームのファイルを端末に保存（中身のハッシュを版名に入れるので、更新すると古い保存は消える）

@@ -204,7 +204,7 @@ fun TitleScreen(vm: AppViewModel) {
         Text(tr("わちゃパ"), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
         Text(tr("ワードウルフ・NGワード ほか"), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.secondary)
         Spacer(Modifier.height(6.dp))
-        Caption(tr("8つのパーティーゲーム。全員のスマホで遊べる"), Modifier.padding(bottom = 20.dp))
+        Caption(tr("9つのパーティーゲーム。全員のスマホで遊べる"), Modifier.padding(bottom = 20.dp))
 
         // つなぎ方の切り替え（これだけ）
         ModeSwitch(online, vm::setOnline)
@@ -365,6 +365,9 @@ fun RulesDialog(onClose: () -> Unit) {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 RuleHead(R.drawable.icon_arena, tr("なんでもアリーナ（一押し）"), MaterialTheme.colorScheme.secondary)
                 Text(tr("手番が来たら山札から1枚引き、手札から1枚出して、書かれていることに従います。落とし穴・ばくだん・全員じゃんけん・せーのでゆび・鼻タッチ・言ってはいけない言葉…何が起きるかわかりません。負けたら抜けます。最後の1人になるか、カードの勝利条件（金貨15ポイント・誕生月など）を満たせば勝ち！ 全員が負けることもあります。★のついたスターカードは特に強力。ゲームの最初に「今夜のルール」が1つ追加されます。言葉やしぐさのルールを破った人を見つけたら、その人の「違反！」を押しましょう。"))
+                Spacer(Modifier.height(14.dp))
+                RuleHead(R.drawable.icon_scale, tr("みんなのものさし（NEW）"), MaterialTheme.colorScheme.secondary)
+                Text(tr("全員にひみつの数字（1〜100）が配られます。お題（「強そうな動物」なら 1＝弱い・100＝強い）に合わせて、自分の数字を「ことば」で表します（例：90ならライオン）。数字そのものは言ってはいけません。みんなのヒントを見て話し合いながら、自分がいちばん小さいと思ったら「出す」。まだ誰かの手元にもっと小さい数字があったらミスで、ライフが1つ減ります。ライフを残して全員出し切れたらクリア！"))
                 Spacer(Modifier.height(14.dp))
                 RuleHead(R.drawable.icon_wordwolf, tr("ワードウルフ"), MaterialTheme.colorScheme.primary)
                 Text(tr("全員にお題が配られますが、1人（7人以上なら2人）だけ少し違うお題です。それが「ウルフ」。自分がどちらかは分かりません。話し合って、ウルフだと思う人に投票します。ウルフが最多票なら、ウルフは市民のお題を当てれば逆転勝ち。"))

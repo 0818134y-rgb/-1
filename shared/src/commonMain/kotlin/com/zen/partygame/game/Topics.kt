@@ -23,6 +23,8 @@ data class TopicFile(
     val questions: List<String> = emptyList(),
     val drawWho: List<String> = emptyList(),
     val drawWhat: List<String> = emptyList(),
+    /** みんなのものさしのお題 */
+    val scales: List<ScaleTopic> = emptyList(),
 )
 
 /** お題の山。同じ部屋の中では、全部使い切るまで同じお題を出さない */
@@ -81,6 +83,17 @@ class TopicBank(private val file: TopicFile) {
     fun drawPrompt(rng: Random): String =
         if (file.drawWho.isEmpty() || file.drawWhat.isEmpty()) drawGuess(rng)
         else joinDrawPrompt(file.lang, drawFrom("dwho", file.drawWho, rng), drawFrom("dwhat", file.drawWhat, rng))
+
+    /** みんなのものさしのお題（まだ出していないもの） */
+    fun drawScale(rng: Random): ScaleTopic {
+        if (file.scales.isEmpty()) return ScaleTopic("？", "1", "100")
+        val used = usedOther.getOrPut("scale") { mutableSetOf() }
+        if (used.size >= file.scales.size) used.clear()
+        val fresh = file.scales.indices.filter { it !in used }
+        val i = fresh[rng.nextInt(fresh.size)]
+        used += i
+        return file.scales[i]
+    }
 
     /** スパイが選ぶ場所の候補（正解を含めて count 個） */
     fun spyOptions(correct: String, count: Int, rng: Random): List<String> =

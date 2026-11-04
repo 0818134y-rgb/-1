@@ -1,0 +1,36 @@
+#keys keys_v4.json
+26	Team game · {0} lives	협력 게임 · 목숨 {0}개	全员合作 · {0} 条命
+27	{0} per player · {1} lives	1인당 {0}장 · 목숨 {1}개	每人 {0} 张 · {1} 条命
+61	Everyone gets secret numbers (1–100). Describe yours with a word that fits the topic, talk it over, and play the cards from lowest to highest as a team. If a lower number is still out there, it's a mistake and you lose a life (2–8 players).	모두에게 비밀 숫자(1~100)를 나눠 줘요. 주제에 맞춰 숫자를 "말"로 표현하고, 이야기하면서 작은 순서대로 내는 협력 게임이에요. 더 작은 숫자가 남아 있으면 실수라서 목숨 -1 (2~8명).	给每个人发秘密数字（1～100）。按照题目用一个“词”表示数字，一边商量一边从小到大出牌的合作游戏。如果还有更小的数字没出，就算失误，扣一条命（2～8 人）。
+62	Numbers per player	1인당 숫자 장수	每人发几张数字
+63	1 card	1장	1 张
+64	2 cards	2장	2 张
+65	3 cards	3장	3 张
+229	Line It Up (new)	모두의 잣대 (NEW)	大家的尺子（新）
+230	Everyone gets secret numbers (1–100). Using the topic (say "Strong animals": 1 = weak, 100 = strong), describe your number with a word — 90 might be "a lion". Never say the number itself! Read everyone's hints, talk it over, and tap "Play" when you think yours is the lowest. If someone is still holding a lower number, that's a mistake and you lose a life. Play every card with a life to spare and you all win!	모두에게 1~100 중 비밀 숫자가 배달돼요. 주제(예: "강해 보이는 동물"이면 1 = 약함, 100 = 강함)에 맞춰 내 숫자를 "말"로 표현해요(예: 90이면 사자). 숫자 자체를 말하면 안 돼요! 모두의 힌트를 보고 이야기하면서, 내 숫자가 제일 작다고 생각되면 "내기". 아직 누군가 더 작은 숫자를 들고 있었다면 실수라서 목숨이 하나 줄어요. 목숨을 남긴 채 모두 다 내면 클리어!	每个人会拿到 1～100 之间的秘密数字。按照题目（比如“看起来很强的动物”：1＝弱，100＝强），用一个“词”来表示自己的数字（例：90 就说狮子）。绝对不能直接说出数字！看大家的提示、一起商量，觉得自己的数字最小时就“出牌”。如果还有人手里有更小的数字，就算失误，扣一条命。留着命把牌全部出完就过关！
+258	(thinking…)	(고민 중…)	（还在想…）
+259	 · discarded by a mistake	 · 실수로 버려짐	 · 因失误被弃掉
+260	Played	냈어요	已出牌
+261	Discarded by a mistake	실수로 버려졌어요	因失误被弃掉了
+262	Describe this number for the topic	이 숫자를 주제로 표현하면?	用题目来表示这个数字是？
+263	Use this hint	이 힌트로 정하기	就用这个提示
+264	Change hint	힌트 바꾸기	修改提示
+265	Line It Up	모두의 잣대	大家的尺子
+266	{0} clears in a row so far	연속 클리어 {0}회째 도전 중	已连续过关 {0} 次
+267	Mistake! There was a lower number	실수! 더 작은 숫자가 있었어요	失误！还有更小的数字
+268	{0} ({1})	{0} ({1})	{0}（{1}）
+269	Describe your number with a word that fits the topic. Don't say the number itself!	내 숫자를 주제에 맞는 "말"로 표현해 봐요. 숫자 자체는 말하면 안 돼요!	用符合题目的“词”来表示自己的数字。不要直接说出数字！
+270	Play {0}	{0} 내기	出 {0}
+271	Play it when you think your number is the lowest. Talking is fine — just don't say numbers	내 숫자가 제일 작다고 생각되면 내요. 이야기해도 OK (숫자는 말하지 않기)	觉得自己的数字最小时就出牌。可以商量（但不能说数字）
+272	All your cards are out. Cheer everyone on!	내 카드는 모두 냈어요. 다 같이 응원해요!	你的牌都出完了，给大家加油吧！
+273	Cards played	나온 카드	已出的牌
+274	Everyone's hints (not played yet)	모두의 힌트 (아직 안 낸 카드)	大家的提示（还没出的牌）
+275	Hints {0} / {1}. Play starts when everyone is ready	힌트 {0} / {1}장. 모두 모이면 내기 시작해요	提示 {0} / {1} 张。全部到齐就开始出牌
+276	Start playing anyway	다 안 모여도 시작하기	不等了，开始出牌
+277	Cleared!	클리어!	过关！
+278	So close…	아쉽다…	失败了…
+279	{0} clears in a row	연속 클리어 {0}회	连续过关 {0} 次
+280	Out of lives	목숨이 다 떨어졌어요	命用完了
+281	Answers (lowest first)	정답 (작은 순서)	答案（从小到大）
+576	Write a hint first	힌트를 먼저 써 주세요	先写提示吧
+645	Line Up	잣대	尺子

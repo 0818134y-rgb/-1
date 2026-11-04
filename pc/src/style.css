@@ -173,3 +173,14 @@ canvas.pad.mine { opacity: .85; max-width: 360px; }
 
 /* BGM ボタン：オフのときは薄く斜線 */
 [data-act="music"].off { opacity: .35; text-decoration: line-through; }
+
+/* みんなのものさし */
+.lives { font-size: 22px; letter-spacing: 1px; }
+.ruler { height: 14px; border-radius: 7px; margin: 10px 0 6px; background: linear-gradient(90deg, var(--mint), var(--lantern), var(--berry)); }
+.ntag { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 12px;
+  font-weight: 900; font-size: 20px; border: 2px solid var(--lantern); color: var(--lantern); background: rgba(255, 179, 71, .18); }
+.ntag.big { width: 64px; height: 64px; font-size: 28px; }
+.ntag.played { border-color: var(--mint); color: var(--mint); background: rgba(92, 225, 185, .18); }
+.ntag.missed { border-color: var(--berry); color: var(--berry); background: rgba(255, 92, 138, .18); }
+.srow { display: flex; align-items: center; gap: 12px; padding: 4px 0; }
+.mutedtxt { color: var(--muted); }
