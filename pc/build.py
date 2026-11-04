@@ -56,7 +56,7 @@ if DOMAIN:
 # 検索エンジンと AdSense の審査クローラーが全部のページを読めるように
 open(os.path.join(G, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n')
 open(os.path.join(G, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    + ''.join(f'  <url><loc>{SITE}{p}</loc></url>\n' for p in [''] + [b + ('.html' if l == 'ja' else '.' + l + '.html') for b in ('howto', 'about', 'privacy') for l in ('ja', 'en', 'ko', 'zh')]) + '</urlset>\n')
+    + ''.join(f'  <url><loc>{SITE}{p}</loc></url>\n' for p in [''] + [b + ('.html' if l == 'ja' else '.' + l + '.html') for b in ('howto', 'about', 'privacy', 'streaming') for l in ('ja', 'en', 'ko', 'zh')]) + '</urlset>\n')
 sys.path.insert(0, HERE); import pages
 # 読みもののページの広告：スマホならスマホ向けの枠、PC なら PC 向けの枠を、開いた端末で選んで差し込む
 _sp = AD_TAGS['page'] or AD_TAGS['bannerSp'] or AD_TAGS['bannerPc']; _pc = AD_TAGS['bannerPc'] or _sp
@@ -214,6 +214,24 @@ with zipfile.ZipFile(wz, 'w', zipfile.ZIP_DEFLATED) as z:
         for f in files2:
             p = os.path.join(root, f)
             z.write(p, os.path.relpath(p, OUT))
+
+# ゲーム投稿サイト（itch.io・ふりーむ!・CrazyGames など）用：広告なし（各サイトの規約に合わせる）、読みものは公式サイトへリンク
+P = os.path.join(OUT, 'WachapaPortal')
+shutil.rmtree(P, ignore_errors=True)
+shutil.copytree(G, P, ignore=shutil.ignore_patterns('*.html', 'sw.js', 'robots.txt', 'sitemap.xml', 'CNAME', 'app-ads.txt', 'bans.json', 'manifest.webmanifest', 'icons'))
+html_p = open(os.path.join(G, 'index.html'), encoding='utf-8').read()
+if HEAD_ADS: html_p = html_p.replace(HEAD_ADS, '')
+html_p = re.sub(r'<link rel="manifest"[^>]*>\n?', '', html_p)
+open(os.path.join(P, 'index.html'), 'w', encoding='utf-8').write(html_p)
+open(os.path.join(P, 'config.js'), 'w', encoding='utf-8').write('/* ゲーム投稿サイト用（広告なし） */\nwindow.PG_CONFIG = ' + json.dumps({'portal': True, 'adTags': {}}) + ';\n')
+pz = os.path.join(OUT, 'WachapaPortal-%s.zip' % VERSION)
+for old_z in [f for f in os.listdir(OUT) if f.startswith('WachapaPortal-') and f.endswith('.zip')]: os.remove(os.path.join(OUT, old_z))
+with zipfile.ZipFile(pz, 'w', zipfile.ZIP_DEFLATED) as z:   # zip の一番上に index.html（itch.io などの決まり）
+    for root, _, files3 in os.walk(P):
+        for f in files3:
+            p3 = os.path.join(root, f)
+            z.write(p3, os.path.relpath(p3, P))
+print('portal', pz, os.path.getsize(pz))
 
 zp = os.path.join(OUT, 'PartyGamePC.zip')
 if os.path.exists(zp): os.remove(zp)

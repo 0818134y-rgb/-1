@@ -463,6 +463,7 @@
   }
   addEventListener('resize', fitBanner);
   function showBanner(on) {
+    if (CFG.portal) on = false;   // ゲーム投稿サイト用は広告を出さない
     $banner.hidden = !on;
     if (on && !bannerReady) {
       bannerReady = true;
@@ -476,6 +477,7 @@
   let adBreakShown = -1;
   function adBreak(id) {
     if (adBreakShown === id) return; adBreakShown = id;
+    if (CFG.portal) { send({ t: 'adDone', breakId: id }); return; }   // ゲーム投稿サイト用は休憩の広告を出さず、すぐ次へ
     loadAds();
     // AdSense のゲーム向け全画面広告が使えるときはそれを出す（出なかったときもすぐ次へ）
     if (adsOn && CFG.h5games && typeof window.adBreak === 'function') {
@@ -562,10 +564,16 @@
   setInterval(tickTimers, 100);
 
   /** 読みもののページへのリンクを、その言語のページにする */
-  function localLinks(h) { return LANG === 'ja' ? h : h.replace(/href="(howto|about|privacy)\.html"/g, 'href="$1.' + LANG + '.html"'); }
+  // ゲーム投稿サイト用（CFG.portal）は、読みものページを公式サイトの方で開く
+  const SITE = 'https://wachapa.com/';
+  function localLinks(h) {
+    if (LANG !== 'ja') h = h.replace(/href="(howto|about|privacy|streaming)\.html"/g, 'href="$1.' + LANG + '.html"');
+    if (CFG.portal) h = h.replace(/href="((?:howto|about|privacy|streaming)[^"]*\.html)"/g, 'href="' + SITE + '$1" target="_blank" rel="noopener"');
+    return h;
+  }
   function langLabel() { return (LANGS.find(function (l) { return l[0] === LANG; }) || LANGS[0])[1]; }
   function titlePage() {
-    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全9種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
+    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全9種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a><a class="link" href="streaming.html">配信・動画OK</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)));
   }
 
   function joinPage() {
@@ -1190,7 +1198,7 @@
       case 'back': resetNet(); S.page = 'title'; S.busy = false; render(); break;
       case 'leave': confirmBox(v && v.isHost ? T('部屋を閉じますか？') : T('部屋を出ますか？'), v && v.isHost ? T('全員の接続が切れます') : '', T('出る'), leave); break;
       case 'share': {
-        const url = /^https?:/.test(location.protocol) ? location.href.split('#')[0] : '';
+        const url = CFG.portal ? SITE : (/^https?:/.test(location.protocol) ? location.href.split('#')[0] : '');
         navigator.share({ title: T('わちゃパ'), text: T('わちゃパで遊ぼう！ 「部屋に参加する」で部屋コード {0} を入れてね', v.roomCode), url: url || undefined }).catch(function () {});
         break;
       }
@@ -1281,7 +1289,7 @@
     e.preventDefault(); doAct('nose');
   });
   // ホーム画面に追加したときにオフラインでも開けるよう、ファイルを端末に保存する（サイトに置いたときだけ）
-  if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
+  if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !CFG.portal) {
     // 新しい版が届いたら、遊んでいないとき（タイトル画面）だけ自動で読み直す
     const hadSw = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener('controllerchange', function () { if (hadSw && S.page === 'title' && !S.view) location.reload(); });

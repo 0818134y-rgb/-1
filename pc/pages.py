@@ -28,6 +28,9 @@ h3{font-size:18px;margin:20px 0 4px}a{color:var(--mint)}.box{background:var(--ca
 '''
 
 
+STREAM_NAV = {'ja': '配信・動画OK', 'en': 'Streaming OK', 'ko': '방송 · 영상 OK', 'zh': '直播 · 视频 OK'}
+
+
 def page(title, body, head_extra='', ad='', lang='ja', base='howto'):
     if lang == 'ja':
         brand, nav, contact, desc, hl = 'わちゃパ', ['遊び方', 'このサイトについて', 'プライバシー', '遊ぶ'], 'お問い合わせ', \
@@ -42,7 +45,7 @@ def page(title, body, head_extra='', ad='', lang='ja', base='howto'):
 <title>{html.escape(title)}｜{brand}</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
 <meta name="description" content="{html.escape(desc)}">{alt}
 {head_extra}<style>{CSS}</style></head><body>
-<header><a href="./">{brand}</a><a href="{fname('howto', lang)}">{nav[0]}</a><a href="{fname('about', lang)}">{nav[1]}</a><a href="{fname('privacy', lang)}">{nav[2]}</a><span class="langs">🌐 {langs}</span><a class="play" href="./">{nav[3]}</a></header>
+<header><a href="./">{brand}</a><a href="{fname('howto', lang)}">{nav[0]}</a><a href="{fname('about', lang)}">{nav[1]}</a><a href="{fname('privacy', lang)}">{nav[2]}</a><a href="{fname('streaming', lang)}">{STREAM_NAV[lang]}</a><span class="langs">🌐 {langs}</span><a class="play" href="./">{nav[3]}</a></header>
 <main>{body}{('<div style="text-align:center;margin:30px 0">' + ad + '</div>') if ad else ''}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">{contact}</a></footer></body></html>
 '''
 
@@ -159,6 +162,11 @@ def build(game_dir, kjs_path, head_extra='', ad=''):
                               ('about', 'このサイトについて', about()),
                               ('privacy', 'プライバシーポリシー', privacy())):
         open(f'{game_dir}/{fname(base, "ja")}', 'w', encoding='utf-8').write(page(title, body, head_extra, ad, 'ja', base))
+    # 配信・動画OKのページ（4言語）
+    import streaming_text
+    for lang in LANGS:
+        title, body = streaming_text.L[lang]
+        open(f'{game_dir}/{fname("streaming", lang)}', 'w', encoding='utf-8').write(page(title, body.replace('{contact}', CONTACT), head_extra, ad, lang, 'streaming'))
     i18n_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'app', 'src', 'main', 'assets', 'i18n')
     for lang in LANGS[1:]:
         T = pages_text.L[lang]
