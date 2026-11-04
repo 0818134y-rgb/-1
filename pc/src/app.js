@@ -218,6 +218,8 @@
   /** 広告サービスの管理画面でコピーした広告タグ（HTML）を差し込む。innerHTML では script が動かないので作り直す */
   const TAGS = CFG.adTags || {};
   function injectTag(el, html) {
+    // 忍者AdMax の t.js は1ページで1回しか広告を取りに行かないので、2つ目以降の広告（休憩画面など）のために印を消してから読み直す
+    if (html.indexOf('admax') >= 0) { try { window.__admax_tag__ = undefined; window.admaxads = []; } catch (e) {} }
     el.innerHTML = html;
     el.querySelectorAll('script').forEach(function (old) {
       const s = document.createElement('script');
