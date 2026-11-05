@@ -11,7 +11,7 @@ def fname(base, lang):
     """howto.html / howto.en.html …"""
     return base + '.html' if lang == 'ja' else f'{base}.{lang}.html'
 
-CONTACT = 'https://github.com/0818134y-rgb/-1/issues'
+CONTACT = 'mailto:wachapa.com@gmail.com'
 
 CSS = '''
 :root{--night:#15102D;--card:#221F45;--lantern:#FFB347;--berry:#FF5C8A;--mint:#5CE1B9;--soft:#E9E6FF;--muted:#A6A1D0;--paper:#F6EBD9;--ink:#1E1A3A}
@@ -128,7 +128,7 @@ def about():
 <h2>しくみ</h2><p>このサイトは運営者のサーバーを使っていません。ゲームの進行は部屋を作った人の端末の中で行われ、参加者の端末どうしが直接通信します（相手を見つけるときだけ PeerJS の仲介サーバーを使います）。そのため、入力した名前や答えが運営者に届くことはありません。</p>
 <h2>無料で遊べる理由</h2><p>ロビーや結果の画面、ゲームの合間に広告を表示しています。広告の収益で運営しています。</p>
 <h2>運営者</h2><p>Zen（個人で制作しています）</p>
-<h2>お問い合わせ</h2><p>ご意見・不具合の報告は <a href="{CONTACT}">こちら（GitHub）</a> へお寄せください。</p>
+<h2>お問い合わせ</h2><p>ご意見・不具合の報告は <a href="{CONTACT}">wachapa.com@gmail.com</a> へお寄せください。</p>
 '''
 
 
@@ -149,7 +149,7 @@ def privacy():
 {pages_text.AD_JA}
 <h2>6. 対象年齢</h2><p>本サービスは13歳以上の方を対象としています。</p>
 <h2>7. 改定</h2><p>本ポリシーは必要に応じて改定します。改定後の内容は本ページに掲載した時点で効力を持ちます。</p>
-<h2>8. お問い合わせ</h2><p><a href="{CONTACT}">こちら（GitHub）</a> へお寄せください。</p>
+<h2>8. お問い合わせ</h2><p><a href="{CONTACT}">wachapa.com@gmail.com</a> へお寄せください。</p>
 <p class="muted">制定日：2026年11月3日／改定日：2026年11月4日</p>
 '''
 

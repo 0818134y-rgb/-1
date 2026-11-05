@@ -37,7 +37,7 @@ L = {
 <h2>How it works</h2><p>This site doesn't use the operator's own servers. The game runs on the device of whoever created the room, and players' devices talk to each other directly (a PeerJS signaling server is used only to find each other). The names and answers you enter are never sent to the operator.</p>
 <h2>Why it's free</h2><p>Ads are shown in the lobby, on result screens and during breaks between games. The ad revenue keeps the site running.</p>
 <h2>Operator</h2><p>Zen (made by an individual developer)</p>
-<h2>Contact</h2><p>Please send feedback and bug reports <a href="{contact}">here (GitHub)</a>.</p>''',
+<h2>Contact</h2><p>Please send feedback and bug reports to <a href="{contact}">wachapa.com@gmail.com</a>.</p>''',
         'privacy': '''<h1>Privacy Policy</h1>
 <p>This page explains how "Wachapa" (including the web version on this site, the PC version and the Android app; the "Service") handles user information.</p>
 <h2>1. Information collected by the operator</h2><p>The operator does not collect or store users' personal information (except as described in 4. Preventing abuse). The Service does not use the operator's servers.</p>
@@ -57,7 +57,7 @@ L = {
 <p>You can turn off personalized Google ads in <a href="https://adssettings.google.com/">Ad Settings</a> (on Android, also via Settings → Google → Ads). In regions where consent is required, such as Europe, consent is requested before ads are shown and can be changed later from "Ad settings".</p>
 <h2>6. Age requirement</h2><p>The Service is intended for users aged 13 and over.</p>
 <h2>7. Changes</h2><p>This policy may be updated as needed. Changes take effect when they are posted on this page.</p>
-<h2>8. Contact</h2><p>Please contact us <a href="{contact}">here (GitHub)</a>.</p>
+<h2>8. Contact</h2><p>Please contact us at <a href="{contact}">wachapa.com@gmail.com</a>.</p>
 <p class="muted">Effective date: November 3, 2026 / Updated: November 4, 2026</p>''',
     },
     'ko': {
@@ -87,7 +87,7 @@ L = {
 <h2>작동 방식</h2><p>이 사이트는 운영자의 서버를 사용하지 않아요. 게임 진행은 방을 만든 사람의 기기 안에서 이루어지고, 참가자의 기기끼리 직접 통신해요 (서로를 찾을 때만 PeerJS 중개 서버를 사용해요). 그래서 입력한 이름이나 답이 운영자에게 전달되는 일은 없어요.</p>
 <h2>무료로 즐길 수 있는 이유</h2><p>로비와 결과 화면, 게임 사이에 광고를 표시하고 있어요. 광고 수익으로 운영하고 있어요.</p>
 <h2>운영자</h2><p>Zen (개인이 제작하고 있어요)</p>
-<h2>문의</h2><p>의견이나 버그 신고는 <a href="{contact}">여기(GitHub)</a>로 보내 주세요.</p>''',
+<h2>문의</h2><p>의견이나 버그 신고는 <a href="{contact}">wachapa.com@gmail.com</a>로 보내 주세요.</p>''',
         'privacy': '''<h1>개인정보 처리방침</h1>
 <p>"와챠파"(이 사이트의 웹 버전, PC 버전, Android 앱을 포함합니다. 이하 "본 서비스")에서 이용자의 정보를 어떻게 다루는지 설명합니다.</p>
 <h2>1. 운영자가 수집하는 정보</h2><p>운영자는 이용자의 개인정보를 수집 · 저장하지 않습니다(4. 비매너 행위 방지 제외). 본 서비스는 운영자의 서버를 사용하지 않습니다.</p>
@@ -107,7 +107,7 @@ L = {
 <p>Google의 맞춤 광고는 <a href="https://adssettings.google.com/">광고 설정</a>에서 끌 수 있습니다 (Android는 기기의 "설정 → Google → 광고"에서도 변경할 수 있습니다). 유럽 등 동의가 필요한 지역에서는 광고를 표시하기 전에 동의를 확인하며, 나중에 "광고 설정"에서 변경할 수 있습니다.</p>
 <h2>6. 이용 연령</h2><p>본 서비스는 만 13세 이상을 대상으로 합니다.</p>
 <h2>7. 개정</h2><p>본 방침은 필요에 따라 개정합니다. 개정된 내용은 이 페이지에 게시한 시점부터 효력을 가집니다.</p>
-<h2>8. 문의</h2><p><a href="{contact}">여기(GitHub)</a>로 보내 주세요.</p>
+<h2>8. 문의</h2><p><a href="{contact}">wachapa.com@gmail.com</a>로 보내 주세요.</p>
 <p class="muted">제정일: 2026년 11월 3일 / 개정일: 2026년 11월 4일</p>''',
     },
     'zh': {
@@ -137,7 +137,7 @@ L = {
 <h2>运作方式</h2><p>本站不使用运营者自己的服务器。游戏在创建房间者的设备上运行，玩家的设备之间直接通信（只有在寻找对方时使用 PeerJS 的信令服务器）。因此，你输入的名字和答案不会发送给运营者。</p>
 <h2>为什么可以免费玩</h2><p>我们会在大厅、结果画面以及游戏间隙显示广告，靠广告收入来运营。</p>
 <h2>运营者</h2><p>Zen（个人开发）</p>
-<h2>联系我们</h2><p>意见和问题反馈请发送到<a href="{contact}">这里（GitHub）</a>。</p>''',
+<h2>联系我们</h2><p>意见和问题反馈请发送到<a href="{contact}">wachapa.com@gmail.com</a>。</p>''',
         'privacy': '''<h1>隐私政策</h1>
 <p>本页面说明“Wachapa”（包括本站的网页版、PC 版及安卓 App，以下称“本服务”）如何处理用户信息。</p>
 <h2>1. 运营者收集的信息</h2><p>运营者不收集、不保存用户的个人信息（“4. 防止恶意行为”所述情况除外）。本服务不使用运营者的服务器。</p>
@@ -157,7 +157,7 @@ L = {
 <p>Google 的个性化广告可以在<a href="https://adssettings.google.com/">广告设置</a>中关闭（安卓也可以在设备的“设置 → Google → 广告”中更改）。在欧洲等需要征得同意的地区，会在显示广告前确认同意，之后也可以在“广告设置”中更改。</p>
 <h2>6. 适用年龄</h2><p>本服务面向 13 岁及以上的用户。</p>
 <h2>7. 修订</h2><p>本政策会根据需要进行修订。修订后的内容自发布在本页面时起生效。</p>
-<h2>8. 联系我们</h2><p>请发送到<a href="{contact}">这里（GitHub）</a>。</p>
+<h2>8. 联系我们</h2><p>请发送到<a href="{contact}">wachapa.com@gmail.com</a>。</p>
 <p class="muted">制定日期：2026 年 11 月 3 日／修订日期：2026 年 11 月 4 日</p>''',
     },
 }
