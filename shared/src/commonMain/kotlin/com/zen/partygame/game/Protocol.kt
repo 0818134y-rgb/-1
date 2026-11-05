@@ -20,6 +20,7 @@ val WireJson = Json {
 /** ゲームの種類。localOk = スマホ1台でも遊べる、minPlayers = 必要な人数 */
 enum class GameType(val label: String, val short: String, val localOk: Boolean, val minPlayers: Int) {
     ARENA("なんでもアリーナ", "アリーナ", false, 2),
+    YAO("やおよろずバトル", "やおよろず", false, 2),
     SCALE("みんなのものさし", "ものさし", false, 2),
     WORD_WOLF("ワードウルフ", "ワードウルフ", true, 3),
     NG_WORD("NGワード", "NGワード", false, 3),
@@ -174,6 +175,9 @@ sealed interface Intent {
     /** トランプのゲーム：bet10 / hit / stand / double / high / low / same / swap（cards = 交換するカードの番号） / call / fold */
     @Serializable @SerialName("tableAct") data class TableAct(val act: String, val cards: List<Int> = emptyList()) : Intent
 
+    /** やおよろずバトル：play（cards・target・opt）/ pray / defend（cards = 防具） */
+    @Serializable @SerialName("yaoAct") data class YaoAct(val act: String, val cards: List<Int> = emptyList(), val target: String? = null, val opt: String = "") : Intent
+
     /** 管理者の操作（ホストの端末が、署名を確かめた管理者からのものだけ実行する。ゲームの進行には渡さない） */
     @Serializable @SerialName("adminOp") data class AdminOp(val op: String, val target: String = "", val text: String = "") : Intent
 
@@ -236,6 +240,17 @@ data class TableSeat(
     val delta: Int = 0,
     val statusArg: String = "",
 )
+
+/** やおよろずバトルのカード */
+@Serializable
+data class YaoCard(val uid: Int, val id: String)
+
+@Serializable
+data class YaoSeat(val id: String, val hp: Int, val mp: Int, val coin: Int, val hand: Int, val alive: Boolean, val curse: Int = 0)
+
+/** 守りを待っている攻撃 */
+@Serializable
+data class YaoAttackView(val by: String, val targets: List<String>, val atk: Int, val cards: List<String>, val waiting: List<String>)
 
 /** お絵かき伝言の1コマ（文か絵） */
 @Serializable
@@ -433,6 +448,19 @@ sealed interface Screen {
         /** 今の自分が押せる操作 */
         val actions: List<String> = emptyList(),
         val log: List<String> = emptyList(),
+    ) : Screen
+
+    /** やおよろずバトル。over = 決着（結果画面） */
+    @Serializable @SerialName("yao")
+    data class Yao(
+        val seats: List<YaoSeat>,
+        val turn: String,
+        val hand: List<YaoCard>,
+        val attack: YaoAttackView? = null,
+        val log: List<String> = emptyList(),
+        val over: Boolean = false,
+        val winners: List<String> = emptyList(),
+        val deck: Int = 0,
     ) : Screen
 
     @Serializable @SerialName("adBreak")

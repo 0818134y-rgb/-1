@@ -205,7 +205,7 @@ fun TitleScreen(vm: AppViewModel) {
         Text(tr("わちゃパ"), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
         Text(tr("ワードウルフ・NGワード ほか"), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.secondary)
         Spacer(Modifier.height(6.dp))
-        Caption(tr("13のパーティーゲーム。全員のスマホで遊べる"), Modifier.padding(bottom = 20.dp))
+        Caption(tr("14のパーティーゲーム。全員のスマホで遊べる"), Modifier.padding(bottom = 20.dp))
 
         // つなぎ方の切り替え（これだけ）
         ModeSwitch(online, vm::setOnline)
@@ -390,6 +390,10 @@ fun RulesDialog(onClose: () -> Unit) {
                 Spacer(Modifier.height(14.dp))
                 RuleHead(R.drawable.icon_draw, tr("お絵かき伝言"), MaterialTheme.colorScheme.primary)
                 Text(tr("最初に全員がお題（「ねこが空を飛んでいる」など）を書きます。それが隣の人に回り、絵にします。次の人はその絵だけを見て何の絵か文で答え、さらに次の人がその文を絵に…と全員分くり返します。最後に、お題がどう変わっていったかを1コマずつ発表して笑いましょう。"))
+                Spacer(Modifier.height(14.dp))
+                RuleHead(R.drawable.icon_yao, tr("やおよろずバトル（NEW）"), MaterialTheme.colorScheme.secondary)
+                Text(tr("八百万の神さまのご加護で、長ねぎやなべのふたが神器になる！ 武器で攻撃、防具で守り、霊力で奇跡を起こして、最後まで成仏しなかった人の勝ち（2〜8人）。"))
+                Text(tr("手番では、武器（上乗せカードと一緒に）・奇跡・道具のどれか1回か、お祈り（いらないカードを捨てて、捨てた枚数＋1枚引く）。攻撃された人は防具を何枚でも重ねて守れます。奇跡は霊力を使い、防具が効きません。成仏させた人は、その人のおさいせんを香典としてもらえます。"))
                 Spacer(Modifier.height(14.dp))
                 RuleHead(R.drawable.icon_blackjack, tr("ブラックジャック"), MaterialTheme.colorScheme.secondary)
                 Text(tr("全員が同時にディーラー（コンピューター）と勝負。21に近いほうが勝ち、超えたらバースト。ブラックジャックは1.5倍。チップは次のラウンドに持ち越します（2〜8人）。"))

@@ -31,21 +31,32 @@ h3{font-size:18px;margin:20px 0 4px}a{color:var(--mint)}.box{background:var(--ca
 STREAM_NAV = {'ja': '配信・動画OK', 'en': 'Streaming OK', 'ko': '방송 · 영상 OK', 'zh': '直播 · 视频 OK'}
 
 
-def page(title, body, head_extra='', ad='', lang='ja', base='howto'):
+ODAI_NAV = {'ja': 'お題一覧', 'en': 'Prompts', 'ko': '주제 목록', 'zh': '题目列表'}
+
+
+def page(title, body, head_extra='', ad='', lang='ja', base='howto', desc_override=None, langs=None, head_more='', brand_title=True):
+    """langs = そのページがある言語（hreflang と言語切り替えに使う）。desc_override = そのページ専用の説明文"""
+    langs = langs or LANGS
     if lang == 'ja':
         brand, nav, contact, desc, hl = 'わちゃパ', ['遊び方', 'このサイトについて', 'プライバシー', '遊ぶ'], 'お問い合わせ', \
-            'なんでもアリーナ・みんなのものさし・ワードウルフ・ポーカーなど13のパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。', 'ja'
+            'なんでもアリーナ・みんなのものさし・ワードウルフ・ポーカーなど14のパーティーゲーム。iPhone・Android・PCのブラウザで、部屋コードを使ってみんなで遊べます。', 'ja'
     else:
         T = pages_text.L[lang]
         brand, nav, contact, desc, hl = T['brand'], T['nav'], T['contact'], T['desc'], T['html_lang']
-    alt = ''.join(f'<link rel="alternate" hreflang="{"zh-CN" if l == "zh" else l}" href="{fname(base, l)}">' for l in LANGS)
-    langs = ' '.join(f'<a href="{fname(base, l)}"{" style=\"color:var(--soft)\"" if l == lang else ""}>{LANG_LABEL[l]}</a>' for l in LANGS)
+    if desc_override: desc = desc_override
+    alt = ''.join(f'<link rel="alternate" hreflang="{"zh-CN" if l == "zh" else l}" href="https://wachapa.com/{fname(base, l)}">' for l in langs) if len(langs) > 1 else ''
+    alt += f'<link rel="canonical" href="https://wachapa.com/{fname(base, lang)}">'
+    alt += (f'<meta property="og:type" content="article"><meta property="og:site_name" content="{brand}"><meta property="og:title" content="{html.escape(title)}">'
+            f'<meta property="og:description" content="{html.escape(desc)}"><meta property="og:image" content="https://wachapa.com/og.jpg">'
+            f'<meta property="og:url" content="https://wachapa.com/{fname(base, lang)}"><meta name="twitter:card" content="summary_large_image">')
+    lang_links = langs
+    langs = ' '.join(f'<a href="{fname(base, l)}"{" style=\"color:var(--soft)\"" if l == lang else ""}>{LANG_LABEL[l]}</a>' for l in lang_links)
     return f'''<!doctype html>
 <html lang="{hl}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>{html.escape(title)}｜{brand}</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
+<title>{html.escape(title)}{('｜' + brand) if brand_title else ''}</title><meta name="theme-color" content="#15102D"><link rel="icon" href="icons/icon-192.png">
 <meta name="description" content="{html.escape(desc)}">{alt}
-{head_extra}<style>{CSS}</style></head><body>
-<header><a href="./">{brand}</a><a href="{fname('howto', lang)}">{nav[0]}</a><a href="{fname('about', lang)}">{nav[1]}</a><a href="{fname('privacy', lang)}">{nav[2]}</a><a href="{fname('streaming', lang)}">{STREAM_NAV[lang]}</a><span class="langs">🌐 {langs}</span><a class="play" href="./">{nav[3]}</a></header>
+{head_extra}{head_more}<style>{CSS}</style></head><body>
+<header><a href="./">{brand}</a><a href="{fname('howto', lang)}">{nav[0]}</a><a href="{fname('about', lang)}">{nav[1]}</a><a href="{fname('privacy', lang)}">{nav[2]}</a><a href="{fname('odai', lang)}">{ODAI_NAV[lang]}</a><a href="{fname('streaming', lang)}">{STREAM_NAV[lang]}</a><span class="langs">🌐 {langs}</span><a class="play" href="./">{nav[3]}</a></header>
 <main>{body}{('<div style="text-align:center;margin:30px 0">' + ad + '</div>') if ad else ''}</main><footer>© 2026 Zen ・ <a href="{CONTACT}">{contact}</a></footer></body></html>
 '''
 
@@ -54,6 +65,8 @@ GAMES = [
     ('icon_arena', 'なんでもアリーナ（一押し）', '2〜8人',
      '手番が来たら山札から1枚引き、手札から1枚出して、書かれていることに従います。落とし穴を誰かの前に置いたり、全員でいっせいにじゃんけんしたり、「わたし」と言ったら負けになったり──何が起きるかわかりません。負けた人は抜けて、最後の1人になるか、カードの勝利条件（金貨を15ポイント分ためる・誕生月の人が出す、など）を満たした人の勝ち。全員まとめて負けることもあります。'
      '★のついたスターカードは特に強力。ゲームの最初に「今夜のルール」が1つ追加されます。言葉やしぐさのルールを破った人を見つけたら、その人の「違反！」を押しましょう。'),
+    ('icon_yao', 'やおよろずバトル（NEW）', '2〜8人',
+     "八百万の神さまのご加護で、長ねぎやなべのふたが神器になる！ 武器で攻撃、防具で守り、霊力で奇跡を起こして、最後まで成仏しなかった人の勝ち。 手番では、武器（上乗せカードと一緒に）・奇跡・道具のどれか1回か、お祈り（いらないカードを捨てて、捨てた枚数＋1枚引く）。攻撃された人は防具を何枚でも重ねて守れます。奇跡は霊力を使い、防具が効きません。成仏させた人は、その人のおさいせんを香典としてもらえます。"),
     ('icon_scale', 'みんなのものさし（NEW）', '2〜8人',
      '全員にひみつの数字（1〜100）が配られます。お題（「強そうな動物」なら 1＝弱い・100＝強い）に合わせて、自分の数字を「ことば」で表します。たとえば90なら「ライオン」、5なら「ありんこ」。数字そのものは言ってはいけません。'
      'みんなのヒントを見て話し合いながら、自分がいちばん小さいと思ったら「出す」。まだ誰かの手元にもっと小さい数字があったらミスで、ライフが1つ減ります（その数字は捨てられます）。ライフを残して全員出し切れたらクリア！ 全員で協力するゲームです。お題は119種類。'),
@@ -83,10 +96,10 @@ GAMES = [
 
 
 def howto(cards, chaos):
-    b = '<h1>遊び方・カード一覧</h1><p>このサイトでは、みんなで集まって（または通話しながら）遊ぶ13のパーティーゲームを無料で遊べます。アプリのインストールは不要で、iPhone・Android・PC のブラウザからそのまま遊べます。</p>'
+    b = '<h1>遊び方・カード一覧</h1><p>このサイトでは、みんなで集まって（または通話しながら）遊ぶ14のパーティーゲームを無料で遊べます。アプリのインストールは不要で、iPhone・Android・PC のブラウザからそのまま遊べます。</p>'
     b += '<h2>はじめ方</h2><div class="box"><ol><li>1人が名前を入れて「部屋を作る」を押すと、6けたの部屋コードが出ます。</li><li>ほかの人は「部屋に参加する」で同じ部屋コードを入れます（Android アプリの人は「オンライン」に切り替えてから）。</li><li>部屋を作った人（ホスト）がゲームを選んで「はじめる」を押します。</li></ol>'
     b += '<p class="muted">iPhone は Safari の共有ボタン →「ホーム画面に追加」で、アプリのように全画面で遊べます。話して遊ぶゲームは、離れているときは通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</p></div>'
-    b += '<h2>13のゲーム</h2>'
+    b += '<h2>14のゲーム</h2>'
     for icon, name, n, text in GAMES:
         b += f'<div class="box game"><img src="img/{icon}.webp" alt=""><div><h3>{html.escape(name)}<span class="muted">（{n}）</span></h3><p>{html.escape(text)}</p></div></div>'
     b += '<h2>なんでもアリーナのカード</h2><p>全部で50枚（うち★のスターカード14枚）。同じ名前でも、出してから効果がわかるカードがあります（「全員じゃんけん」は負ける手が4種類、「せーのでゆび」は4種類）。</p><div class="cards">'
@@ -103,7 +116,7 @@ def howto(cards, chaos):
     return b
 
 
-PLAYERS = {'icon_arena': (2, 8), 'icon_scale': (2, 8), 'icon_wordwolf': (3,), 'icon_ngword': (3,), 'icon_spy': (3,), 'icon_sync': (2,), 'icon_guess': (2,),
+PLAYERS = {'icon_arena': (2, 8), 'icon_yao': (2, 8), 'icon_scale': (2, 8), 'icon_wordwolf': (3,), 'icon_ngword': (3,), 'icon_spy': (3,), 'icon_sync': (2,), 'icon_guess': (2,),
            'icon_question': (3,), 'icon_draw': (3, 8),
            'icon_blackjack': (2, 8), 'icon_highlow': (2, 8), 'icon_poker': (2, 8), 'icon_indian': (2, 8)}
 
@@ -131,7 +144,7 @@ def howto_l(lang, cards, chaos, tr):
 
 def about():
     return f'''<h1>このサイトについて</h1>
-<p>「わちゃパ」は、友だちや家族と集まったとき、または通話しながら遊べるパーティーゲーム集です。なんでもアリーナ・みんなのものさし・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問・お絵かき伝言・ブラックジャック・ハイ＆ロー・ポーカー・インディアンポーカーの13種類を、無料で遊べます。</p>
+<p>「わちゃパ」は、友だちや家族と集まったとき、または通話しながら遊べるパーティーゲーム集です。なんでもアリーナ・やおよろずバトル・みんなのものさし・ワードウルフ・NGワード・スパイはだれだ・みんなでシンクロ・質問で当てろ・ぶっちゃけ質問・お絵かき伝言・ブラックジャック・ハイ＆ロー・ポーカー・インディアンポーカーの14種類を、無料で遊べます。</p>
 <h2>遊べる端末</h2><ul><li>iPhone・iPad（Safari。ホーム画面に追加するとアプリのように使えます）</li><li>Android（ブラウザ、または Android アプリ）</li><li>パソコン（Edge・Chrome などのブラウザ、または PC 版の「遊ぶ.bat」）</li></ul>
 <p>どの端末どうしでも、部屋コードを使って同じ部屋で遊べます。</p>
 <h2>しくみ</h2><p>このサイトは運営者のサーバーを使っていません。ゲームの進行は部屋を作った人の端末の中で行われ、参加者の端末どうしが直接通信します（相手を見つけるときだけ PeerJS の仲介サーバーを使います）。そのため、入力した名前や答えが運営者に届くことはありません。</p>

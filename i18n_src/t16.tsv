@@ -1,0 +1,142 @@
+#keys keys_v11.json
+29	 · from 40 HP	· HP 40부터	· HP 40 起
+72	By the grace of eight million gods, leeks and pot lids become sacred weapons! Attack with weapons, defend with armor, work miracles with Spirit — the last one who hasn't ascended wins (2–8 players).	팔백만 신의 가호로 대파와 냄비 뚜껑이 신기가 된다! 무기로 공격하고, 방어구로 막고, 영력으로 기적을 일으켜, 끝까지 성불하지 않은 사람이 승리 (2~8명).	在八百万神明的庇佑下，大葱和锅盖都成了神器！用武器攻击、用防具防守、用灵力施展奇迹，坚持到最后没成佛的人获胜（2~8 人）。
+73	Time per turn (you pray when it runs out)	1턴 제한 시간 (지나면 기도로 넘어가요)	每回合限时（超时则自动祈祷）
+253	Yaoyorozu Battle (NEW)	야오요로즈 배틀 (NEW)	八百万神之战（新）
+254	On your turn, do one thing: a weapon (with boosts), a miracle or an item — or pray (discard any cards you don't want and draw that many plus one). When attacked, stack as many armor cards as you like. Miracles cost Spirit and ignore armor. Whoever sends someone to the afterlife collects their offerings as condolence money.	내 턴에는 무기(보강 카드와 함께)·기적·도구 중 하나를 한 번 쓰거나, 기도(필요 없는 카드를 버리고 버린 장수 +1장 뽑기)를 해요. 공격받은 사람은 방어구를 몇 장이든 겹쳐서 막을 수 있어요. 기적은 영력을 쓰고 방어구가 통하지 않아요. 성불시킨 사람은 그 사람의 새전을 부조금으로 받아요.	轮到自己时，可以使用一次武器（可搭配加成牌）、奇迹或道具，或者祈祷（丢掉不要的牌，抽丢掉张数 +1 张）。被攻击的人可以叠加任意张防具来防御。奇迹消耗灵力，防具无效。让别人成佛的人能把对方的香油钱当作奠仪收下。
+448	ATK {0}	공{0}	攻{0}
+449	 · all	·전체	·全体
+450	Reflect	반사	反射
+451	DEF {0}	방{0}	防{0}
+452	Spirit {0}	영력{0}	灵力{0}
+453	Item	도구	道具
+454	Yaoyorozu Battle	야오요로즈 배틀	八百万神之战
+455	Everyone ascended… no winner	모두 성불… 승자 없음	全员成佛……没有赢家
+456	Chosen by the gods	신에게 선택받은 자	被神明选中之人
+457	Ascended	성불	成佛
+458	{0} attacks! ATK {1}	{0}의 공격! 공{1}	{0}发动攻击！攻{1}
+459	Waiting for {0} to defend…	{0}의 방어를 기다리는 중…	等待{0}防御……
+460	You have ascended	당신은 성불했어요	你已成佛
+461	Watch until the end	끝까지 지켜봐요	看到最后吧
+462	Choose armor to defend (stack as many as you like)	방어구를 골라 막자 (몇 장이든 겹칠 수 있어요)	选择防具来防御（可叠加任意张）
+463	Take it ({0} damage)	그대로 받기 ({0} 대미지)	直接承受（{0} 伤害）
+464	Bounce it back with the kagami mochi!	가가미모치로 되받아치기!	用镜饼反弹回去！
+465	Defend (DEF {0} → {1} damage)	막기 (방{0} → {1} 대미지)	防御（防{0} → {1} 伤害）
+466	Your turn! Pick cards or pray	당신 차례! 카드를 고르거나 기도하자	轮到你了！选牌或者祈祷吧
+467	Attack with ATK {0}!	공{0}으로 공격!	以攻{0}攻击！
+468	Not enough Spirit	영력이 부족해요	灵力不足
+469	Not enough offerings	새전이 부족해요	香油钱不足
+470	Armor is used when you're attacked	방어구는 공격받았을 때 써요	防具在被攻击时使用
+471	Pick boost cards together with a weapon	보강 카드는 무기와 함께 골라요	加成牌要和武器一起选
+472	This combination can't be used	이 조합으로는 쓸 수 없어요	这个组合无法使用
+473	Exchange what into what? (up to 8)	무엇을 무엇으로 환전할까? (최대 8)	把什么换成什么？（最多 8）
+474	💫Spirit	💫영력	💫灵力
+475	💰Offerings	💰새전	💰香油钱
+476	Attack!	공격!	攻击！
+477	Use "{0}"	'{0}' 사용	使用“{0}”
+478	Pray (draw 1 and end your turn)	기도 (1장 뽑고 끝내기)	祈祷（抽 1 张后结束）
+479	Discard {0} and pray (draw {1})	고른 {0}장을 버리고 기도 ({1}장 뽑기)	丢掉选中的 {0} 张并祈祷（抽 {1} 张）
+598	Yaoyorozu Battle begins! Eight million gods are watching	야오요로즈 배틀 시작! 팔백만 신이 지켜보고 있어요	八百万神之战开始！八百万神明正在看着
+599	The gods yawned… from now on, {0} damage at the start of each turn	신이 하품을 했다… 이제부터 턴 시작마다 {0} 대미지	神明打了个哈欠……从现在起每回合开始受到 {0} 伤害
+600	{0} is cursed… {1} damage ({2} more)	{0}, 저주받고 있다… {1} 대미지 (앞으로 {2}번)	{0}被作祟了……{1} 点伤害（还剩 {2} 次）
+601	{0} has ascended… rest in peace	{0}, 성불했다… 나무아미타불	{0}成佛了……南无
+602	{0} received {2} offerings from {1} as condolence money	{0}, {1}의 부조금 {2}새전을 받았다	{0}收下了{1}的奠仪 {2} 香油钱
+603	Everyone ascended… even the gods are surprised	모두 성불… 팔백만 신도 깜짝	全员成佛……八百万神明都吓了一跳
+604	{0} wins! Chosen by the gods	{0}의 승리! 신에게 선택받은 자	{0}获胜！被神明选中之人
+605	{0} prayed (drew {1})	{0}, 기도했다 ({1}장 뽑음)	{0}祈祷了（抽了 {1} 张）
+606	{0} discarded {1} and prayed (drew {2})	{0}, {1}장 버리고 기도했다 ({2}장 뽑음)	{0}丢掉 {1} 张并祈祷了（抽了 {2} 张）
+607	{0} uses "{1}"! ATK {2} on everyone else	{0}의 '{1}'! 다른 모두에게 공{2}	{0}的“{1}”！对其他所有人攻{2}
+608	{0} hits {1} with "{2}"! ATK {3}	{0}, {1}에게 '{2}'! 공{3}	{0}对{1}使出“{2}”！攻{3}
+609	{0} uses "{1}"! {3} damage to {2} (armor doesn't work)	{0}의 '{1}'! {2}에게 {3} 대미지 (방어구 무효)	{0}的“{1}”！对{2}造成 {3} 伤害（防具无效）
+610	{0} used "{1}" and got +{2} HP. Bliss	{0}, '{1}'(으)로 HP+{2}. 극락이로다	{0}用“{1}”回复 HP+{2}。太舒服了
+611	{0} put a curse on {1}! {2} damage on each of their next 3 turns	{0}, {1}에게 '저주'를 걸었다! 3번의 턴 동안 {2} 대미지씩	{0}对{1}施了“作祟”！接下来 3 个回合每次 {2} 伤害
+612	{0} uses "{1}"! {3} cards vanished from {2}'s hand	{0}의 '{1}'! {2}의 손패가 {3}장 사라졌다	{0}的“{1}”！{2}的手牌消失了 {3} 张
+613	{0} uses "{1}"! {2} damage to everyone else	{0}의 '{1}'! 다른 모두에게 {2} 대미지	{0}的“{1}”！对其他所有人造成 {2} 伤害
+614	{0} prayed to "{1}". The curse is lifted and +{2} HP	{0}, '{1}'에 기도했다. 저주가 풀리고 HP+{2}	{0}拜了“{1}”。诅咒解除，HP+{2}
+615	{0} uses "{1}". Drew {2} cards	{0}의 '{1}'. 카드를 {2}장 뽑았다	{0}的“{1}”。抽了 {2} 张牌
+616	{0} ate "{1}". +{2} HP	{0}, '{1}'을(를) 먹었다. HP+{2}	{0}吃了“{1}”。HP+{2}
+617	{0} drank "{1}". +{2} Spirit	{0}, '{1}'을(를) 마셨다. 영력+{2}	{0}喝了“{1}”。灵力+{2}
+618	Great luck	대길	大吉
+619	Good luck	중길	中吉
+620	Small luck	소길	小吉
+621	Future luck	말길	末吉
+622	Bad luck	흉	凶
+623	{0}'s fortune: {1}! Drew 2 cards	{0}의 '운세 뽑기'는 {1}! 카드를 2장 뽑았다	{0}的“抽签”是{1}！抽了 2 张牌
+624	{0} exchanged {3} of {1} into {2}	{0}, '환전'으로 {1}을(를) {2}(으)로 {3} 옮겼다	{0}用“兑换”把 {3} 点{1}换成了{2}
+625	{0} pinched {2} offerings from {1}. The gods will punish you	{0}, {1}의 새전을 {2} 슬쩍했다. 벌 받는다	{0}偷走了{1}的 {2} 香油钱。会遭报应的
+626	{0} tossed {1} offerings. Blessed with +{2} HP	{0}, 새전 {1}을 던졌다. 은혜로 HP+{2}	{0}投了 {1} 香油钱。得到保佑 HP+{2}
+627	{0} bought "{2}" from {1} for {3} offerings	{0}, {1}에게서 '{2}'을(를) 새전 {3}에 사들였다	{0}花 {3} 香油钱从{1}那里买下了“{2}”
+628	{0} tried a hard sell, but had nothing to sell	{0}, 강매하려 했지만 팔 물건이 없었다	{0}想强卖，却没有东西可卖
+629	{0} pushed "{2}" on {1}! Pocketed {3} offerings	{0}, {1}에게 '{2}'을(를) 강매! 새전 {3}을 챙겼다	{0}把“{2}”强卖给{1}！赚到 {3} 香油钱
+630	{0}'s kagami mochi! ATK {1} bounced straight back at {2}	{0}의 '가가미모치'! 공{1}이 그대로 {2}에게 튕겨 나갔다	{0}的“镜饼”！攻{1}原封不动反弹给了{2}
+631	{0} takes {1} damage	{0}, {1} 대미지	{0}受到 {1} 伤害
+632	{0} blocked it completely with {1}!	{0}, {1}(으)로 완벽하게 막았다!	{0}用{1}完全挡住了！
+633	{0} defended with {1} but took {2} damage	{0}, {1}(으)로 막았지만 {2} 대미지	{0}用{1}防御，但仍受到 {2} 伤害
+634	{0} left the room	{0}, 방을 나갔다	{0}离开了房间
+635	{0} ran out of time	{0}, 시간 초과	{0}超时了
+636	Spirit	영력	灵力
+637	Offerings	새전	香油钱
+638	Leek	대파	大葱
+639	ATK 5. Smells great when you swing it.	공5. 휘두르면 좋은 향기가 난다.	攻5。挥舞起来很香。
+640	Pestle	절굿공이	研磨棒
+641	ATK 4. The kitchen god's favorite.	공4. 부엌 신의 애용품.	攻4。灶神的心爱之物。
+642	Laundry Pole	빨래 장대	晾衣竿
+643	ATK 6. Reach is justice.	공6. 리치가 길면 정의.	攻6。够长就是正义。
+644	Paper Fan	하리센	纸扇
+645	ATK 4. Only trusts half of the target's armor. Thwack!	공4. 상대 방어구를 반만 믿는다. 짝!	攻4。只信对方防具的一半。啪！
+646	Sacred Tree Bat	신목 배트	神木球棒
+647	ATK 8. Carved from a sacred tree… supposedly.	공8. 신목을 깎아 만들었다… 고 한다.	攻8。据说是用神木削成的……
+648	Legendary Ladle	전설의 국자	传说中的汤勺
+649	ATK 11. Became sacred from too much taste-testing.	공11. 간을 너무 많이 봐서 신기가 되었다.	攻11。试味试太多变成了神器。
+650	Thunder Drum	천둥 북	雷鸣太鼓
+651	ATK 4 on everyone else. Rumble rumble BOOM.	다른 모두에게 공4. 우르르 쾅.	对其他所有人攻4。轰隆隆咚！
+652	Pillow Fight	베개 싸움	枕头大战
+653	ATK 2 on everyone else. Remember those school trip nights.	다른 모두에게 공2. 수학여행의 밤을 떠올려라.	对其他所有人攻2。回想起修学旅行的夜晚。
+654	Fighting Spirit	기합	气势
+655	Play with a weapon for ATK +2. Shouting makes you feel stronger.	무기와 함께 내면 공격+2. 소리치면 강해지는 기분.	和武器一起打出攻击+2。大喊会觉得变强了。
+656	Tailwind	순풍	顺风
+657	Play with a weapon for ATK +3. A whim of the wind god.	무기와 함께 내면 공격+3. 바람 신의 변덕.	和武器一起打出攻击+3。风神的心血来潮。
+658	Hot Mustard	겨자	芥末
+659	Play with a weapon for ATK +4. Goes right up your nose.	무기와 함께 내면 공격+4. 코가 찡하다.	和武器一起打出攻击+4。直冲鼻腔。
+660	Cardboard Box	종이 상자	纸箱
+661	DEF 2. Strangely calming to sit inside.	방2. 안에 들어가면 마음이 편해진다.	防2。钻进去就莫名安心。
+662	Pot Lid	냄비 뚜껑	锅盖
+663	DEF 3. The strongest shield in the kitchen.	방3. 부엌 최강의 방패.	防3。厨房里最强的盾。
+664	Futon	이불	被褥
+665	DEF 5. The problem is you never want to get out.	방5. 나오기 싫어지는 게 단점.	防5。缺点是不想出来。
+666	Kotatsu	고타쓰	暖桌
+667	DEF 7. Tangerines included.	방7. 귤 포함.	防7。附带橘子。
+668	Temple Bell	절의 종	寺庙大钟
+669	DEF 12. Bonnng.	방12. 데엥.	防12。咚——
+670	Kagami Mochi	가가미모치	镜饼
+671	Bounces the whole attack back at the attacker. New Year power.	공격을 통째로 상대에게 되돌린다. 설날 파워.	把攻击原封不动地弹回给对方。新年之力。
+672	Fox Fire	여우불	狐火
+673	Spirit 3: 6 damage to one player (armor doesn't work). Konkon.	영력3: 상대 1명에게 6 대미지 (방어구 무효). 콩콩.	灵力3：对一人造成 6 伤害（防具无效）。嗷呜。
+674	Healing Hot Spring	치유의 온천	治愈温泉
+675	Spirit 2: +9 HP for yourself. Pure bliss.	영력2: 내 HP+9. 극락, 극락.	灵力2：自己 HP+9。舒服，太舒服了。
+676	Curse	저주	作祟
+677	Spirit 4: curse one player. 3 damage at the start of their turn, 3 times. Boo.	영력4: 상대 1명을 저주한다. 그 사람의 턴 시작마다 3 대미지×3번. 원통하다.	灵力4：诅咒一名玩家。在其回合开始时造成 3 伤害×3 次。怨念满满。
+678	Spirited Away	신의 장난	神隐
+679	Spirit 5: 2 random cards vanish from one player's hand. Huh, where'd they go?	영력5: 상대 1명의 손패를 무작위로 2장 없앤다. 어라, 어디 갔지?	灵力5：随机让一名玩家的 2 张手牌消失。咦，去哪了？
+680	Cataclysm	천재지변	天崩地裂
+681	Spirit 9: 8 damage to everyone else (armor doesn't work). The gods get serious.	영력9: 다른 모두에게 8 대미지 (방어구 무효). 신, 진심 모드.	灵力9：对其他所有人造成 8 伤害（防具无效）。神明认真了。
+682	Sacred Sunrise	일출 참배	御来光
+683	Spirit 3: remove your curse and +5 HP. Hallelujah.	영력3: 내 저주를 없애고 HP+5. 감사합니다.	灵力3：解除自己的作祟并 HP+5。感恩。
+684	Word Magic	언령	言灵
+685	Spirit 2: draw 3 cards. Say it and it's yours.	영력2: 카드를 3장 뽑는다. 말한 사람이 임자.	灵力2：抽 3 张牌。说出口就算数。
+686	Rice Ball	주먹밥	饭团
+687	+6 HP. Pickled plum filling.	HP+6. 속은 우메보시.	HP+6。馅是梅干。
+688	Energy Drink	에너지 드링크	能量饮料
+689	+5 Spirit. Fight on!	영력+5. 파이팅!	灵力+5。加油！
+690	Fortune Slip	운세 뽑기	抽签
+691	Draw 2 cards. Tells your fortune, too.	카드를 2장 뽑는다. 운세도 볼 수 있다.	抽 2 张牌。顺便算算运势。
+692	Exchange	환전	兑换
+693	Move up to 8 from HP, Spirit or offerings into one of the others.	HP·영력·새전 중 하나에서 다른 것으로 최대 8 옮긴다.	从 HP、灵力、香油钱中的一项转移最多 8 点到另一项。
+694	Offering Thief	새전 도둑	香油钱小偷
+695	Pinch up to 8 offerings from one player. Shameless.	상대 1명의 새전을 최대 8 슬쩍한다. 벌 받을 짓.	从一名玩家那里偷最多 8 香油钱。不怕遭报应。
+696	Pay 10 offerings for +15 HP. Blessings can be bought.	새전 10을 내고 HP+15. 은혜는 돈으로 살 수 있다.	支付 10 香油钱，HP+15。保佑是可以买的。
+697	Buyout	매입	收购
+698	Pay 5 offerings and take a random card from one player's hand.	새전 5를 내고 상대 1명의 손패에서 무작위로 1장 받는다.	支付 5 香油钱，从一名玩家手牌中随机拿 1 张。
+699	Hard Sell	강매	强卖
+700	Push a random card from your hand onto one player and take up to 5 offerings.	내 손패에서 무작위 1장을 상대 1명에게 떠넘기고 새전을 최대 5 받는다.	把自己手牌中随机 1 张硬塞给一名玩家，并收最多 5 香油钱。
+890	Yaoyorozu	야오요로즈	八百万

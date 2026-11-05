@@ -27,6 +27,7 @@
   function fmtLog(line) { return G.formatLog(line, function (k) { return T(k); }, T('、')); }
   function afterFirst(text) { const i = text.indexOf('。'); if (i >= 0) return text.slice(i + 1); const j = text.indexOf('. '); return j >= 0 ? text.slice(j + 2) : text; }
   const CARDS_JA = JSON.parse(G.arenaCardsJson());
+  const YAO = {}; JSON.parse(G.yaoCardsJson()).forEach(function (d) { YAO[d.id] = d; });
   const CHAOS_JA = JSON.parse(JSON.stringify(META.chaos));
   const GAMES_JA = META.games.map(function (g) { return Object.assign({}, g); });
   const CARDS = {}, GAMES = {};
@@ -549,7 +550,7 @@
         showBanner(false); tickTimers(); return;
       }
       html = screenHtml(v);
-      banner = ['lobby', 'arenaResult', 'wwResult', 'ngResult', 'syncReveal', 'guessResult', 'qReveal', 'scaleResult'].indexOf(v.screen.t) >= 0 || (v.screen.t === 'table' && v.screen.stage === 'result');
+      banner = ['lobby', 'arenaResult', 'wwResult', 'ngResult', 'syncReveal', 'guessResult', 'qReveal', 'scaleResult'].indexOf(v.screen.t) >= 0 || (v.screen.t === 'table' && v.screen.stage === 'result') || (v.screen.t === 'yao' && v.screen.over);
       if (v.screen.t === 'adBreak') adBreak(v.screen.breakId);
     }
     $main.innerHTML = html;
@@ -596,7 +597,7 @@
   }
   function langLabel() { return (LANGS.find(function (l) { return l[0] === LANG; }) || LANGS[0])[1]; }
   function titlePage() {
-    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全13種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a><a class="link" href="streaming.html">配信・動画OK</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)))
+    return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全14種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a><a class="link" href="streaming.html">配信・動画OK</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)))
       .replace('<input id="nameIn"', S.invite ? '<div class="panel hi invite">' + esc(T('部屋 {0} に招待されています。名前を入れて「部屋に参加する」を押してください', S.invite)) + '</div><input id="nameIn"' : '<input id="nameIn"');
   }
 
@@ -644,6 +645,7 @@
       case 'scale': return scalePlay(v, s);
       case 'scaleResult': return scaleResult(v, s);
       case 'table': return table(v, s);
+      case 'yao': return yao(v, s);
       case 'adBreak': return T('<div class="center" style="margin-top:80px">{0}<h2>ちょっと休憩…</h2><div class="cap">全員の準備ができたら次へ進みます</div></div>', img('icon_tea', 120, 'art'));
       default: return T('<div class="cap">（この画面は PC 版では表示できません）</div>');
     }
@@ -651,7 +653,7 @@
 
   // ---------- ロビー ----------
 
-  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question', DRAW: 'icon_draw', SCALE: 'icon_scale', BLACKJACK: 'icon_blackjack', HILO: 'icon_highlow', POKER: 'icon_poker', INDIAN: 'icon_indian' };
+  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question', DRAW: 'icon_draw', SCALE: 'icon_scale', YAO: 'icon_yao', BLACKJACK: 'icon_blackjack', HILO: 'icon_highlow', POKER: 'icon_poker', INDIAN: 'icon_indian' };
   function summary(st) {
     switch (st.game) {
       case 'ARENA': return (st.arenaTurnSec === 0 ? T('手番の制限なし') : T('手番 {0}秒', st.arenaTurnSec)) + (st.arenaChaos ? T('・今夜のルールあり') : '');
@@ -662,6 +664,7 @@
       case 'GUESS': return T('制限時間 {0}分', st.guessSec / 60);
       case 'DRAW': return T('描く {0}秒・書く {1}秒', st.drawSec, st.writeSec);
       case 'SCALE': return st.scaleCards === 0 ? T('全員で協力・ライフ{0}', 3) : T('1人{0}枚・ライフ{1}', st.scaleCards, 3);
+      case 'YAO': return (st.arenaTurnSec === 0 ? T('手番の制限なし') : T('手番 {0}秒', st.arenaTurnSec)) + T('・HP40から');
       case 'BLACKJACK': return T('全員でディーラーと勝負・チップ100枚から');
       case 'HILO': return T('次のカードは大きい？小さい？ 10枚勝負');
       case 'POKER': return T('1回交換して勝負・チップ100枚から');
@@ -719,6 +722,10 @@
           h += T('<div class="cap" style="margin-top:10px">お題を書く → 次の人が絵にする → 次の人がその絵を見て答える…を全員分くり返し、最後にどう伝わったかを発表します（3〜8人）。</div>');
           h += chips(T('絵を描く時間'), [60, 90, 120, 180].map(function (x) { return { label: T('{0}秒', x), on: st.drawSec === x, patch: { drawSec: x } }; }));
           h += chips(T('お題を書く・答える時間'), [30, 45, 60, 90].map(function (x) { return { label: T('{0}秒', x), on: st.writeSec === x, patch: { writeSec: x } }; }));
+          break;
+        case 'YAO':
+          h += '<div class="cap" style="margin-top:10px">' + esc(T('八百万の神さまのご加護で、長ねぎやなべのふたが神器になる！ 武器で攻撃、防具で守り、霊力で奇跡を起こして、最後まで成仏しなかった人の勝ち（2〜8人）。')) + '</div>';
+          h += chips(T('1手番の制限時間（過ぎるとお祈りになる）'), [[30, T('30秒')], [60, T('60秒')], [90, T('90秒')], [0, T('なし')]].map(function (x) { return { label: x[1], on: st.arenaTurnSec === x[0], patch: { arenaTurnSec: x[0] } }; }));
           break;
         case 'BLACKJACK': h += '<div class="cap" style="margin-top:10px">' + esc(T('全員が同時にディーラー（コンピューター）と勝負。21に近いほうが勝ち、超えたらバースト。ブラックジャックは1.5倍。チップは次のラウンドに持ち越します（2〜8人）。')) + '</div>'; break;
         case 'HILO': h += '<div class="cap" style="margin-top:10px">' + esc(T('次に出るカードが今のカードより大きいか小さいかを全員で予想。当たりで+1点、「同じ」が当たれば+5点。10枚で一番点数が多い人の勝ち（2〜8人）。')) + '</div>'; break;
@@ -974,7 +981,7 @@
   function pcard(c, cls, i) {
     if (!c) return '<span class="pc back ' + (cls || '') + '"><img src="img/card_back.webp" alt=""></span>';
     const red = c.s === 1 || c.s === 2;
-    const pick = i != null ? ' data-act="pick" data-arg="' + i + '"' : '';
+    const pick = i != null ? ' data-act="tpick" data-arg="' + i + '"' : '';
     return '<span class="pc ' + (red ? 'red ' : '') + (cls || '') + '"' + pick + '><b>' + rankText(c.r) + '</b><i>' + SUITS[c.s] + '</i></span>';
   }
   function fan(cards, cls) { return '<span class="fan">' + cards.map(function (c) { return pcard(c, cls); }).join('') + '</span>'; }
@@ -1058,6 +1065,102 @@
       h += nextButtons(v, s.game === 'HILO' ? T('もう一回') : T('次のラウンドへ'));
     }
     if (s.log.length) h += T('<div class="panel"><h3>できごと</h3>{0}</div>', s.log.slice(-6).reverse().map(function (l, i) { return '<div class="cap' + (i === 0 ? ' now' : '') + '">' + esc(fmtLog(l)) + '</div>'; }).join(''));
+    return h;
+  }
+
+  // ---------- やおよろずバトル ----------
+
+  const YCOL = { WEAPON: 'var(--berry)', PLUS: '#FF9F43', ARMOR: 'var(--mint)', MIRACLE: '#B9A8F0', ITEM: 'var(--lantern)' };
+  function ybadge(d) {
+    switch (d.kind) {
+      case 'WEAPON': return T('攻{0}', d.value) + (d.allOthers ? T('・全体') : '');
+      case 'PLUS': return '+' + d.value;
+      case 'ARMOR': return d.id === 'kagami' ? T('反射') : T('防{0}', d.value);
+      case 'MIRACLE': return T('霊力{0}', d.mp);
+      default: return d.cost > 0 ? '💰' + d.cost : T('道具');
+    }
+  }
+  function ycard(c, on, pickable) {
+    const d = YAO[c.id];
+    return '<div class="ycard' + (on ? ' on' : '') + (pickable ? '' : ' off') + '" style="border-color:' + (on ? 'var(--berry)' : YCOL[d.kind]) + '"' + (pickable ? ' data-act="ypick" data-arg="' + c.uid + '"' : '') + '>' +
+      '<div class="yt"><span class="ye">' + d.emoji + '</span><span class="yb" style="background:' + YCOL[d.kind] + '">' + esc(ybadge(d)) + '</span></div>' +
+      '<b>' + esc(T(d.name)) + '</b><small>' + esc(T(d.text)) + '</small>' + (on ? '<span class="ysel">' + T('✓ 選択中') + '</span>' : '') + '</div>';
+  }
+  function yao(v, s) {
+    const me = s.seats.find(function (x) { return x.id === v.me; });
+    const att = s.attack;
+    const myTurn = !s.over && !att && s.turn === v.me && me && me.alive;
+    const defending = !!att && att.waiting.indexOf(v.me) >= 0;
+    const key = s.turn + '|' + (att ? att.by + att.atk : '') + '|' + s.hand.map(function (c) { return c.uid; }).join(',');
+    if (S.ui.ykey !== key) { S.ui.ykey = key; S.ui.ypick = []; S.ui.ytarget = null; S.ui.yopt = ''; }
+    const picked = S.ui.ypick;
+    let h = '<div class="row">' + img('icon_yao', 48) + '<h2 class="grow">' + T('やおよろずバトル') + '</h2>' + (!s.over && v.remainingMs != null ? '<span class="timer" data-timer></span>' : '') + '</div>';
+    if (s.over) h += '<div class="panel"><h2 style="color:' + (s.winners.indexOf(v.me) >= 0 ? 'var(--mint)' : 'var(--lantern)') + '">' +
+      (s.winners.length ? esc(T('{0}の勝ち！', s.winners.map(nameOf).join('・'))) : esc(T('全員成仏…勝者なし'))) + '</h2><div class="cap">' + T('神さまに選ばれし者') + '</div></div>';
+    h += '<div class="seats">' + s.seats.map(function (st) {
+      const turn = st.id === s.turn && st.alive && !s.over;
+      const targeted = att && att.targets.indexOf(st.id) >= 0;
+      return '<div class="seat' + (turn ? ' turn' : '') + (st.alive ? '' : ' out') + (targeted ? ' hit' : '') + '"><div class="nm">' + esc(nameOf(st.id)) + (st.id === v.me ? T('（あなた）') : '') + '</div>' +
+        (st.alive ? '<div class="st">❤️' + st.hp + '　💫' + st.mp + '　💰' + st.coin + '</div><div class="st">' + T('手札{0}枚', st.hand) + (st.curse > 0 ? '　👻×' + st.curse : '') + '</div>' : '<div class="st">' + T('成仏') + '</div>') + '</div>';
+    }).join('') + '</div>';
+    if (att) {
+      h += '<div class="panel"><b style="color:var(--berry);font-size:18px">' + esc(T('{0}の攻撃！ 攻{1}', nameOf(att.by), att.atk)) + '</b><div class="cap">' +
+        esc(att.cards.map(function (id) { return YAO[id].emoji + T(YAO[id].name); }).join(' ＋ ')) + '　→　' + esc(att.targets.map(nameOf).join('・')) + '</div>' +
+        (defending ? '' : '<div class="cap">' + esc(T('{0}の守りを待っています…', att.waiting.map(nameOf).join('・'))) + '</div>') + '</div>';
+    }
+    if (!s.over && me && me.alive && s.hand.length) {
+      h += '<h3>' + T('あなたの手札（{0}枚）', s.hand.length) + '</h3><div class="yhand">' + s.hand.map(function (c) {
+        const pickable = myTurn || (defending && YAO[c.id].kind === 'ARMOR');
+        return ycard(c, picked.indexOf(c.uid) >= 0, pickable);
+      }).join('') + '</div>';
+    }
+    if (me && !me.alive && !s.over) h += '<div class="panel"><b style="color:var(--muted)">' + T('あなたは成仏しました') + '</b><div class="cap">' + T('最後まで見守りましょう') + '</div></div>';
+    if (defending) {
+      const armor = s.hand.filter(function (c) { return picked.indexOf(c.uid) >= 0 && YAO[c.id].kind === 'ARMOR'; });
+      const mirror = armor.some(function (c) { return c.id === 'kagami'; });
+      const def = armor.reduce(function (a, c) { return a + YAO[c.id].value; }, 0);
+      h += '<div class="thint">' + T('防具を選んで守ろう（何枚でも重ねられる）') + '</div>';
+      h += '<button class="big" data-act="send" data-arg=\'' + esc(JSON.stringify({ t: 'yaoAct', act: 'defend', cards: armor.map(function (c) { return c.uid; }) })) + '\'>' +
+        esc(!armor.length ? T('そのまま受ける（{0}ダメージ）', att.atk) : mirror ? T('鏡もちで跳ね返す！') : T('守る（防{0} → {1}ダメージ）', def, Math.max(0, att.atk - def))) + '</button>';
+    }
+    if (myTurn) {
+      const sel = s.hand.filter(function (c) { return picked.indexOf(c.uid) >= 0; });
+      const defs = sel.map(function (c) { return YAO[c.id]; });
+      const weapons = defs.filter(function (d) { return d.kind === 'WEAPON'; });
+      const pluses = defs.filter(function (d) { return d.kind === 'PLUS'; });
+      const single = defs.length === 1 ? defs[0] : null;
+      const isAttack = weapons.length === 1 && weapons.length + pluses.length === defs.length;
+      const needsTarget = (isAttack && !weapons[0].allOthers) || (single && (single.kind === 'MIRACLE' || single.kind === 'ITEM') && single.needsTarget);
+      const usable = isAttack || (!!single && (single.kind === 'MIRACLE' ? me.mp >= single.mp : single.kind === 'ITEM' ? (me.coin >= single.cost || single.cost === 0 || single.id === 'oshiuri') : false));
+      const msg = !sel.length && s.hand.length >= 10 ? T('手札がいっぱい！ いらないカードを選んで捨ててからお祈りしよう')
+        : !sel.length ? T('あなたの番！ カードを選ぶか、お祈りしよう')
+        : isAttack ? T('攻{0}で攻撃！', weapons[0].value + pluses.reduce(function (a, d) { return a + d.value; }, 0))
+        : single && single.kind === 'MIRACLE' && !usable ? T('霊力が足りません')
+        : single && single.kind === 'ITEM' && !usable ? T('おさいせんが足りません')
+        : single && single.kind === 'ARMOR' ? T('防具は攻撃されたときに使います')
+        : (pluses.length && !weapons.length) ? T('上乗せカードは武器と一緒に選びます')
+        : !usable ? T('この組み合わせでは使えません') : '';
+      if (msg) h += '<div class="thint">' + esc(msg) + '</div>';
+      if (usable && needsTarget) h += '<h3>' + T('だれに？') + '</h3><div class="row">' + s.seats.filter(function (x) { return x.alive && x.id !== v.me; }).map(function (x) {
+        return '<button class="chip' + (S.ui.ytarget === x.id ? ' on' : '') + '" data-act="ytarget" data-arg="' + esc(x.id) + '">' + esc(nameOf(x.id)) + '</button>';
+      }).join('') + '</div>';
+      if (usable && single && single.id === 'ryogae') {
+        const nm = { hp: '❤️HP', mp: T('💫霊力'), coin: T('💰おさいせん') };
+        h += '<h3>' + T('何を何に両替する？（最大8）') + '</h3><div class="row">' + ['coin>hp', 'mp>hp', 'hp>mp', 'coin>mp', 'hp>coin', 'mp>coin'].map(function (o) {
+          const p = o.split('>');
+          return '<button class="chip' + (S.ui.yopt === o ? ' on' : '') + '" data-act="yopt" data-arg="' + o + '">' + esc(nm[p[0]] + ' → ' + nm[p[1]]) + '</button>';
+        }).join('') + '</div>';
+      }
+      if (usable) {
+        const ready = (!needsTarget || S.ui.ytarget) && (!single || single.id !== 'ryogae' || S.ui.yopt);
+        h += '<button class="big" data-act="send"' + (ready ? '' : ' disabled') + ' data-arg=\'' + esc(JSON.stringify({ t: 'yaoAct', act: 'play', cards: picked, target: S.ui.ytarget, opt: S.ui.yopt || '' })) + '\'>' +
+          esc(isAttack ? T('攻撃！') : T('「{0}」を使う', T(single.name))) + '</button>';
+      }
+      h += '<button class="big sec" style="margin-top:8px" data-act="send" data-arg=\'' + esc(JSON.stringify({ t: 'yaoAct', act: 'pray', cards: picked })) + '\'>' +
+        esc(!sel.length ? T('お祈り（1枚引いて終わる）') : T('選んだ{0}枚を捨ててお祈り（{1}枚引く）', sel.length, sel.length + 1)) + '</button>';
+    } else if (!s.over && !att && me && me.alive) h += '<div class="cap center">' + esc(T('{0}さんの番です', nameOf(s.turn))) + '</div>';
+    if (s.over) h += nextButtons(v, T('もう一戦'));
+    h += T('<div class="panel"><h3>できごと</h3>{0}</div>', s.log.slice(-7).reverse().map(function (l, i) { return '<div class="cap' + (i === 0 ? ' now' : '') + '">' + esc(fmtLog(l)) + '</div>'; }).join(''));
     return h;
   }
 
@@ -1331,7 +1434,14 @@
         navigator.share({ title: T('わちゃパ'), text: T('わちゃパで遊ぼう！ このリンクを開くと部屋 {0} に入れます', v.roomCode), url: inviteUrl(v.roomCode) }).catch(function () {});
         break;
       }
-      case 'pick': {
+      case 'ypick': {
+        const i = Number(arg), p = S.ui.ypick || (S.ui.ypick = []);
+        const k = p.indexOf(i); if (k >= 0) p.splice(k, 1); else p.push(i);
+        render(); break;
+      }
+      case 'ytarget': S.ui.ytarget = arg; render(); break;
+      case 'yopt': S.ui.yopt = arg; render(); break;
+      case 'tpick': {
         const i = Number(arg), p = S.ui.picked || (S.ui.picked = []);
         const k = p.indexOf(i); if (k >= 0) p.splice(k, 1); else p.push(i);
         render(); break;

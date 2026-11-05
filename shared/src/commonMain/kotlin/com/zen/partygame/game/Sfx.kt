@@ -34,6 +34,7 @@ object Sfx {
         Screen.Lobby, is Screen.AdBreak, is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult,
         is Screen.QReveal, is Screen.ArenaResult, is Screen.DrawReveal, is Screen.ScaleResult -> false
         is Screen.Table -> s.stage != "result"
+        is Screen.Yao -> !s.over
         else -> true
     }
 
@@ -43,6 +44,7 @@ object Sfx {
         is Screen.DrawTask -> !s.submitted
         is Screen.Arena -> s.turn == v.me && s.mini == null
         is Screen.Table -> s.actions.isNotEmpty()
+        is Screen.Yao -> (s.attack == null && s.turn == v.me) || (s.attack?.waiting?.contains(v.me) == true)
         else -> false
     }
 
@@ -120,6 +122,7 @@ object Sfx {
             }
             is Screen.ScaleResult -> if (p !is Screen.ScaleResult) out += if (s.cleared) WIN else LOSE
             is Screen.Table -> if (p is Screen.Table) table(p, s, me, out)
+            is Screen.Yao -> if (p is Screen.Yao) yao(p, s, me, out)
             else -> Unit
         }
         if (!sameKind && out.isEmpty() && isPlay(s) && isPlay(p)) out += PAGE
@@ -156,6 +159,20 @@ object Sfx {
             s.seats.count { it.done } > p.seats.count { it.done } -> out += if (mine?.done == true && mineBefore?.done == false) SENT else VOTE
         }
         if (mine?.status == "バースト" && mineBefore?.status != "バースト") out += BUZZER
+    }
+
+    private fun yao(p: Screen.Yao, s: Screen.Yao, me: String, out: MutableList<String>) {
+        val mineBefore = p.seats.firstOrNull { it.id == me }; val mine = s.seats.firstOrNull { it.id == me }
+        when {
+            s.over && !p.over -> out += if (me in s.winners) WIN else LOSE
+            mineBefore?.alive == true && mine?.alive == false -> out += LOSE
+            s.seats.count { it.alive } < p.seats.count { it.alive } -> out += OUT
+            (mine?.hp ?: 0) < (mineBefore?.hp ?: 0) -> out += BUZZER
+            s.attack != null && p.attack == null -> out += if (me in s.attack.targets) ALERT else CARD_PLAY
+            s.turn == me && p.turn != me && mine?.alive == true -> out += YOUR_TURN
+            s.log.lastOrNull() != p.log.lastOrNull() -> out += CARD_PLAY
+            s.hand.size > p.hand.size -> out += CARD_DRAW
+        }
     }
 
     /** 記録の、新しく増えた行 */

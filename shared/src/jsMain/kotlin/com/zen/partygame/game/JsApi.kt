@@ -120,6 +120,14 @@ class JsHost(roomCode: String, topicsJson: String) {
     }
 }).toString()
 
+/** やおよろずバトルのカード一覧 */
+@JsExport fun yaoCardsJson(): String = JsonArray(YaoCards.all.map { d ->
+    buildJsonObject {
+        put("id", d.id); put("name", d.name); put("text", d.text); put("kind", d.kind.name); put("emoji", d.emoji)
+        put("value", d.value); put("mp", d.mp); put("cost", d.cost); put("needsTarget", d.needsTarget); put("allOthers", d.allOthers)
+    }
+}).toString()
+
 /** ゲームの種類と今夜のルールの一覧 */
 @JsExport fun metaJson(): String = buildJsonObject {
     put("games", JsonArray(GameType.entries.map { g ->

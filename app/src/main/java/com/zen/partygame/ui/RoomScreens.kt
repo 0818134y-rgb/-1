@@ -118,6 +118,7 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
         Screen.Lobby, is Screen.ArenaResult, is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult, is Screen.QReveal,
         is Screen.ScaleResult -> true
         is Screen.Table -> (v.screen as Screen.Table).stage == "result"
+        is Screen.Yao -> (v.screen as Screen.Yao).over
         else -> false
     }
     val scroll = rememberScrollState()
@@ -172,6 +173,7 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
                 is Screen.DrawReveal -> DrawReveal(vm, v, s) { NextButtons(vm, v, tr("もう一回")) }
                 is Screen.Scale -> ScalePlay(vm, v, s)
                 is Screen.ScaleResult -> ScaleResult(vm, v, s) { NextButtons(vm, v, tr("次のお題へ")) }
+                is Screen.Yao -> YaoPlay(vm, v, s, state.receivedAt) { NextButtons(vm, v, tr("もう一戦")) }
                 is Screen.Table -> TablePlay(vm, v, s, state.receivedAt) { NextButtons(vm, v, if (s.game == GameType.HILO) tr("もう一回") else tr("次のラウンドへ")) }
             }
             Spacer(Modifier.height(8.dp))
@@ -198,6 +200,7 @@ fun gameIcon(g: GameType): Int = when (g) {
     GameType.QUESTION -> R.drawable.icon_question
     GameType.DRAW -> R.drawable.icon_draw
     GameType.SCALE -> R.drawable.icon_scale
+    GameType.YAO -> R.drawable.icon_yao
     GameType.BLACKJACK -> R.drawable.icon_blackjack
     GameType.HILO -> R.drawable.icon_highlow
     GameType.POKER -> R.drawable.icon_poker
@@ -214,6 +217,7 @@ private fun gameSummary(st: Settings): String = when (st.game) {
     GameType.QUESTION -> tr("全員で匿名投票")
     GameType.DRAW -> tr("描く {0}秒・書く {1}秒", st.drawSec, st.writeSec)
     GameType.SCALE -> if (st.scaleCards == 0) tr("全員で協力・ライフ{0}", com.zen.partygame.game.SCALE_LIVES) else tr("1人{0}枚・ライフ{1}", st.scaleCards, com.zen.partygame.game.SCALE_LIVES)
+    GameType.YAO -> (if (st.arenaTurnSec == 0) tr("手番の制限なし") else tr("手番 {0}秒", st.arenaTurnSec)) + tr("・HP40から")
     GameType.BLACKJACK -> tr("全員でディーラーと勝負・チップ100枚から")
     GameType.HILO -> tr("次のカードは大きい？小さい？ 10枚勝負")
     GameType.POKER -> tr("1回交換して勝負・チップ100枚から")
@@ -315,6 +319,14 @@ private fun Lobby(vm: AppViewModel, v: PlayerView, online: Boolean) {
                     ChipRow(tr("1人に配る数字の枚数")) {
                         listOf(0 to tr("おまかせ"), 1 to tr("1枚"), 2 to tr("2枚"), 3 to tr("3枚")).forEach { (n, label) ->
                             FilterChip(st.scaleCards == n, { set(st.copy(scaleCards = n)) }, { Text(label) })
+                        }
+                    }
+                }
+                GameType.YAO -> {
+                    Caption(tr("八百万の神さまのご加護で、長ねぎやなべのふたが神器になる！ 武器で攻撃、防具で守り、霊力で奇跡を起こして、最後まで成仏しなかった人の勝ち（2〜8人）。"))
+                    ChipRow(tr("1手番の制限時間（過ぎるとお祈りになる）")) {
+                        listOf(30 to tr("30秒"), 60 to tr("60秒"), 90 to tr("90秒"), 0 to tr("なし")).forEach { (sec, label) ->
+                            FilterChip(st.arenaTurnSec == sec, { set(st.copy(arenaTurnSec = sec)) }, { Text(label) })
                         }
                     }
                 }

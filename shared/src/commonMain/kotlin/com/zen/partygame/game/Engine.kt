@@ -36,6 +36,7 @@ class Engine(
         DRAW_TASK, DRAW_REVEAL,
         SCALE_HINT, SCALE_PLAY, SCALE_RESULT,
         TABLE, TABLE_RESULT,
+        YAO, YAO_RESULT,
         AD_BREAK,
     }
     private enum class AfterAd { NEXT_ROUND, LOBBY }
@@ -124,6 +125,9 @@ class Engine(
     // --- トランプ（ブラックジャック・ハイロー・ポーカー・インディアン） ---
     private var table: TableGame? = null
 
+    // --- やおよろずバトル ---
+    private var yao: YaoGame? = null
+
     // --- 広告 ---
     private var lastAdAt = now()
     private var roundsSinceAd = 0
@@ -171,6 +175,8 @@ class Engine(
             Phase.LOBBY, Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT,
             Phase.DRAW_REVEAL, Phase.SCALE_RESULT -> Unit
             Phase.TABLE_RESULT -> { table?.leave(id); if (players.size < 2) toLobby() }
+            Phase.YAO_RESULT -> Unit
+            Phase.YAO -> { yao?.forfeit(id); syncYao() }
             Phase.TABLE -> { table?.leave(id); if (players.size < 2) toLobby() else syncTable() }
             Phase.SCALE_HINT, Phase.SCALE_PLAY -> {
                 scaleCards.removeAll { it.owner == id && it.state == ScaleState.HELD }
@@ -325,6 +331,7 @@ class Engine(
             Intent.ScalePlay -> if (phase == Phase.SCALE_PLAY) playScale(from)
             // --- トランプ ---
             is Intent.TableAct -> if (phase == Phase.TABLE && table!!.act(from, intent.act, intent.cards.take(5))) { changed(); syncTable() }
+            is Intent.YaoAct -> if (phase == Phase.YAO && yao!!.act(from, intent.act, intent.cards.take(12), intent.target, intent.opt.take(12))) { changed(); syncYao() }
             // 管理者の操作はホストの端末の通信部分が扱う（ゲームの進行には関係しない）
             is Intent.AdminOp -> Unit
 
@@ -345,7 +352,7 @@ class Engine(
     }
 
     private fun isResult() = phase in setOf(Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT,
-        Phase.SCALE_RESULT, Phase.TABLE_RESULT) ||
+        Phase.SCALE_RESULT, Phase.TABLE_RESULT, Phase.YAO_RESULT) ||
         (phase == Phase.DRAW_REVEAL && revealDone)
 
     /** 時間切れの処理。@return 状態が変わったら true */
@@ -356,6 +363,10 @@ class Engine(
         }
         if (phase == Phase.TABLE) {
             if (table!!.tick()) { changed(); syncTable(); return true }
+            return false
+        }
+        if (phase == Phase.YAO) {
+            if (yao!!.tick()) { changed(); syncYao(); return true }
             return false
         }
         val d = deadline ?: return false
@@ -389,6 +400,7 @@ class Engine(
             GameType.DRAW -> startDraw()
             GameType.SCALE -> startScale()
             GameType.BLACKJACK, GameType.HILO, GameType.POKER, GameType.INDIAN -> startTable(g)
+            GameType.YAO -> startYao()
         }
     }
 
@@ -548,10 +560,28 @@ class Engine(
     /** テスト用 */
     fun tableForTest() = table
 
-    /** 管理者の「次へ」：トランプのゲームの今の段階を時間切れにする */
+    /** 管理者の「次へ」：トランプのゲーム・やおよろずバトルの今の段階を時間切れにする */
     fun skipTable(): Boolean {
+        if (phase == Phase.YAO && yao?.expire() == true) { changed(); syncYao(); return true }
         if (phase != Phase.TABLE || table?.expire() != true) return false
         changed(); syncTable(); return true
+    }
+
+    /** テスト用 */
+    fun yaoForTest() = yao
+
+    private fun startYao() {
+        val names = players.associate { it.id to it.name }
+        yao = YaoGame(ids().shuffled(rng), { id -> names[id] ?: "?" }, rng, now, if (settings.arenaTurnSec == 0) 600 else settings.arenaTurnSec)
+        phase = Phase.YAO; deadline = null; changed(); syncYao()
+    }
+
+    private fun syncYao() {
+        val y = yao ?: return
+        if (phase == Phase.YAO && y.step == YaoGame.Step.OVER) {
+            roundsSinceAd++
+            phase = Phase.YAO_RESULT; deadline = null; changed()
+        }
     }
 
     /** 同じゲームを続けるならチップを持ち越して次のラウンド、ほかのゲームなら新しく始める */
@@ -774,6 +804,7 @@ class Engine(
             Phase.SCALE_HINT, Phase.SCALE_PLAY -> scaleView(id)
             Phase.SCALE_RESULT -> scaleResultView()
             Phase.TABLE, Phase.TABLE_RESULT -> table!!.view(id)
+            Phase.YAO, Phase.YAO_RESULT -> yao!!.view(id)
             Phase.AD_BREAK -> Screen.AdBreak(breakId)
         }
         return PlayerView(
@@ -784,6 +815,7 @@ class Engine(
             remainingMs = when (phase) {
                 Phase.ARENA -> arena?.deadline
                 Phase.TABLE -> table?.deadline
+                Phase.YAO -> yao?.deadline
                 Phase.DRAW_TASK -> deadline?.minus(DRAW_GRACE_MS)
                 else -> deadline
             }?.let { (it - now()).coerceAtLeast(0) },
