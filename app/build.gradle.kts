@@ -34,8 +34,8 @@ android {
         applicationId = "com.zen.partygame"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "0.12.1"
+        versionCode = 19
+        versionName = "0.13.0"
 
         // ↓ ウェブ版（iPhone・PC 用）を公開した URL。入れると「招待を送る」の文に載る
         val web = ads.getProperty("site.url") ?: ads.getProperty("site.domain")?.let { "https://$it/" } ?: "https://0818134y-rgb.github.io/-/"
