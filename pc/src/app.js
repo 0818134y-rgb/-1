@@ -977,7 +977,7 @@
     h += '</div>';
     if (s.rules.length) h += T('<div class="cap">ルール：{0}</div>', s.rules.map(function (r) { const d = CARDS[r.id]; return T('「{0}」{1}', esc(d.name), esc(afterFirst(d.text))); }).join('　'));
     if (s.endOwner) h += T('<div class="warn">🔔 {0}さんの次の手番が終わると、全員の負け！</div>', esc(nameOf(s.endOwner)));
-    if (s.pointGoal !== 15) h += T('<div class="cap">大金庫が出たので、勝つには{0}ポイント必要</div>', s.pointGoal);
+    if (s.pointGoal !== 15) h += T('<div class="cap">宝くじ1等が出たので、勝つには{0}ポイント必要</div>', s.pointGoal);
     if (s.mini) h += miniHtml(v, s, s.mini);
 
     if (me && !me.alive) h += T('<div class="panel"><b class="warn">あなたの負けです</b><div class="cap">最後まで見守りましょう。違反の報告はできます</div></div>');

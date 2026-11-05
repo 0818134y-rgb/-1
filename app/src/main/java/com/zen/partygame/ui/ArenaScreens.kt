@@ -111,12 +111,15 @@ fun ArenaCardView(card: ArenaCard, selected: Boolean = false, small: Boolean = f
             if (def.star) Text("★", color = Berry, fontWeight = FontWeight.Black, fontSize = if (small) 13.sp else 16.sp)
         }
         Image(painterResource(cardArt(card.id)), null, Modifier.size(if (small) 56.dp else 84.dp), contentScale = ContentScale.Fit)
-        Text(tr(if (hidden) def.coverName ?: def.name else def.name), color = Night, fontWeight = FontWeight.Black,
-            fontSize = if (small) 12.sp else 15.sp, textAlign = TextAlign.Center, maxLines = 1)
+        val title = tr(if (hidden) def.coverName ?: def.name else def.name)
+        // 長い名前（「ちょっと交換しよ？」など）は少し小さくして1行に収める
+        Text(title, color = Night, fontWeight = FontWeight.Black,
+            fontSize = if (small) (if (title.length > 7) 10.sp else 12.sp) else (if (title.length > 7) 13.sp else 15.sp),
+            textAlign = TextAlign.Center, maxLines = 1, softWrap = false)
         if (!small) {
             Spacer(Modifier.height(4.dp))
             Text(tr(if (hidden) def.cover ?: def.text else def.text), color = Color(0xFF3B3560), fontSize = 11.sp, lineHeight = 14.sp,
-                textAlign = TextAlign.Center, minLines = 4, maxLines = 7)
+                textAlign = TextAlign.Center, minLines = 4, maxLines = 11)
         }
     }
 }
@@ -195,7 +198,7 @@ fun ArenaPlay(vm: AppViewModel, v: PlayerView, s: Screen.Arena, receivedAt: Long
     }
     if (s.rules.isNotEmpty()) Caption(tr("ルール：") + s.rules.joinToString("　") { tr("「{0}」{1}", tr(ArenaCards.def(it.id).name), afterFirstSentence(tr(ArenaCards.def(it.id).text))) })
     if (s.endOwner != null) Text(tr("🔔 {0}さんの次の手番が終わると、全員の負け！", v.nameOf(s.endOwner)), color = Berry, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-    if (s.pointGoal != 15) Caption(tr("大金庫が出たので、勝つには{0}ポイント必要", s.pointGoal))
+    if (s.pointGoal != 15) Caption(tr("宝くじ1等が出たので、勝つには{0}ポイント必要", s.pointGoal))
 
     // 同時勝負
     s.mini?.let { MiniPanel(vm, v, s, it, receivedAt, remaining) }

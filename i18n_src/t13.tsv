@@ -1,0 +1,68 @@
+#keys keys_v8.json
+294	You hit the Lottery Jackpot — you now need {0} points to win.	복권 1등이 나와서 이기려면 {0}포인트가 필요해요	彩票头奖出现了，需要 {0} 分才能获胜
+405	Sold out	품절	售罄
+406	{0} fell right into the pitfall!	{0}, 함정에 쏙 빠졌다!	{0}一脚踩进了陷阱！
+408	Shutters down! We're closed for today.	셔터 내립니다! 오늘 영업은 끝났습니다	拉闸！本店今日打烊
+409	{0}'s Charm shattered to save them! ({1})	{0}의 부적이 대신 산산조각 났다! ({1})	{0}的护身符替他碎掉了！（{1}）
+411	{0} cackled and drew 1. What a terrible person.	{0}, 고소해하며 1장 뽑았다. 성격 참 나쁘다	{0}一边坏笑一边抽了 1 张。性格真差
+412	All for one… {0} next door gets dragged down too!	운명 공동체… 옆자리 {0}도 휘말렸다!	同生共死……旁边的{0}也被拖下水！
+413	Collateral	휘말림	被连累
+416	{0} almost won… until {1}'s Grudge ruined everything!	{0}, 이길 뻔했지만… {1}의 앙심에 망했다!	{0}眼看就要赢了……却被{1}的记仇搅黄了！
+417	Lost to a Grudge	앙심으로 탈락	因记仇出局
+420	Four bombs… KABOOM! Afros for everyone.	폭탄 4개가 모였다… 콰광! 모두 아프로 머리로	四颗炸弹凑齐了……轰！全员爆炸头
+424	{0} ran out of time! A card leaped out on its own.	{0}, 시간 초과! 카드가 멋대로 튀어나왔다	{0}超时了！牌自己蹦了出去
+426	When {0}'s next turn ends, the shutters come down…	{0}의 다음 턴이 끝나면 셔터가 내려간다…	{0}的下个回合结束时，就要拉闸了……
+439	{0}'s Cat butted in! "{1}" got swatted into oblivion.	{0}의 고양이가 끼어들었다! '{1}'은(는) 냥냥펀치에 날아갔다	{0}的猫咪插手了！“{1}”被一记猫拳打飞了
+440	It's {0}'s birth month! Happy birthday!	이번 달은 {0}의 생일 달! 생일 축하해!	这个月是{0}的生日月！生日快乐！
+441	Not their birth month… no cake for you.	생일 달이 아니었다… 케이크는 나중에	不是生日月……蛋糕没了
+443	Nobody lost. How peaceful…	아무도 탈락하지 않았다. 평화롭다…	没人出局。真和平……
+450	The total {0} is prime! The math gods smile.	합계 {0}은(는) 소수! 수학의 신이 미소 지었다	总和 {0} 是质数！数学之神笑了
+451	The total {0} isn't prime. Math has abandoned you.	합계 {0}은(는) 소수가 아니었다. 수학에게 버림받았다	总和 {0} 不是质数。被数学抛弃了
+457	Everyone wanted it! Greed wins again.	모두 갖고 싶어 했다! 물욕의 승리	大家都想要！物欲大获全胜
+548	<div class="cap">You hit the Lottery Jackpot — you now need {0} points to win.</div>	<div class="cap">복권 1등이 나와서 이기려면 {0}포인트가 필요해요</div>	<div class="cap">彩票头奖出现了，需要 {0} 分才能获胜</div>
+588	Place it in front of a player you choose. If it's still there at the end of their turn, they fall right in and lose. Watch your step.	지목한 사람 앞에 놓아요. 그 사람의 턴이 끝날 때까지 남아 있으면 함정에 쏙 빠져서 탈락. 발밑 조심.	放在你指定的人面前。到那个人回合结束时还在的话，就会一脚踩空出局。注意脚下。
+589	Closing Time	폐점합니다	打烊啦
+590	When your next turn ends, everyone still standing loses. Please respect our opening hours.	당신의 다음 턴이 끝나면, 남아 있는 모두가 탈락. 영업시간은 지켜 주세요.	你的下个回合结束时，还留在场上的所有人都输。请遵守营业时间。
+592	Place it in front of you. 5 points. Collect 15 or more to win. Money CAN buy victory.	내 앞에 놓아요. 5포인트. 15포인트 이상 모으면 승리. 돈으로 살 수 있는 승리도 있다.	放在自己面前。5 分。攒到 15 分以上就赢。胜利有时是可以买到的。
+594	Everyone shows 1–5 fingers at once. Anyone showing an odd number loses. Leave with your odd little feelings.	모두 하나 둘 셋에 손가락을 1~5개 펴요. 홀수를 낸 사람은 탈락. 어딘가 찜찜한 마음을 안고 떠나라.	大家一起伸出 1~5 根手指。出奇数的人输。带着这份奇怪的心情离开吧。
+596	Everyone shows 1–5 fingers at once. Anyone showing an even number loses. Being so well-rounded was your downfall.	모두 하나 둘 셋에 손가락을 1~5개 펴요. 짝수를 낸 사람은 탈락. 너무 딱 떨어진 게 화근.	大家一起伸出 1~5 根手指。出偶数的人输。太过规整就是你的败因。
+597	Everyone shows 1–5 fingers at once. Anyone who matches someone else loses. Be original.	모두 하나 둘 셋에 손가락을 1~5개 펴요. 다른 사람과 겹친 사람은 탈락. 남들과 똑같으면 재미없지.	大家一起伸出 1~5 根手指。和别人撞了的人输。跟别人一样多没意思。
+599	Everyone plays rock-paper-scissors at once. Anyone who throws Rock loses. Rock bottom.	다 같이 한 번에 가위바위보. 바위를 낸 사람은 탈락. 바위처럼 굳어 버렸다.	大家一起石头剪刀布。出石头的人输。哑口无言，像块石头。
+601	Everyone plays rock-paper-scissors at once. Anyone who throws Scissors loses. Not the time for a peace sign.	다 같이 한 번에 가위바위보. 가위를 낸 사람은 탈락. 브이 하고 있을 때가 아니다.	大家一起石头剪刀布。出剪刀的人输。现在可不是比耶的时候。
+602	Everyone plays rock-paper-scissors at once. Anyone who throws Paper loses. Talk to the hand.	다 같이 한 번에 가위바위보. 보를 낸 사람은 탈락. 손바닥 뒤집듯 배신당한다.	大家一起石头剪刀布。出布的人输。被人翻脸不认账。
+603	Everyone plays rock-paper-scissors at once. Anyone who throws something different from you loses. Read the room.	다 같이 한 번에 가위바위보. 당신과 다른 걸 낸 사람은 탈락. 눈치 챙겨.	大家一起石头剪刀布。和你出的不一样的人输。学会看气氛。
+605	Stays as a rule. Anyone who doesn't say "Broccoli is just a tiny tree!" before playing a card loses.	룰로 남아요. 카드를 내기 전에 "브로콜리는 작은 나무다!"라고 말하지 않은 사람은 탈락.	作为规则保留。出牌前没有说“西兰花就是迷你小树！”的人输。
+607	Stays as a rule. Anyone who refers to themselves with words like "I", "me" or "my" loses. From now on, you are all nameless beings.	룰로 남아요. '나', '내', '저'처럼 자기 자신을 가리키는 말을 한 사람은 탈락. 오늘부터 모두 이름 없는 존재.	作为规则保留。说了“我”“俺”“咱”等指自己的词的人输。从今天起，大家都是无名之辈。
+608	Grudge	앙심	记仇
+609	Keep it in your hand. When someone wins, it triggers automatically and you both lose. Nobody said "congrats." Playing it does nothing.	손패에 들고 있어요. 누군가 이기면 자동으로 발동해서 그 사람과 당신이 함께 탈락. "축하해"라고는 안 했다. 내도 아무 일도 일어나지 않아요.	留在手牌里。有人获胜时自动发动，那个人和你一起输。谁说要恭喜你了。打出不会有任何效果。
+611	Place it in front of you. Each time someone else loses, you draw 1. Other people's misery tastes delicious.	내 앞에 놓아요. 다른 사람이 탈락할 때마다 1장 뽑아요. 남의 불행은 오늘도 꿀맛.	放在自己面前。每当有别人输掉，你就抽 1 张。别人的不幸今天也格外下饭。
+613	Ask everyone else: "A present — want it or not?"… Anyone who chooses "No thanks" loses. Always accept a gift graciously.	다른 모두에게 물어요. "선물, 갖고 싶어? 필요 없어?"…… '필요 없어'를 고른 사람은 탈락. 남의 호의는 받아 두자.	问其他所有人：“礼物，要还是不要？”……选了“不要”的人输。别人的好意还是收下吧。
+616	If this is your birth month, you win! The star of the show always arrives late. (Be honest!)	이번 달이 당신의 생일 달이면 당신의 승리! 주인공은 늦게 등장하는 법. (솔직하게 답하자)	如果这个月是你的生日月，你就赢了！主角总是最后登场。（请诚实回答）
+617	Everyone votes. Whoever gets the most votes loses (no one loses on a tie). It's hard being popular.	모두 투표해요. 가장 많은 표를 받은 사람은 탈락 (동점이면 아무도 탈락하지 않아요). 인기인은 괴롭다.	大家投票。得票最多的人输（平票则没人输）。人气王也有烦恼。
+618	Wanna Trade?	잠깐 바꿀래?	换一下嘛？
+619	Swap your entire hand with a player you choose. They don't get a say.	지목한 사람과 손패를 전부 바꿔요. 거부권은 없다.	和你指定的人交换全部手牌。对方没有拒绝权。
+621	Keep it in your hand. When you would lose, it shatters in your place, once (automatic). Playing it does nothing. Limited to one miracle.	손패에 들고 있어요. 당신이 탈락할 때 한 번만 대신 산산조각 나요 (자동). 내도 아무 일도 일어나지 않아요. 효험은 1회 한정.	留在手牌里。你要输的时候，它会替你碎掉一次（自动）。打出不会有任何效果。灵验只有一次。
+623	Place it in front of you. When there are 4 bombs on the table, everyone loses together. Everybody explodes, the end.	내 앞에 놓아요. 놓인 폭탄이 4개가 되면 모두 함께 탈락. 사이좋게 폭발 엔딩.	放在自己面前。场上的炸弹达到 4 颗时，所有人一起输。大家一起炸飞，剧终。
+624	Lottery Jackpot	복권 1등	彩票头奖
+625	Place it in front of you. 90 points. But from now on, you need 100 points to win. Inflation always wins.	내 앞에 놓아요. 90포인트. 단, 이제부터 이기려면 100포인트가 필요해요. 인플레이션은 못 이긴다.	放在自己面前。90 分。但从此以后要 100 分才能获胜。谁也赢不了通货膨胀。
+627	Place it in front of you. The dinosaur is huge, so nobody can place cards in front of you anymore. Size matters.	내 앞에 놓아요. 공룡은 덩치가 커서 이제 아무도 당신 앞에 카드를 놓을 수 없어요. 큰 게 정의다.	放在自己面前。恐龙太大了，再也没人能把牌放到你面前。大就是正义。
+628	Everyone shows 1–5 fingers at once. If the total is a prime number, you win! The math gods are fickle.	모두 하나 둘 셋에 손가락을 1~5개 펴요. 모두의 합계가 소수면 당신의 승리! 수학의 신은 변덕쟁이.	大家一起伸出 1~5 根手指。总和是质数的话你就赢了！数学之神很任性。
+630	Keep it in your hand and shout "Interrupt!" right after someone plays a card to cancel its effect (then draw 1). Play it on your turn to draw 2. Cats don't read the room.	손패에 들고 있으면, 누군가 카드를 낸 직후에 '끼어들기!'로 효과를 무효로 할 수 있어요 (그 후 1장 뽑기). 내 턴에 내면 2장 뽑아요. 고양이는 눈치를 안 본다.	留在手牌里，有人刚出牌时可以喊“插手！”抵消效果（之后抽 1 张）。在自己的回合打出则抽 2 张。猫咪从不看气氛。
+632	Stays as a rule. When your turn comes, shout "Zombies!" Anyone who doesn't shout loses. Please be considerate of your neighbors.	룰로 남아요. 내 턴이 오면 "좀비다!"라고 외쳐요. 외치지 않은 사람은 탈락. 이웃집 배려는 각자 알아서.	作为规则保留。轮到自己时要大喊“僵尸来了！”。没喊的人输。请自行照顾好邻居的感受。
+634	Stays as a rule. Anyone who points at a person or thing loses. Use your chin.	룰로 남아요. 사람이나 물건을 손가락으로 가리킨 사람은 탈락. "저거 줘"는 턱으로.	作为规则保留。用手指指人或指东西的人输。“把那个给我”请用下巴示意。
+636	When you give the signal, everyone presses right away. Anyone who doesn't press within 3 seconds loses. Show off those reflexes.	당신이 신호하면 모두 바로 눌러요. 3초 안에 누르지 않은 사람은 탈락. 반사 신경을 보여 줄 때.	你发出信号后，所有人马上按。3 秒内没按的人输。展现反应速度的时候到了。
+639	When you give the signal… anyone who presses loses! The honest ones go first.	당신이 신호하면…… 눌러 버린 사람은 탈락! 순진한 사람부터 사라진다.	你发出信号后……按下去的人输！老实人最先出局。
+640	Sold Out	품절입니다	售罄啦
+641	Stays as a rule. No one can draw from the deck anymore. Anyone with no cards at the start of their turn loses. No restock planned.	룰로 남아요. 이제 아무도 덱에서 뽑을 수 없어요. 턴 시작 때 손패가 없는 사람은 탈락. 입고 예정 없음.	作为规则保留。再也没人能从牌堆抽牌。回合开始时没有手牌的人输。没有补货计划。
+642	Night of All for One	운명 공동체의 밤	同生共死之夜
+643	When someone loses, the next player in the seat order goes down with them. No seat changes allowed	누군가 탈락하면 그다음 자리 사람도 휘말려서 탈락. 자리 바꾸기는 받지 않습니다	有人输掉时，下一个座位的人也会被连累出局。不接受换座位
+644	Night of Air Food Reviews	에어 먹방의 밤	空气美食测评之夜
+645	On your turn, name a food and say "Yum!" Everyone else must reply "So good!" right away, even without tasting it. Anyone who fails loses (report the foul).	내 턴이 오면 음식 이름과 "맛있다!"를 말해요. 다른 사람은 먹지 않았어도 바로 "진짜네!"라고 받아요. 못 한 사람은 탈락 (위반 신고)	轮到自己时，说出一种食物的名字再喊“好吃！”。其他人就算没吃过也要马上回“真的！”。没做到的人输（举报犯规）
+646	Night of No Trash Talk	승부사 사절의 밤	拒绝胜负之夜
+647	Anyone who says a word containing "win" or "lose" loses. "I won't lose!" obviously counts (report the foul).	'이기다' '지다'가 들어간 말을 한 사람은 탈락. "안 질 거야!"도 당연히 아웃 (위반 신고)	说了带“赢”或“输”字的话的人输。“我才不会输！”当然也算（举报犯规）
+648	Night of Thingamajigs	거시기의 밤	那个那个之夜
+649	No saying card names out loud. Get by with "that thing" and "you know, the one." Anyone who does loses (report the foul).	카드 이름을 입에 올리면 안 돼요. '그거', '거시기'로 버텨 보자. 말한 사람은 탈락 (위반 신고)	不能说出卡牌的名字。用“那个”“你懂的”蒙混过去吧。说了的人输（举报犯规）
+650	Night of the Impatient	성급한 자의 밤	急性子之夜
+651	Turns last 20 seconds. Dither and your cards will jump out on their own	턴은 20초. 망설이면 손패가 멋대로 튀어나가요	每回合 20 秒。犹豫不决的话，手牌会自己蹦出去
+652	Night of Pocket Money	세뱃돈의 밤	压岁钱之夜
+653	Start with 3 cards in hand. How generous!	처음 손패가 3장. 통 크다!	起手 3 张牌。真大方！
