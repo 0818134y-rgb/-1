@@ -35,6 +35,7 @@ class Engine(
         ARENA, ARENA_RESULT,
         DRAW_TASK, DRAW_REVEAL,
         SCALE_HINT, SCALE_PLAY, SCALE_RESULT,
+        TABLE, TABLE_RESULT,
         AD_BREAK,
     }
     private enum class AfterAd { NEXT_ROUND, LOBBY }
@@ -120,6 +121,9 @@ class Engine(
     private var scaleStreak = 0
     private var scaleCleared = false
 
+    // --- トランプ（ブラックジャック・ハイロー・ポーカー・インディアン） ---
+    private var table: TableGame? = null
+
     // --- 広告 ---
     private var lastAdAt = now()
     private var roundsSinceAd = 0
@@ -166,6 +170,8 @@ class Engine(
         when (phase) {
             Phase.LOBBY, Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT,
             Phase.DRAW_REVEAL, Phase.SCALE_RESULT -> Unit
+            Phase.TABLE_RESULT -> { table?.leave(id); if (players.size < 2) toLobby() }
+            Phase.TABLE -> { table?.leave(id); if (players.size < 2) toLobby() else syncTable() }
             Phase.SCALE_HINT, Phase.SCALE_PLAY -> {
                 scaleCards.removeAll { it.owner == id && it.state == ScaleState.HELD }
                 when {
@@ -219,7 +225,7 @@ class Engine(
             }
             is Intent.Kick -> if (isHost && phase == Phase.LOBBY && intent.target != from) leave(intent.target)
             Intent.Start -> if (isHost && phase == Phase.LOBBY) {
-                scores.clear(); askerTurn = -1; scaleStreak = 0; startRound()
+                scores.clear(); askerTurn = -1; scaleStreak = 0; table = null; startRound()
             }
 
             // --- ワードウルフ／スパイ ---
@@ -317,6 +323,8 @@ class Engine(
             }
             Intent.ScaleBegin -> if (isHost && phase == Phase.SCALE_HINT) startScalePlay()
             Intent.ScalePlay -> if (phase == Phase.SCALE_PLAY) playScale(from)
+            // --- トランプ ---
+            is Intent.TableAct -> if (phase == Phase.TABLE && table!!.act(from, intent.act, intent.cards.take(5))) { changed(); syncTable() }
             // 管理者の操作はホストの端末の通信部分が扱う（ゲームの進行には関係しない）
             is Intent.AdminOp -> Unit
 
@@ -337,13 +345,17 @@ class Engine(
     }
 
     private fun isResult() = phase in setOf(Phase.WW_RESULT, Phase.NG_RESULT, Phase.SYNC_REVEAL, Phase.GUESS_RESULT, Phase.Q_REVEAL, Phase.ARENA_RESULT,
-        Phase.SCALE_RESULT) ||
+        Phase.SCALE_RESULT, Phase.TABLE_RESULT) ||
         (phase == Phase.DRAW_REVEAL && revealDone)
 
     /** 時間切れの処理。@return 状態が変わったら true */
     fun tick(): Boolean {
         if (phase == Phase.ARENA) {
             if (arena!!.tick()) { changed(); syncArena(); return true }
+            return false
+        }
+        if (phase == Phase.TABLE) {
+            if (table!!.tick()) { changed(); syncTable(); return true }
             return false
         }
         val d = deadline ?: return false
@@ -376,6 +388,7 @@ class Engine(
             GameType.ARENA -> startArena()
             GameType.DRAW -> startDraw()
             GameType.SCALE -> startScale()
+            GameType.BLACKJACK, GameType.HILO, GameType.POKER, GameType.INDIAN -> startTable(g)
         }
     }
 
@@ -527,6 +540,36 @@ class Engine(
         if (phase == Phase.ARENA && a.step == ArenaGame.Step.OVER) {
             roundsSinceAd++
             phase = Phase.ARENA_RESULT; deadline = null; changed()
+        }
+    }
+
+    // --- トランプ ---
+
+    /** テスト用 */
+    fun tableForTest() = table
+
+    /** 管理者の「次へ」：トランプのゲームの今の段階を時間切れにする */
+    fun skipTable(): Boolean {
+        if (phase != Phase.TABLE || table?.expire() != true) return false
+        changed(); syncTable(); return true
+    }
+
+    /** 同じゲームを続けるならチップを持ち越して次のラウンド、ほかのゲームなら新しく始める */
+    private fun startTable(g: GameType) {
+        val t = table
+        if (t != null && t.game == g && t.stage == TableGame.Stage.RESULT) t.newRound()
+        else {
+            val names = players.associate { it.id to it.name }
+            table = TableGame(g, ids(), { id -> names[id] ?: "?" }, rng, now)
+        }
+        phase = Phase.TABLE; deadline = null; changed(); syncTable()
+    }
+
+    private fun syncTable() {
+        val t = table ?: return
+        if (phase == Phase.TABLE && t.stage == TableGame.Stage.RESULT) {
+            roundsSinceAd++
+            phase = Phase.TABLE_RESULT; deadline = null; changed()
         }
     }
 
@@ -730,6 +773,7 @@ class Engine(
             Phase.DRAW_REVEAL -> drawRevealView()
             Phase.SCALE_HINT, Phase.SCALE_PLAY -> scaleView(id)
             Phase.SCALE_RESULT -> scaleResultView()
+            Phase.TABLE, Phase.TABLE_RESULT -> table!!.view(id)
             Phase.AD_BREAK -> Screen.AdBreak(breakId)
         }
         return PlayerView(
@@ -739,6 +783,7 @@ class Engine(
             screen = screen,
             remainingMs = when (phase) {
                 Phase.ARENA -> arena?.deadline
+                Phase.TABLE -> table?.deadline
                 Phase.DRAW_TASK -> deadline?.minus(DRAW_GRACE_MS)
                 else -> deadline
             }?.let { (it - now()).coerceAtLeast(0) },

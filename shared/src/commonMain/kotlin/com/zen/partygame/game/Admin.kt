@@ -50,6 +50,7 @@ object Admin {
     /** 今の場面を締め切って次へ（話し合い終了・投票の締め切り・ヒント待ちを飛ばす・結果から次のラウンド・お題の確認待ちを飛ばす…の順に試す） */
     fun skip(e: Engine, hostId: String): Boolean =
         listOf(Intent.EndTalk, Intent.CloseVote, Intent.ScaleBegin, Intent.EndNg, Intent.GuessGiveUp, Intent.Next).any { e.apply(hostId, it) } ||
+            e.skipTable() ||
             // お題の確認待ち：まだ確認していない人の分も確認したことにする
             e.players.map { it.id }.map { e.apply(it, Intent.ConfirmWord()) }.any { it }
 }

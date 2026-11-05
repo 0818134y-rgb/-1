@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** 通信の版。違う版の端末どうしは同じ部屋に入れない */
-const val PROTO = 8
+const val PROTO = 9
 const val MIN_PLAYERS = 3
 const val MAX_PLAYERS_NEARBY = 8
 const val MAX_PLAYERS_LOCAL = 12
@@ -28,6 +28,10 @@ enum class GameType(val label: String, val short: String, val localOk: Boolean, 
     GUESS("質問で当てろ", "質問当て", true, 2),
     QUESTION("ぶっちゃけ質問", "ぶっちゃけ", false, 3),
     DRAW("お絵かき伝言", "お絵かき", false, 3),
+    BLACKJACK("ブラックジャック", "ブラックジャック", false, 2),
+    HILO("ハイ＆ロー", "ハイ＆ロー", false, 2),
+    POKER("ポーカー", "ポーカー", false, 2),
+    INDIAN("インディアンポーカー", "インディアン", false, 2),
 }
 
 /** みんなのものさし：ライフの数・ヒントの長さ */
@@ -167,6 +171,9 @@ sealed interface Intent {
     /** みんなのものさし：ヒントがそろっていなくても並べ始める（ホスト） */
     @Serializable @SerialName("scaleBegin") data object ScaleBegin : Intent
 
+    /** トランプのゲーム：bet10 / hit / stand / double / high / low / same / swap（cards = 交換するカードの番号） / call / fold */
+    @Serializable @SerialName("tableAct") data class TableAct(val act: String, val cards: List<Int> = emptyList()) : Intent
+
     /** 管理者の操作（ホストの端末が、署名を確かめた管理者からのものだけ実行する。ゲームの進行には渡さない） */
     @Serializable @SerialName("adminOp") data class AdminOp(val op: String, val target: String = "", val text: String = "") : Intent
 
@@ -205,6 +212,29 @@ data class ArenaMini(
     val card: String? = null,
     /** 鼻タッチ：合図ずみなら 0、まだなら null */
     val goInMs: Long? = null,
+)
+
+/** トランプ1枚。r = 2〜14（11=J 12=Q 13=K 14=A）、s = 0♠ 1♥ 2♦ 3♣ */
+@Serializable
+data class PCard(val r: Int, val s: Int)
+
+/** トランプのゲームの席 */
+@Serializable
+data class TableSeat(
+    val id: String,
+    /** null = 裏向き（見えないカード） */
+    val cards: List<PCard?> = emptyList(),
+    /** チップ（ハイローは点数） */
+    val chips: Int = 0,
+    val bet: Int = 0,
+    /** 今の様子（日本語の型。端末で訳す）。{0} には statusArg が入る */
+    val status: String = "",
+    val done: Boolean = false,
+    /** 手の強さ（ポーカーの役名・ブラックジャックの合計） */
+    val label: String = "",
+    /** このラウンドで増えた・減ったチップ */
+    val delta: Int = 0,
+    val statusArg: String = "",
 )
 
 /** お絵かき伝言の1コマ（文か絵） */
@@ -384,6 +414,25 @@ sealed interface Screen {
         /** 全部の数字入り、小さい順 */
         val cards: List<ScaleCard>,
         val streak: Int = 0,
+    ) : Screen
+
+    /** トランプのゲーム。stage = bet / play / swap / decide / guess / reveal / result */
+    @Serializable @SerialName("table")
+    data class Table(
+        val game: GameType,
+        val stage: String,
+        /** 何ラウンド目か（ハイローは何枚目か） */
+        val round: Int,
+        /** ハイローの枚数。0 = 決まりなし */
+        val rounds: Int = 0,
+        val seats: List<TableSeat>,
+        /** ブラックジャックのディーラーの手・ハイローの場のカード */
+        val center: List<PCard?> = emptyList(),
+        val centerLabel: String = "",
+        val pot: Int = 0,
+        /** 今の自分が押せる操作 */
+        val actions: List<String> = emptyList(),
+        val log: List<String> = emptyList(),
     ) : Screen
 
     @Serializable @SerialName("adBreak")

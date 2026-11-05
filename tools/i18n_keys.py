@@ -18,6 +18,9 @@ for f in glob.glob(os.path.join(ROOT, 'app/src/main/java/com/zen/partygame/**/*.
 ag = open(os.path.join(ROOT, 'shared/src/commonMain/kotlin/com/zen/partygame/game/ArenaGame.kt'), encoding='utf-8').read()
 for m in re.finditer(r'\b(?:log|tx)\("((?:\\.|[^"\\])*)"', ag):
     add(kt_unescape(m.group(1)), 'ArenaGame.kt')
+tg = open(os.path.join(ROOT, "shared/src/commonMain/kotlin/com/zen/partygame/game/TableGame.kt"), encoding="utf-8").read()
+for m in re.finditer(r'"((?:\\.|[^"\\])*)"', tg):
+    add(kt_unescape(m.group(1)), "TableGame.kt")
 js = open(os.path.join(ROOT, 'pc/src/app.js'), encoding='utf-8').read()
 for m in re.finditer(r"\bT\('((?:\\.|[^'\\])*)'", js):
     add(js_unescape(m.group(1)), 'app.js')

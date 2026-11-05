@@ -117,6 +117,7 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
     val withBanner = when (v.screen) {
         Screen.Lobby, is Screen.ArenaResult, is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult, is Screen.QReveal,
         is Screen.ScaleResult -> true
+        is Screen.Table -> (v.screen as Screen.Table).stage == "result"
         else -> false
     }
     val scroll = rememberScrollState()
@@ -171,6 +172,7 @@ fun RoomScreen(vm: AppViewModel, state: Ui.Room) {
                 is Screen.DrawReveal -> DrawReveal(vm, v, s) { NextButtons(vm, v, tr("もう一回")) }
                 is Screen.Scale -> ScalePlay(vm, v, s)
                 is Screen.ScaleResult -> ScaleResult(vm, v, s) { NextButtons(vm, v, tr("次のお題へ")) }
+                is Screen.Table -> TablePlay(vm, v, s, state.receivedAt) { NextButtons(vm, v, if (s.game == GameType.HILO) tr("もう一回") else tr("次のラウンドへ")) }
             }
             Spacer(Modifier.height(8.dp))
         }
@@ -196,6 +198,10 @@ fun gameIcon(g: GameType): Int = when (g) {
     GameType.QUESTION -> R.drawable.icon_question
     GameType.DRAW -> R.drawable.icon_draw
     GameType.SCALE -> R.drawable.icon_scale
+    GameType.BLACKJACK -> R.drawable.icon_blackjack
+    GameType.HILO -> R.drawable.icon_highlow
+    GameType.POKER -> R.drawable.icon_poker
+    GameType.INDIAN -> R.drawable.icon_indian
 }
 
 private fun gameSummary(st: Settings): String = when (st.game) {
@@ -208,6 +214,10 @@ private fun gameSummary(st: Settings): String = when (st.game) {
     GameType.QUESTION -> tr("全員で匿名投票")
     GameType.DRAW -> tr("描く {0}秒・書く {1}秒", st.drawSec, st.writeSec)
     GameType.SCALE -> if (st.scaleCards == 0) tr("全員で協力・ライフ{0}", com.zen.partygame.game.SCALE_LIVES) else tr("1人{0}枚・ライフ{1}", st.scaleCards, com.zen.partygame.game.SCALE_LIVES)
+    GameType.BLACKJACK -> tr("全員でディーラーと勝負・チップ100枚から")
+    GameType.HILO -> tr("次のカードは大きい？小さい？ 10枚勝負")
+    GameType.POKER -> tr("1回交換して勝負・チップ100枚から")
+    GameType.INDIAN -> tr("自分のカードだけ見えない・チップ100枚から")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -308,6 +318,10 @@ private fun Lobby(vm: AppViewModel, v: PlayerView, online: Boolean) {
                         }
                     }
                 }
+                GameType.BLACKJACK -> Caption(tr("全員が同時にディーラー（コンピューター）と勝負。21に近いほうが勝ち、超えたらバースト。ブラックジャックは1.5倍。チップは次のラウンドに持ち越します（2〜8人）。"))
+                GameType.HILO -> Caption(tr("次に出るカードが今のカードより大きいか小さいかを全員で予想。当たりで+1点、「同じ」が当たれば+5点。10枚で一番点数が多い人の勝ち（2〜8人）。"))
+                GameType.POKER -> Caption(tr("参加料10枚を払って5枚配られ、1回だけ好きな枚数を交換。最後に「勝負（+10枚）」か「降りる」かを全員同時に決め、勝負した中で一番強い役の人がポットを総取り（2〜8人）。"))
+                GameType.INDIAN -> Caption(tr("カードを1枚おでこに。自分のカードだけ見えません。ほかの人のカードと反応を見て「勝負（+10枚）」か「降りる」か。勝負した中で一番大きい数字の人がポットを総取り（2〜8人）。"))
                 GameType.DRAW -> {
                     Caption(tr("お題を書く → 次の人が絵にする → 次の人がその絵を見て答える…を全員分くり返し、最後にどう伝わったかを発表します（3〜8人）。"))
                     ChipRow(tr("絵を描く時間")) {
@@ -382,7 +396,9 @@ private fun GameCard(@DrawableRes icon: Int, label: String, selected: Boolean, m
     ) {
         Art(icon, 52.dp)
         Spacer(Modifier.height(4.dp))
+        // 「ブラックジャック」のような長い名前は少し小さくして1行に収める
         Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
+            fontSize = if (label.length > 6 && label.any { it.code > 0x2E80 }) androidx.compose.ui.unit.TextUnit(11f, androidx.compose.ui.unit.TextUnitType.Sp) else androidx.compose.ui.unit.TextUnit.Unspecified,
             color = if (selected) cs.primary else cs.onSurfaceVariant, maxLines = 1)
     }
 }

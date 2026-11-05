@@ -27,6 +27,7 @@ object Bgm {
         is Screen.Arena -> ARENA
         is Screen.DrawTask -> DRAW
         is Screen.Scale -> if (s.playing) TENSION else TALK
+        is Screen.Table -> if (s.stage == "result") RESULT else ARENA
         is Screen.WwResult, is Screen.NgResult, is Screen.SyncReveal, is Screen.GuessResult,
         is Screen.QReveal, is Screen.ArenaResult, is Screen.DrawReveal, is Screen.ScaleResult -> RESULT
     }

@@ -549,7 +549,7 @@
         showBanner(false); tickTimers(); return;
       }
       html = screenHtml(v);
-      banner = ['lobby', 'arenaResult', 'wwResult', 'ngResult', 'syncReveal', 'guessResult', 'qReveal', 'scaleResult'].indexOf(v.screen.t) >= 0;
+      banner = ['lobby', 'arenaResult', 'wwResult', 'ngResult', 'syncReveal', 'guessResult', 'qReveal', 'scaleResult'].indexOf(v.screen.t) >= 0 || (v.screen.t === 'table' && v.screen.stage === 'result');
       if (v.screen.t === 'adBreak') adBreak(v.screen.breakId);
     }
     $main.innerHTML = html;
@@ -643,6 +643,7 @@
       case 'drawReveal': return drawReveal(v, s);
       case 'scale': return scalePlay(v, s);
       case 'scaleResult': return scaleResult(v, s);
+      case 'table': return table(v, s);
       case 'adBreak': return T('<div class="center" style="margin-top:80px">{0}<h2>ちょっと休憩…</h2><div class="cap">全員の準備ができたら次へ進みます</div></div>', img('icon_tea', 120, 'art'));
       default: return T('<div class="cap">（この画面は PC 版では表示できません）</div>');
     }
@@ -650,7 +651,7 @@
 
   // ---------- ロビー ----------
 
-  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question', DRAW: 'icon_draw', SCALE: 'icon_scale' };
+  const ICON = { ARENA: 'icon_arena', WORD_WOLF: 'icon_wordwolf', NG_WORD: 'icon_ngword', SPY: 'icon_spy', SYNC: 'icon_sync', GUESS: 'icon_guess', QUESTION: 'icon_question', DRAW: 'icon_draw', SCALE: 'icon_scale', BLACKJACK: 'icon_blackjack', HILO: 'icon_highlow', POKER: 'icon_poker', INDIAN: 'icon_indian' };
   function summary(st) {
     switch (st.game) {
       case 'ARENA': return (st.arenaTurnSec === 0 ? T('手番の制限なし') : T('手番 {0}秒', st.arenaTurnSec)) + (st.arenaChaos ? T('・今夜のルールあり') : '');
@@ -661,6 +662,10 @@
       case 'GUESS': return T('制限時間 {0}分', st.guessSec / 60);
       case 'DRAW': return T('描く {0}秒・書く {1}秒', st.drawSec, st.writeSec);
       case 'SCALE': return st.scaleCards === 0 ? T('全員で協力・ライフ{0}', 3) : T('1人{0}枚・ライフ{1}', st.scaleCards, 3);
+      case 'BLACKJACK': return T('全員でディーラーと勝負・チップ100枚から');
+      case 'HILO': return T('次のカードは大きい？小さい？ 10枚勝負');
+      case 'POKER': return T('1回交換して勝負・チップ100枚から');
+      case 'INDIAN': return T('自分のカードだけ見えない・チップ100枚から');
       default: return T('全員で匿名投票');
     }
   }
@@ -715,6 +720,10 @@
           h += chips(T('絵を描く時間'), [60, 90, 120, 180].map(function (x) { return { label: T('{0}秒', x), on: st.drawSec === x, patch: { drawSec: x } }; }));
           h += chips(T('お題を書く・答える時間'), [30, 45, 60, 90].map(function (x) { return { label: T('{0}秒', x), on: st.writeSec === x, patch: { writeSec: x } }; }));
           break;
+        case 'BLACKJACK': h += '<div class="cap" style="margin-top:10px">' + esc(T('全員が同時にディーラー（コンピューター）と勝負。21に近いほうが勝ち、超えたらバースト。ブラックジャックは1.5倍。チップは次のラウンドに持ち越します（2〜8人）。')) + '</div>'; break;
+        case 'HILO': h += '<div class="cap" style="margin-top:10px">' + esc(T('次に出るカードが今のカードより大きいか小さいかを全員で予想。当たりで+1点、「同じ」が当たれば+5点。10枚で一番点数が多い人の勝ち（2〜8人）。')) + '</div>'; break;
+        case 'POKER': h += '<div class="cap" style="margin-top:10px">' + esc(T('参加料10枚を払って5枚配られ、1回だけ好きな枚数を交換。最後に「勝負（+10枚）」か「降りる」かを全員同時に決め、勝負した中で一番強い役の人がポットを総取り（2〜8人）。')) + '</div>'; break;
+        case 'INDIAN': h += '<div class="cap" style="margin-top:10px">' + esc(T('カードを1枚おでこに。自分のカードだけ見えません。ほかの人のカードと反応を見て「勝負（+10枚）」か「降りる」か。勝負した中で一番大きい数字の人がポットを総取り（2〜8人）。')) + '</div>'; break;
         default: h += T('<div class="cap" style="margin-top:10px">設定はありません。だれが誰に入れたかは表示されません。</div>');
       }
       h += '</div>';
@@ -955,6 +964,101 @@
       (opt.click ? ' data-act="pick" data-arg="' + c.uid + '"' : '') + ' title="' + esc(name + '：' + text) + '">' +
       '<div class="top">' + img(SUIT_IMG[c.suit], 20) + (d.star ? '<span class="star">★</span>' : '') + '</div>' +
       '<img class="pic" src="img/card_' + d.art + '.webp" alt=""><div class="nm">' + esc(name) + '</div><div class="tx">' + esc(text) + '</div></div>';
+  }
+
+  // ---------- トランプ（ブラックジャック・ハイロー・ポーカー・インディアンポーカー） ----------
+
+  const SUITS = ['♠', '♥', '♦', '♣'];
+  function rankText(r) { return r === 11 ? 'J' : r === 12 ? 'Q' : r === 13 ? 'K' : r === 14 ? 'A' : String(r); }
+  /** トランプ1枚（null は裏向き） */
+  function pcard(c, cls, i) {
+    if (!c) return '<span class="pc back ' + (cls || '') + '"><img src="img/card_back.webp" alt=""></span>';
+    const red = c.s === 1 || c.s === 2;
+    const pick = i != null ? ' data-act="pick" data-arg="' + i + '"' : '';
+    return '<span class="pc ' + (red ? 'red ' : '') + (cls || '') + '"' + pick + '><b>' + rankText(c.r) + '</b><i>' + SUITS[c.s] + '</i></span>';
+  }
+  function fan(cards, cls) { return '<span class="fan">' + cards.map(function (c) { return pcard(c, cls); }).join('') + '</span>'; }
+  function tableAction(a) {
+    if (a.indexOf('bet') === 0) return T('{0}枚賭ける', a.slice(3));
+    switch (a) {
+      case 'hit': return T('ヒット（もう1枚）');
+      case 'stand': return T('スタンド（これで勝負）');
+      case 'double': return T('ダブルダウン（賭け2倍で1枚だけ）');
+      case 'high': return T('⬆ ハイ（大きい）');
+      case 'low': return T('⬇ ロー（小さい）');
+      case 'same': return T('＝ 同じ（+5点）');
+      case 'call': return T('勝負する（+10枚）');
+      case 'fold': return T('降りる');
+    }
+    return a;
+  }
+  function tableHint(s) {
+    if (s.stage === 'result') return '';
+    if (!s.actions.length) return T('ほかの人を待っています…');
+    switch (s.stage) {
+      case 'bet': return T('何枚賭ける？');
+      case 'play': return T('21に近づけよう。超えたらバースト！');
+      case 'guess': return T('次のカードは、今のカードより大きい？ 小さい？');
+      case 'swap': return T('交換したいカードをタップ（何枚でも）');
+      case 'decide': return s.game === 'INDIAN' ? T('自分のカードは見えません。みんなの反応で読もう') : T('この手で勝負する？');
+    }
+    return '';
+  }
+  function table(v, s) {
+    const result = s.stage === 'result';
+    const me = s.seats.find(function (x) { return x.id === v.me; });
+    const key = s.round + '|' + s.stage;
+    if (S.ui.tableKey !== key) { S.ui.tableKey = key; S.ui.picked = []; }
+    const picked = S.ui.picked;
+    let h = '<div class="row">' + img(ICON[s.game], 48) + '<div class="grow"><h2>' + esc(GAMES[s.game].label) + '</h2><div class="cap">' +
+      (s.rounds > 0 ? T('{0}枚目 / {1}枚', s.round, s.rounds) : T('第{0}ラウンド', s.round)) + '</div></div>' +
+      (!result && v.remainingMs != null ? '<span class="timer" data-timer></span>' : '') + '</div>';
+    // 場
+    if (s.game === 'BLACKJACK' && s.center.length) {
+      h += '<div class="panel row"><div class="grow"><b>' + T('ディーラー') + '</b>' + (s.centerLabel ? '<div class="tlabel">' + esc(T(s.centerLabel)) + '</div>' : '') + '</div>' + fan(s.center) + '</div>';
+    } else if (s.game === 'HILO') {
+      h += '<div class="panel center hilo">' + (s.center[0] ? pcard(s.center[0], 'big') : '') + '<span class="arrow">→</span>' +
+        (s.center.length > 1 ? pcard(s.center[1], 'big') : (result ? '' : pcard(null, 'big'))) + '</div>';
+    } else if ((s.game === 'POKER' || s.game === 'INDIAN') && (s.pot > 0 || !result)) {
+      h += '<div class="row pot">' + img('icon_chip', 34) + '<b>' + (result ? T('持ち越し {0}枚', s.pot) : T('ポット {0}枚', s.pot)) + '</b></div>';
+    }
+    // 席
+    const seats = result ? s.seats.slice().sort(function (a, b) { return b.chips - a.chips; }) : s.seats;
+    h += '<div class="tseats">' + seats.map(function (st, i) {
+      const mine = st.id === v.me;
+      const money = s.game === 'HILO' ? T('{0}点', st.chips) : img('icon_chip', 16) + T('{0}枚', st.chips) + (st.bet > 0 && !result ? T('（賭け {0}）', st.bet) : '');
+      const delta = st.delta && (result || s.stage === 'reveal') ? '<b class="' + (st.delta > 0 ? 'plus' : 'minus') + '">' + (st.delta > 0 ? '+' : '') + st.delta + '</b>' : '';
+      const line = [st.status ? T(st.status, st.statusArg) : '', st.label ? T(st.label) : ''].filter(function (x, k, a) { return x && a.indexOf(x) === k; }).join(' ・ ');
+      const showCards = st.cards.length && !(mine && s.game === 'POKER' && !result);
+      return '<div class="tseat' + (mine ? ' me' : '') + '"><div class="grow"><div class="nm">' + (result ? (i + 1) + '. ' : '') + esc(nameOf(st.id)) + (mine ? T('（あなた）') : '') + '</div>' +
+        '<div class="cap">' + money + ' ' + delta + '</div>' +
+        (line ? '<div class="tstatus' + (st.delta > 0 ? ' win' : '') + '">' + esc(line) + '</div>' : (!result && st.done ? '<div class="cap" style="color:var(--mint)">OK</div>' : '')) + '</div>' +
+        (showCards ? fan(st.cards, s.game === 'INDIAN' ? 'mid' : '') : '') + '</div>';
+    }).join('') + '</div>';
+    // 自分の手（ポーカー）
+    if (me && s.game === 'POKER' && !result) {
+      const canPick = s.actions.indexOf('swap') >= 0;
+      h += '<h3 style="color:var(--lantern)">' + T('あなたの手') + (me.label ? '：' + esc(T(me.label)) : '') + '</h3><div class="myhand">' + me.cards.map(function (c, i) {
+        return '<span class="pickwrap">' + pcard(c, 'big' + (picked.indexOf(i) >= 0 ? ' picked' : ''), canPick ? i : null) + (picked.indexOf(i) >= 0 ? '<span class="cap" style="color:var(--berry)">' + T('交換') + '</span>' : '') + '</span>';
+      }).join('') + '</div>';
+    }
+    if (me && s.game === 'INDIAN' && !result) h += '<div class="cap">' + T('あなたのおでこのカードは、ほかの人にだけ見えています') + '</div>';
+    // 操作
+    if (!result) {
+      const hint = tableHint(s);
+      if (hint) h += '<div class="thint' + (s.actions.length ? '' : ' wait') + '">' + esc(hint) + '</div>';
+      if (s.actions.indexOf('swap') >= 0) {
+        h += '<button class="big" data-act="send" data-arg=\'' + esc(JSON.stringify({ t: 'tableAct', act: 'swap', cards: picked })) + '\'>' + (picked.length ? T('{0}枚交換する', picked.length) : T('このままでいい（交換しない）')) + '</button>';
+      } else if (s.actions.length) {
+        h += '<div class="row tacts">' + s.actions.map(function (a) {
+          return '<button class="big' + (a === 'fold' || a === 'stand' ? ' sec' : '') + '" data-act="send" data-arg=\'' + esc(JSON.stringify({ t: 'tableAct', act: a })) + '\'>' + esc(tableAction(a)) + '</button>';
+        }).join('') + '</div>';
+      }
+    } else {
+      h += nextButtons(v, s.game === 'HILO' ? T('もう一回') : T('次のラウンドへ'));
+    }
+    if (s.log.length) h += T('<div class="panel"><h3>できごと</h3>{0}</div>', s.log.slice(-6).reverse().map(function (l, i) { return '<div class="cap' + (i === 0 ? ' now' : '') + '">' + esc(fmtLog(l)) + '</div>'; }).join(''));
+    return h;
   }
 
   function arena(v, s) {
@@ -1226,6 +1330,11 @@
         if (CG.on) { try { const link = CG.sdk.game.inviteLink({ room: v.roomCode }); navigator.clipboard.writeText(link).then(function () { toast(T('コピーしました')); }, function () { toast(link); }); } catch (err) {} break; }
         navigator.share({ title: T('わちゃパ'), text: T('わちゃパで遊ぼう！ このリンクを開くと部屋 {0} に入れます', v.roomCode), url: inviteUrl(v.roomCode) }).catch(function () {});
         break;
+      }
+      case 'pick': {
+        const i = Number(arg), p = S.ui.picked || (S.ui.picked = []);
+        const k = p.indexOf(i); if (k >= 0) p.splice(k, 1); else p.push(i);
+        render(); break;
       }
       case 'copyLink': { const u = inviteUrl(v.roomCode); try { navigator.clipboard.writeText(u).then(function () { toast(T('コピーしました')); }, function () { toast(u); }); } catch (err) { toast(u); } break; }
       case 'copy': try { navigator.clipboard.writeText(v.roomCode); toast(T('コピーしました')); } catch (err) { toast(v.roomCode); } break;

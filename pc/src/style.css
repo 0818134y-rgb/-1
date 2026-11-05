@@ -186,3 +186,31 @@ canvas.pad.mine { opacity: .85; max-width: 360px; }
 .ntag.missed { border-color: var(--berry); color: var(--berry); background: rgba(255, 92, 138, .18); }
 .srow { display: flex; align-items: center; gap: 12px; padding: 4px 0; }
 .mutedtxt { color: var(--muted); }
+/* ---------- トランプ ---------- */
+.pc { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 38px; height: 54px; border-radius: 6px;
+  background: #FFFBF2; border: 1.5px solid #CFC6B4; color: #2B2547; line-height: 1; vertical-align: middle; flex: 0 0 auto; }
+.pc b { font-size: 17px; font-weight: 900; }
+.pc i { font-style: normal; font-size: 14px; margin-top: 2px; }
+.pc.red { color: #D6336C; }
+.pc.back { padding: 0; overflow: hidden; border: 0; background: none; }
+.pc.back img { width: 100%; height: 100%; object-fit: cover; }
+.pc.mid { width: 48px; height: 68px; } .pc.mid b { font-size: 22px; } .pc.mid i { font-size: 18px; }
+.pc.big { width: 62px; height: 88px; border-radius: 9px; } .pc.big b { font-size: 28px; } .pc.big i { font-size: 22px; }
+.pc.picked { border: 3px solid var(--berry); transform: translateY(-8px); }
+.pc[data-act] { cursor: pointer; }
+.fan { display: inline-flex; } .fan .pc + .pc { margin-left: -12px; } .fan .pc.mid + .pc.mid { margin-left: 4px; }
+.tseats { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.tseat { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 12px; padding: 8px 10px; border: 2px solid transparent; }
+.tseat.me { background: var(--high); border-color: rgba(255, 179, 71, .6); }
+.tseat .nm { font-weight: 800; }
+.tseat .cap img { width: 16px; height: 16px; vertical-align: -3px; margin-right: 3px; }
+.tstatus { color: var(--lantern); font-weight: 800; font-size: 14px; } .tstatus.win { color: var(--mint); }
+.plus { color: var(--mint); margin-left: 6px; } .minus { color: var(--berry); margin-left: 6px; }
+.tlabel { color: var(--lantern); font-weight: 900; font-size: 20px; }
+.hilo { display: flex; justify-content: center; align-items: center; gap: 14px; } .hilo .arrow { font-size: 26px; color: var(--muted); }
+.pot { align-items: center; gap: 8px; margin: 10px 0; } .pot b { color: var(--lantern); font-size: 20px; }
+.thint { color: var(--lantern); font-weight: 800; margin: 10px 0; } .thint.wait { color: var(--muted); }
+.myhand { display: flex; gap: 8px; margin: 8px 0 14px; }
+.pickwrap { display: inline-flex; flex-direction: column; align-items: center; }
+.tacts { flex-wrap: wrap; gap: 8px; } .tacts .big { flex: 1 1 45%; font-size: 16px; height: 54px; }
+.cap.now { color: var(--soft); }
