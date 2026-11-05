@@ -65,7 +65,11 @@ PAGE_AD = ('<div id="pgad"></div><script>(function(){var m=/Android|iPhone|iPad|
            'for(var i=0;i<o.attributes.length;i++)s.setAttribute(o.attributes[i].name,o.attributes[i].value);s.text=o.textContent;o.replaceWith(s);});'
            'if(!m&&innerWidth<760){el.style.transform="scale("+((innerWidth-24)/728)+")";el.style.transformOrigin="center top";}})();</script>'
            % (json.dumps(_sp).replace('</', '<\\/'), json.dumps(_pc).replace('</', '<\\/'))) if (_sp or _pc) else ''
-pages.build(G, KJS, HEAD_ADS, PAGE_AD)
+EXTRA_PAGES = pages.build(G, KJS, HEAD_ADS, PAGE_AD) or []
+# サイトマップ（読みもののページ＋ゲームごとのページ・お題一覧・特集）
+open(os.path.join(G, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + ''.join(f'  <url><loc>{SITE}{p}</loc><lastmod>{__import__("datetime").date.today().isoformat()}</lastmod></url>\n'
+              for p in [''] + [b + ('.html' if l == 'ja' else '.' + l + '.html') for b in ('howto', 'about', 'privacy', 'streaming') for l in ('ja', 'en', 'ko', 'zh')] + EXTRA_PAGES) + '</urlset>\n')
 shutil.copy(os.path.join(ASSETS, 'online', 'peerjs.min.js'), os.path.join(G, 'lib'))
 shutil.copy(os.path.join(ASSETS, 'online', 'net.js'), os.path.join(G, 'lib'))
 # お題（言語ごと）と、画面の訳
@@ -230,6 +234,8 @@ shutil.copytree(G, P, ignore=shutil.ignore_patterns('*.html', 'join', 'og.jpg', 
 html_p = open(os.path.join(G, 'index.html'), encoding='utf-8').read()
 if HEAD_ADS: html_p = html_p.replace(HEAD_ADS, '')
 html_p = re.sub(r'<link rel="manifest"[^>]*>\n?', '', html_p)
+html_p = re.sub(r'<section id="intro".*?</section>\n?', '', html_p, flags=re.S)   # サイトの読みもののページへのリンクは投稿サイトでは出さない
+html_p = re.sub(r'<script type="application/ld\+json">.*?</script>\n?', '', html_p, flags=re.S)
 open(os.path.join(P, 'index.html'), 'w', encoding='utf-8').write(html_p)
 open(os.path.join(P, 'config.js'), 'w', encoding='utf-8').write('/* ゲーム投稿サイト用（広告なし） */\nwindow.PG_CONFIG = ' + json.dumps({'portal': True, 'adTags': {}}) + ';\n')
 pz = os.path.join(OUT, 'WachapaPortal-%s.zip' % VERSION)

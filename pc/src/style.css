@@ -226,3 +226,9 @@ canvas.pad.mine { opacity: .85; max-width: 360px; }
 .ycard small { display: block; font-size: 11px; line-height: 1.45; color: #3B3560; margin-top: 3px; }
 .ycard .ysel { display: block; color: var(--berry); font-weight: 800; font-size: 11px; margin-top: 3px; }
 .seat.hit { border-color: var(--berry) !important; }
+
+/* トップの紹介文（タイトル画面のときだけ・日本語のときだけ） */
+.intro { max-width: 920px; margin: 24px auto 0; padding: 0 18px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.intro h2 { color: var(--lantern); font-size: 18px; }
+.intro a { color: var(--mint); }
+.introlinks { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0; }

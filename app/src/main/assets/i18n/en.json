@@ -972,5 +972,6 @@
 "押し売り": "Hard Sell",
 "自分の手札からランダムな1枚を相手1人に押しつけ、おさいせんを最大5もらう。": "Push a random card from your hand onto one player and take up to 5 offerings.",
 "やおよろず": "Yaoyorozu",
-"手札がいっぱい！ いらないカードを選んで捨ててからお祈りしよう": "Your hand is full! Pick cards you don't need and discard them before praying"
+"手札がいっぱい！ いらないカードを選んで捨ててからお祈りしよう": "Your hand is full! Pick cards you don't need and discard them before praying",
+"「{0}」で遊ぶ：名前を入れて「部屋を作る」を押してください": "Play \"{0}\": enter your name and tap \"Create a room\""
 }

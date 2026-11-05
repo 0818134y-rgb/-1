@@ -4,6 +4,7 @@
 # slug, ゲームの種類（?game= に入れる名前）, アイコン, お題ページの slug（なければ None）
 GAMES = [
     ('arena', 'ARENA', 'icon_arena', None),
+    ('yao', 'YAO', 'icon_yao', None),
     ('scale', 'SCALE', 'icon_scale', 'odai-scale'),
     ('wordwolf', 'WORD_WOLF', 'icon_wordwolf', 'odai-wordwolf'),
     ('ngword', 'NG_WORD', 'icon_ngword', 'odai-ngword'),
@@ -19,7 +20,7 @@ GAMES = [
 ]
 
 # 人数（最小, 最大）。最大 8 はオンラインの部屋の上限
-PLAYERS = {'arena': (2, 8), 'scale': (2, 8), 'wordwolf': (3, 8), 'ngword': (3, 8), 'spy': (3, 8), 'sync': (2, 8), 'guess': (2, 8),
+PLAYERS = {'yao': (2, 8), 'arena': (2, 8), 'scale': (2, 8), 'wordwolf': (3, 8), 'ngword': (3, 8), 'spy': (3, 8), 'sync': (2, 8), 'guess': (2, 8),
            'question': (3, 8), 'draw': (3, 8), 'blackjack': (2, 8), 'highlow': (2, 8), 'poker': (2, 8), 'indian': (2, 8)}
 
 JA = {
@@ -35,6 +36,18 @@ JA = {
               'ばくだんは場に4つそろうと全員が負け。3つ目が出たら、みんなの顔色をうかがいましょう。'],
         scenes='飲み会・家族の集まり・Discord の通話など。笑い声が出るゲームを1つだけ選ぶなら、これです。',
         faq=[('何人で遊べますか？', '2〜8人です。全員が自分のスマホやPCで参加します。'), ('カードは何枚ありますか？', '全部で50枚（うち★のスターカード14枚）。カード一覧は「遊び方」のページで見られます。')],
+    ),
+    'yao': dict(
+        name='やおよろずバトル', title='やおよろずバトル｜長ねぎで戦う神器カードバトル（オンライン・無料・ブラウザ）',
+        desc='八百万の神さまのご加護で、長ねぎやなべのふたが神器に！ 武器で攻撃、防具で守り、霊力で奇跡を起こすオンライン対戦カードバトル。スマホ・PCのブラウザで無料、2〜8人。',
+        time='1ゲーム 10〜20分',
+        lead='HP・霊力・おさいせんを持って、配られたカードだけで戦うカードバトルです。武器は長ねぎ、盾はなべのふた、必殺技はきつね火。最後まで成仏しなかった人の勝ち。',
+        steps=['全員が HP40・霊力10・おさいせん20 と、7枚のカードから始めます。', '手番では、武器（上乗せカードと一緒に）・奇跡・道具のどれかを1回使うか、お祈り（いらないカードを捨てて、捨てた枚数＋1枚引く）をします。',
+               '攻撃された人は、防具を何枚でも重ねて守れます。「鏡もち」なら攻撃をまるごと跳ね返します。', 'HPが0になったら成仏。成仏させた人は、その人のおさいせんを香典としてもらえます。最後に残った人の勝ち。'],
+        tips=['奇跡（きつね火・天変地異など）は防具が効きません。霊力は温存しすぎず、決めどころで。', '防具は自分の番には使えません。攻撃されるまで手札に残しておきましょう。',
+              '「両替」で HP・霊力・おさいせんを移し替えられます。おさいせんは「おさいせん」カードで HP に変えられます。', '長引くと神さまがあくびをして、手番ごとにダメージが入るようになります。'],
+        scenes='カードゲームが好きな仲間と、じっくり盛り上がりたいときに。Discord の通話をつなぎながらがおすすめ。',
+        faq=[('何人で遊べますか？', '2〜8人です。全員が自分のスマホやPCで参加します。'), ('カードは何種類ありますか？', '武器・上乗せ・防具・奇跡・道具の5種類、全部で32種類です。')],
     ),
     'scale': dict(
         name='みんなのものさし', title='みんなのものさし｜数字を「ことば」で伝える協力パーティーゲーム（オンライン・無料）',
@@ -178,14 +191,14 @@ JA = {
 L = {
     'en': dict(title='{0} Online – Free, No Sign-up, Play in Your Browser | Wachapa', desc='Play {0} with friends for free on your phone or PC browser. No app or sign-up needed — join with a room code or link. {1}.',
                lead='Play {0} together — everyone joins from their own phone or PC. No download, no account.', rules='How to play', play='▶ Play {0} now', players='Players',
-               odai='See all the prompts', others='Other games', home='Home', games='Games', odai_title='{0} – full list of prompts | Wachapa', odai_lead='All the prompts used in {0} on Wachapa. Tap the button to play with them right away.',
+               odai='See all the prompts', others='Other games', home='Home', games='Games', odai_title='{0} – full list of prompts ({1}) | Wachapa', odai_lead='All the prompts used in {0} on Wachapa. Tap the button to play with them right away.',
                odai_h='Prompt lists', count='{0} items', pair='{0} / {1}'),
     'ko': dict(title='{0} 온라인 – 무료·가입 없이 브라우저로 바로 | 와챠파', desc='{0}을(를) 스마트폰·PC 브라우저에서 친구들과 무료로. 앱 설치도 가입도 필요 없이 방 코드나 링크로 모여요. {1}.',
                lead='모두가 각자 스마트폰이나 PC로 참가하는 {0}. 다운로드도 계정도 필요 없어요.', rules='게임 방법', play='▶ {0} 지금 바로 하기', players='인원',
-               odai='주제 목록 보기', others='다른 게임', home='홈', games='게임', odai_title='{0} 주제 전체 목록 | 와챠파', odai_lead='와챠파의 {0}에서 쓰는 주제 전체 목록이에요. 버튼을 누르면 바로 플레이할 수 있어요.',
+               odai='주제 목록 보기', others='다른 게임', home='홈', games='게임', odai_title='{0} 주제 전체 목록 ({1}) | 와챠파', odai_lead='와챠파의 {0}에서 쓰는 주제 전체 목록이에요. 버튼을 누르면 바로 플레이할 수 있어요.',
                odai_h='주제 목록', count='{0}개', pair='{0} / {1}'),
     'zh': dict(title='{0} 在线版 – 免费·无需注册·浏览器直接玩 | Wachapa', desc='用手机或电脑浏览器和朋友免费玩{0}。无需安装 App，也不用注册，用房间号或链接就能集合。{1}。',
                lead='每个人用自己的手机或电脑参加的{0}。无需下载，也不需要账号。', rules='玩法', play='▶ 立即开玩{0}', players='人数',
-               odai='查看题目列表', others='其他游戏', home='首页', games='游戏', odai_title='{0} 题目全列表 | Wachapa', odai_lead='Wachapa 的{0}中使用的全部题目。点按钮就能马上用这些题目开玩。',
+               odai='查看题目列表', others='其他游戏', home='首页', games='游戏', odai_title='{0} 题目全列表（{1}）| Wachapa', odai_lead='Wachapa 的{0}中使用的全部题目。点按钮就能马上用这些题目开玩。',
                odai_h='题目列表', count='{0} 个', pair='{0} / {1}'),
 }

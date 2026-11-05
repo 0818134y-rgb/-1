@@ -11,15 +11,16 @@ Play Console の「メインのストアの掲載情報」→「翻訳を管理�
 Wachapa - Party Games
 
 ### Short description (80 chars max)
-Word Wolf, Draw & Pass, a team number game and more: 9 party games on any phone!
+Word Wolf, card battles, Poker and more: 14 party games on any phone or PC!
 
 ### Full description
 A collection of party games you can start in seconds when friends get together.
 Everyone plays on their own phone, so there's no need to pass a screen around.
 
-■ 9 games
+■ 14 games
 ・Chaos Arena (featured): draw one card, play one card. Pitfalls, everyone-plays rock-paper-scissors, nose touch, forbidden words… an absurd card battle where anything can happen
-・Line It Up (new): describe your secret number (1–100) with a word, then work together to play the cards in order (119 topics)
+・Yaoyorozu Battle (new): leeks are swords and pot lids are shields! A card battle with HP, Spirit and offerings
+・Line It Up: describe your secret number (1–100) with a word, then work together to play the cards in order (119 topics)
 ・Word Wolf: find the "Wolf" who got a slightly different word
 ・Forbidden Words: don't get tricked into saying the word only you can't see
 ・Who's the Spy?: find the Spy who doesn't know the location
@@ -27,6 +28,11 @@ Everyone plays on their own phone, so there's no need to pass a screen around.
 ・20 Questions: guess the quizmaster's answer with yes/no questions
 ・Who's Most Likely?: vote anonymously on "Who here is most likely to…?"
 ・Draw & Pass: prompt → drawing → guess → drawing… then reveal how it changed
+・Indian Poker (new): you can't see only your own card — read the room, then call or fold
+・Poker (new): draw poker with one exchange; everyone calls or folds at once
+・Blackjack (new): everyone plays against the dealer at the same time
+・High & Low (new): higher or lower? 10 cards
+* Chips in the card games are just points — they can't be bought or cashed out
 
 ■ Two ways to connect
 ・Nearby: connect directly to nearby phones over Bluetooth / Wi-Fi. No internet needed
@@ -46,15 +52,16 @@ Everyone plays on their own phone, so there's no need to pass a screen around.
 와챠파 - 파티 게임 모음
 
 ### 간단한 설명 (80자 이내)
-워드울프 · 그림 릴레이 · 숫자 협력 게임 등 9종. 폰 · iPhone · PC로 다 같이 즐겨요!
+워드울프 · 카드 배틀 · 포커 등 14종. 폰 · iPhone · PC로 다 같이 즐겨요!
 
 ### 자세한 설명
 친구들과 모였을 때 바로 즐길 수 있는 파티 게임 모음이에요.
 모두가 각자 폰으로 참가하니까, 화면을 돌려 볼 필요가 없어요.
 
-■ 게임 9종
+■ 게임 14종
 ・혼돈의 아레나 (강추): 카드를 1장 뽑고 1장 내기만 하면 끝. 함정, 다 같이 가위바위보, 코 터치, 말하면 안 되는 말… 무슨 일이 일어날지 모르는 막무가내 카드 배틀
-・모두의 잣대 (NEW): 비밀 숫자(1~100)를 "말"로 표현하고, 다 같이 작은 순서대로 내는 협력 게임 (주제 119개)
+・야오요로즈 배틀 (NEW): 대파가 무기, 냄비 뚜껑이 방패! HP · 영력 · 새전으로 싸우는 신기 카드 배틀
+・모두의 잣대: 비밀 숫자(1~100)를 "말"로 표현하고, 다 같이 작은 순서대로 내는 협력 게임 (주제 119개)
 ・워드울프: 혼자만 다른 제시어를 받은 "울프"를 대화로 찾아내기
 ・금지어 게임: 나만 못 보는 금지어를 말하게 되면 탈락
 ・스파이는 누구?: 장소를 모르는 스파이를 질문으로 찾아내기
@@ -62,6 +69,11 @@ Everyone plays on their own phone, so there's no need to pass a screen around.
 ・스무고개: "예 · 아니요" 질문으로 출제자의 정답 맞히기
 ・솔직 질문: "이 중에서 가장 ○○한 사람은?"에 익명으로 투표
 ・그림 릴레이: 주제 → 그림 → 맞히기 → 그림… 어떻게 바뀌었는지 마지막에 공개
+・인디언 포커 (NEW): 내 카드만 안 보여요! 모두의 반응을 읽고 승부할지 포기할지
+・포커 (NEW): 한 번 교환하는 드로우 포커. 승부·포기를 모두 동시에 결정
+・블랙잭 (NEW): 모두가 동시에 딜러와 승부
+・하이 & 로우 (NEW): 다음 카드는 클까? 작을까? 10장 승부
+※ 카드 게임의 칩은 게임 안에서만 쓰는 점수예요. 살 수도, 현금으로 바꿀 수도 없어요
 
 ■ 연결 방법은 2가지
 ・근처에서: 블루투스 · Wi-Fi로 근처 폰과 직접 연결. 인터넷 필요 없어요
@@ -81,15 +93,16 @@ Everyone plays on their own phone, so there's no need to pass a screen around.
 Wachapa - 派对游戏合集
 
 ### 简短说明（80 字以内）
-谁是卧底、你画我猜接力、数字合作游戏等 9 款派对游戏，手机、iPhone、PC 一起玩！
+谁是卧底、卡牌对战、扑克等 14 款派对游戏，手机、iPhone、PC 一起玩！
 
 ### 详细说明
 朋友聚会时马上就能开玩的派对游戏合集。
 每个人都用自己的手机参加，不用传来传去看同一块屏幕。
 
-■ 9 款游戏
+■ 14 款游戏
 ・离谱竞技场（强推）：抽 1 张牌、打 1 张牌就行。陷阱、全员石头剪刀布、摸鼻子、不能说的词……什么都可能发生的离谱卡牌对战
-・大家的尺子（新）：用一个“词”表示自己的秘密数字（1～100），大家合作按从小到大的顺序出牌（119 个题目）
+・八百万神之战（新）：大葱当剑、锅盖当盾！用 HP、灵力、香油钱战斗的神器卡牌对战
+・大家的尺子：用一个“词”表示自己的秘密数字（1～100），大家合作按从小到大的顺序出牌（119 个题目）
 ・谁是卧底：通过聊天找出拿到不同词语的“卧底”
 ・禁语游戏：被引诱说出只有自己看不到的禁语就出局
 ・谁是间谍：用提问找出不知道地点的间谍
@@ -97,6 +110,11 @@ Wachapa - 派对游戏合集
 ・是非猜猜看：用“是/不是”的问题猜出出题人的答案
 ・真心话投票：匿名投票“我们之中最可能○○的人是谁？”
 ・你画我猜接力：题目 → 画画 → 猜图 → 画画……最后公布题目是怎么变走样的
+・印第安扑克（新）：只有自己的牌看不到！看大家的反应决定跟注还是弃牌
+・扑克（新）：换一次牌的换牌扑克，大家同时决定跟注或弃牌
+・黑杰克（新）：所有人同时和庄家对决
+・大小猜（新）：下一张更大还是更小？共 10 张
+※ 纸牌游戏的筹码只是游戏内的分数，不能购买也不能兑现
 
 ■ 两种连接方式
 ・附近：通过蓝牙 · Wi-Fi 与附近的手机直接连接，无需联网

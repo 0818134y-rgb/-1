@@ -31,6 +31,8 @@ h3{font-size:18px;margin:20px 0 4px}a{color:var(--mint)}.box{background:var(--ca
 STREAM_NAV = {'ja': '配信・動画OK', 'en': 'Streaming OK', 'ko': '방송 · 영상 OK', 'zh': '直播 · 视频 OK'}
 
 
+import seo_text
+SLUG = {icon: slug for slug, _, icon, _ in seo_text.GAMES}
 ODAI_NAV = {'ja': 'お題一覧', 'en': 'Prompts', 'ko': '주제 목록', 'zh': '题目列表'}
 
 
@@ -101,7 +103,7 @@ def howto(cards, chaos):
     b += '<p class="muted">iPhone は Safari の共有ボタン →「ホーム画面に追加」で、アプリのように全画面で遊べます。話して遊ぶゲームは、離れているときは通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</p></div>'
     b += '<h2>14のゲーム</h2>'
     for icon, name, n, text in GAMES:
-        b += f'<div class="box game"><img src="img/{icon}.webp" alt=""><div><h3>{html.escape(name)}<span class="muted">（{n}）</span></h3><p>{html.escape(text)}</p></div></div>'
+        b += f'<div class="box game"><img src="img/{icon}.webp" alt=""><div><h3><a href="{fname(SLUG.get(icon, "howto"), "ja")}">{html.escape(name)}</a><span class="muted">（{n}）</span></h3><p>{html.escape(text)}</p></div></div>'
     b += '<h2>なんでもアリーナのカード</h2><p>全部で50枚（うち★のスターカード14枚）。同じ名前でも、出してから効果がわかるカードがあります（「全員じゃんけん」は負ける手が4種類、「せーのでゆび」は4種類）。</p><div class="cards">'
     seen = set()
     for c in cards:
@@ -128,7 +130,7 @@ def howto_l(lang, cards, chaos, tr):
         name, text = T['games'][icon]
         pr = PLAYERS[icon]
         n = T['players_range'].format(*pr) if len(pr) == 2 else T['players'].format(pr[0])
-        b += f'<div class="box game"><img src="img/{icon}.webp" alt=""><div><h3>{html.escape(name)}<span class="muted">（{n}）</span></h3><p>{html.escape(text)}</p></div></div>'
+        b += f'<div class="box game"><img src="img/{icon}.webp" alt=""><div><h3><a href="{fname(SLUG.get(icon, "howto"), lang)}">{html.escape(name)}</a><span class="muted">（{n}）</span></h3><p>{html.escape(text)}</p></div></div>'
     b += f'<h2>{T["cards_h"]}</h2><p>{T["cards_p"]}</p><div class="cards">'
     seen = set()
     for c in cards:
@@ -190,6 +192,7 @@ def build(game_dir, kjs_path, head_extra='', ad=''):
         title, body = streaming_text.L[lang]
         open(f'{game_dir}/{fname("streaming", lang)}', 'w', encoding='utf-8').write(page(title, body.replace('{contact}', CONTACT), head_extra, ad, lang, 'streaming'))
     i18n_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'app', 'src', 'main', 'assets', 'i18n')
+    dicts = {lang: json.load(open(os.path.join(i18n_dir, lang + '.json'), encoding='utf-8')) for lang in LANGS[1:]}
     for lang in LANGS[1:]:
         T = pages_text.L[lang]
         d = json.load(open(os.path.join(i18n_dir, lang + '.json'), encoding='utf-8'))
@@ -197,3 +200,6 @@ def build(game_dir, kjs_path, head_extra='', ad=''):
         bodies = [howto_l(lang, data['cards'], data['meta']['chaos'], tr), T['about'].replace('{contact}', CONTACT), T['privacy'].replace('{contact}', CONTACT)]
         for base, title, body in zip(('howto', 'about', 'privacy'), T['titles'], bodies):
             open(f'{game_dir}/{fname(base, lang)}', 'w', encoding='utf-8').write(page(title, body, head_extra, ad, lang, base))
+    # 検索で見つけてもらうためのページ（ゲームごと・お題一覧・季節の特集）
+    import seo_pages
+    return seo_pages.build(game_dir, data, dicts, head_extra, ad)

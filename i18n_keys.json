@@ -714,6 +714,7 @@
 "🌐 部屋 {0}{1}": "app.js",
 "（あなたがホスト）": "app.js",
 "<div class=\"title\"><div class=\"hero\"><img src=\"img/arena_hero.webp\" alt=\"\"><span class=\"badge\">一押し！ なんでもアリーナ</span></div><div class=\"stack\"><div class=\"row\">{0}<div><h1>わちゃパ</h1><div class=\"cap\">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全14種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id=\"nameIn\" class=\"text\" maxlength=\"10\" placeholder=\"あなたの名前（10文字まで）\" value=\"{1}\"><button class=\"big\" data-act=\"host\"{2}>{3}部屋を作る</button><button class=\"big sec\" data-act=\"toJoin\"{4}>{5}部屋に参加する</button><div class=\"cap\">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class=\"row cap\"><a class=\"link\" href=\"howto.html\">遊び方・カード一覧</a><a class=\"link\" href=\"about.html\">このサイトについて</a><a class=\"link\" href=\"privacy.html\">プライバシーポリシー</a><a class=\"link\" href=\"streaming.html\">配信・動画OK</a></div></div></div>": "app.js",
+"「{0}」で遊ぶ：名前を入れて「部屋を作る」を押してください": "app.js",
 "<div class=\"stack\" style=\"max-width:520px;margin:30px auto;width:100%\"><h2 class=\"center\">部屋コードで参加</h2><div class=\"cap center\">部屋を作った人の画面に出ている6けたの数字を入れてください（スマホのアプリの部屋にも入れます）</div>{0}<input id=\"codeIn\" class=\"text code\" maxlength=\"6\" inputmode=\"numeric\" value=\"{1}\"{2}>{3}<button class=\"big sec\" data-act=\"back\">もどる</button></div>": "app.js",
 "<div class=\"center\"><span class=\"spin\"></span>　つないでいます…</div>": "app.js",
 "<button class=\"big\" data-act=\"join\">入る</button>": "app.js",

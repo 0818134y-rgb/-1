@@ -177,14 +177,17 @@
     ui: {},                     // 画面だけの状態（選んだカード・のぞき見など）
   };
   // 招待リンク（…/join/?room=123456 → ?room=123456 で開かれる）。URL からは消しておく（読み直しで入り直さないように）
-  S.invite = '';
+  S.invite = ''; S.prefGame = '';
   (function () {
     if (CFG.crazy) return;   // CrazyGames は CrazyGames の招待リンクを使う
     try {
       const q = new URLSearchParams(location.search), c = String(q.get('room') || '').replace(/\D/g, '');
-      if (!q.has('room')) return;
+      // ゲームのページの「今すぐ遊ぶ」（?game=WORD_WOLF）：部屋を作ったらそのゲームを選んでおく
+      const g = String(q.get('game') || '');
+      if (META.games.some(function (x) { return x.id === g; })) S.prefGame = g;
+      if (!q.has('room') && !q.has('game')) return;
       if (c.length === 6) S.invite = c;
-      q.delete('room'); const rest = q.toString();
+      q.delete('room'); q.delete('game'); const rest = q.toString();
       history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
     } catch (e) {}
   })();
@@ -294,6 +297,7 @@
     PgNet.host(PROTO, code, S.name);
     S.devices.set(HOST_ID, MY_DEVICE);
     S.tickTimer = setInterval(function () { if (S.host && S.host.tick()) publish(); refreshBans(false); }, 250);
+    if (S.prefGame) { S.host.apply(HOST_ID, JSON.stringify({ t: 'settings', settings: { game: S.prefGame } })); S.prefGame = ''; }
     S.page = 'room'; publish(true);
   }
 
@@ -533,6 +537,8 @@
     const bar = document.getElementById('roomBar');
     let html = '', banner = false;
     bgm(S.page === 'title' || S.page === 'join' || !S.view ? 'title' : (S.bgm || 'lobby'));
+    // トップの紹介文（日本語）：タイトル画面で、日本語のとき（と検索エンジン）だけ出す
+    const intro = document.getElementById('intro'); if (intro) intro.hidden = !(S.page === 'title' && !CFG.portal && (LANG === 'ja' || /bot|crawl|spider|slurp|lighthouse/i.test(navigator.userAgent)));
     if (S.page === 'title') { bar.hidden = true; html = titlePage(); banner = true; }
     else if (S.page === 'join') { bar.hidden = true; html = joinPage(); banner = true; }
     else if (S.view) {
@@ -598,7 +604,7 @@
   function langLabel() { return (LANGS.find(function (l) { return l[0] === LANG; }) || LANGS[0])[1]; }
   function titlePage() {
     return '<div class="langbar"><button class="btn' + (MUS.on ? '' : ' off') + '" data-act="music" aria-label="music">🎵</button><button class="btn" data-act="sound" aria-label="sound">' + (SND.on ? '🔊' : '🔇') + '</button><button class="btn" data-act="lang">🌐 Language · ' + langLabel() + '</button></div>' + localLinks(T('<div class="title"><div class="hero"><img src="img/arena_hero.webp" alt=""><span class="badge">一押し！ なんでもアリーナ</span></div><div class="stack"><div class="row">{0}<div><h1>わちゃパ</h1><div class="cap">なんでもアリーナ・みんなのものさし・ワードウルフ・お絵かき伝言 ほか全14種<br>iPhone・PC・Androidアプリの人と、部屋コードでいっしょに遊べます</div></div></div><input id="nameIn" class="text" maxlength="10" placeholder="あなたの名前（10文字まで）" value="{1}"><button class="big" data-act="host"{2}>{3}部屋を作る</button><button class="big sec" data-act="toJoin"{4}>{5}部屋に参加する</button><div class="cap">話すゲームは、通話アプリ（LINE・Discord など）をつなぎながら遊びましょう。</div><div class="row cap"><a class="link" href="howto.html">遊び方・カード一覧</a><a class="link" href="about.html">このサイトについて</a><a class="link" href="privacy.html">プライバシーポリシー</a><a class="link" href="streaming.html">配信・動画OK</a></div></div></div>', img('char_wolf_hello', 96), esc(S.name), (S.name.trim() ? '' : ' disabled'), img('icon_create', 36), (S.name.trim() ? '' : ' disabled'), img('icon_join', 36)))
-      .replace('<input id="nameIn"', S.invite ? '<div class="panel hi invite">' + esc(T('部屋 {0} に招待されています。名前を入れて「部屋に参加する」を押してください', S.invite)) + '</div><input id="nameIn"' : '<input id="nameIn"');
+      .replace('<input id="nameIn"', S.prefGame && !S.invite ? '<div class="panel hi invite">' + esc(T('「{0}」で遊ぶ：名前を入れて「部屋を作る」を押してください', GAMES[S.prefGame].label)) + '</div><input id="nameIn"' : S.invite ? '<div class="panel hi invite">' + esc(T('部屋 {0} に招待されています。名前を入れて「部屋に参加する」を押してください', S.invite)) + '</div><input id="nameIn"' : '<input id="nameIn"');
   }
 
   function joinPage() {
